@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "338516037321",
+    "project_id": "fearless-chat-demo",
+    "storage_bucket": "fearless-chat-demo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:338516037321:android:4a3da3adcc4af7d63a4718",
+        "android_client_info": {
+          "package_name": "com.fearless.fearless_chat_demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "338516037321-l84nsbj40qgvc1rnqdhaitat64cjr485.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkfw9_QdJleeOAei8oxCcTw8cEgMe1OcU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "338516037321-l84nsbj40qgvc1rnqdhaitat64cjr485.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
