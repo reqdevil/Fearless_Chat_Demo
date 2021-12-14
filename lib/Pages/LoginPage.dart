@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:fearless_chat_demo/Services/AuthService.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,8 +17,9 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Color? _buttonColor = Colors.red;
-
+  Color? _buttonColorRegister = Colors.red;
+  Color? _buttonColorLogin = Colors.green;
+  bool userLoginSuccess = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,12 +80,66 @@ class _LoginPageState extends State<LoginPage> {
                     Expanded(
                       flex: 3,
                       child: ElevatedButton(
-                        child: const Text("Kayıt Ol"),
-                        style: ElevatedButton.styleFrom(primary: _buttonColor),
+                        child: const Text("Giriş"),
+                        style: ElevatedButton.styleFrom(
+                            primary: _buttonColorLogin),
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             setState(() {
-                              _buttonColor = Colors.amber;
+                              _buttonColorLogin = Colors.green;
+                            });
+                            UserCredential uc = await FirebaseAuth.instance
+                                .signInWithEmailAndPassword(
+                                    email: _emailController.text,
+                                    password: _passwordController.text);
+                            if (uc.user != null) {
+                              setState(() {
+                                userLoginSuccess = true;
+                              });
+                            }
+                            // bool success = await AuthService.instance
+                            //     .signInUser(_emailController.text,
+                            //         _passwordController.text);
+
+                            if (userLoginSuccess) {
+                              setState(() {
+                                _buttonColorLogin = Colors.lightGreenAccent;
+                              });
+                            } else {
+                              setState(() {
+                                _buttonColorLogin = Colors.black;
+                              });
+                            }
+                          } else {
+                            setState(() {
+                              _buttonColorLogin = Colors.red;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Container(),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Container(),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: ElevatedButton(
+                        child: const Text("Kayıt Ol"),
+                        style: ElevatedButton.styleFrom(
+                            primary: _buttonColorRegister),
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _buttonColorRegister = Colors.amber;
                             });
 
                             var success = await AuthService.instance.signUpUser(
@@ -92,16 +148,16 @@ class _LoginPageState extends State<LoginPage> {
 
                             if (success) {
                               setState(() {
-                                _buttonColor = Colors.green;
+                                _buttonColorRegister = Colors.green;
                               });
                             } else {
                               setState(() {
-                                _buttonColor = Colors.black;
+                                _buttonColorRegister = Colors.black;
                               });
                             }
                           } else {
                             setState(() {
-                              _buttonColor = Colors.red;
+                              _buttonColorRegister = Colors.red;
                             });
                           }
                         },
