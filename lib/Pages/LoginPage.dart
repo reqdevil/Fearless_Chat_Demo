@@ -88,20 +88,12 @@ class _LoginPageState extends State<LoginPage> {
                             setState(() {
                               _buttonColorLogin = Colors.green;
                             });
-                            UserCredential uc = await FirebaseAuth.instance
-                                .signInWithEmailAndPassword(
-                                    email: _emailController.text,
-                                    password: _passwordController.text);
-                            if (uc.user != null) {
-                              setState(() {
-                                userLoginSuccess = true;
-                              });
-                            }
-                            // bool success = await AuthService.instance
-                            //     .signInUser(_emailController.text,
-                            //         _passwordController.text);
 
-                            if (userLoginSuccess) {
+                            bool success = await AuthService.instance
+                                .signInUser(_emailController.text,
+                                    _passwordController.text);
+
+                            if (success) {
                               setState(() {
                                 _buttonColorLogin = Colors.lightGreenAccent;
                               });

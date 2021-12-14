@@ -25,6 +25,9 @@ class AuthService {
   }
 
   Future<bool> signInUser(String email, String password) async {
+    UserCredential uc = await _auth.signInWithEmailAndPassword(
+        email: email, password: password);
+    if (uc.user != null) return true;
     return false;
   }
 
