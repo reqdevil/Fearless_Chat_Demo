@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
-import 'package:fearless_chat_demo/Models/error.dart';
+import 'package:fearless_chat_demo/Models/result.dart';
+import 'package:fearless_chat_demo/Pages/mainPage.dart';
 import 'package:fearless_chat_demo/Services/AuthService.dart';
 import 'package:fearless_chat_demo/Widgets/CustomDialogBox.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -112,6 +113,12 @@ class _LoginPageState extends State<LoginPage> {
                                         _buttonColorLogin =
                                             Colors.lightGreenAccent;
                                       });
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const MainPage()),
+                                      );
                                     } else {
                                       setState(() {
                                         _buttonColorLogin = Colors.black;

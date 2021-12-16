@@ -1,6 +1,6 @@
 // ignore_for_file: file_names
 
-import 'package:fearless_chat_demo/Models/error.dart';
+import 'package:fearless_chat_demo/Models/result.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
