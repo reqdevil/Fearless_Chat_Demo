@@ -1,6 +1,6 @@
 class Result {
   bool hasError;
-  String result;
+  String message;
 
-  Result(this.hasError, this.result);
+  Result(this.hasError, this.message);
 }

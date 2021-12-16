@@ -25,10 +25,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: SafeArea(
         child: Center(
           child: Container(
-            height: MediaQuery.of(context).size.height / 1.5,
+            height: MediaQuery.of(context).size.height / 1.2,
             width: MediaQuery.of(context).size.width,
             margin: const EdgeInsets.only(top: 20),
             child: Column(
@@ -102,11 +103,11 @@ class _LoginPageState extends State<LoginPage> {
                                       _buttonColorLogin = Colors.green;
                                     });
 
-                                    bool success = await AuthService.instance
+                                    Result result = await AuthService.instance
                                         .signInUser(_emailController.text,
                                             _passwordController.text);
 
-                                    if (success) {
+                                    if (!result.hasError) {
                                       setState(() {
                                         _buttonColorLogin =
                                             Colors.lightGreenAccent;
@@ -115,6 +116,24 @@ class _LoginPageState extends State<LoginPage> {
                                       setState(() {
                                         _buttonColorLogin = Colors.black;
                                       });
+                                      showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return WillPopScope(
+                                              onWillPop: () =>
+                                                  Future.value(false),
+                                              child: CustomDialogBox(
+                                                title: "",
+                                                descriptions: result.message,
+                                                submitText: 'OK',
+                                                widget: const Icon(
+                                                    Icons.warning_rounded,
+                                                    color: Colors.red,
+                                                    size: 50),
+                                              ),
+                                            );
+                                          });
                                     }
                                   } else {
                                     setState(() {
@@ -161,23 +180,24 @@ class _LoginPageState extends State<LoginPage> {
                                         _buttonColorRegister = Colors.black;
                                       });
                                       showDialog(
-                                          barrierDismissible: false,
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return WillPopScope(
-                                              onWillPop: () =>
-                                                  Future.value(false),
-                                              child: CustomDialogBox(
-                                                title: "",
-                                                descriptions: result.result,
-                                                submitText: 'OK',
-                                                widget: const Icon(
-                                                    Icons.warning_rounded,
-                                                    color: Colors.red,
-                                                    size: 50),
-                                              ),
-                                            );
-                                          });
+                                        barrierDismissible: false,
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return WillPopScope(
+                                            onWillPop: () =>
+                                                Future.value(false),
+                                            child: CustomDialogBox(
+                                              title: "",
+                                              descriptions: result.message,
+                                              submitText: 'OK',
+                                              widget: const Icon(
+                                                  Icons.warning_rounded,
+                                                  color: Colors.red,
+                                                  size: 50),
+                                            ),
+                                          );
+                                        },
+                                      );
                                     }
                                   } else {
                                     setState(() {

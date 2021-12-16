@@ -16,28 +16,41 @@ class AuthService {
 
       if (user.user != null) {
         await sendEmailVerification(user.user);
-        result.result = 'Success';
+        result.message = 'Register Success';
         result.hasError = false;
         return result;
       } else {
-        result.result = 'Error';
+        result.message = 'Register Error';
         result.hasError = true;
         return result;
       }
     } on Exception catch (e) {
       print(e);
-      result.result = (e as FirebaseAuthException).message!;
+      result.message = (e as FirebaseAuthException).message!;
       result.hasError = true;
       return result;
     }
   }
 
-  Future<bool> signInUser(String email, String password) async {
-    UserCredential uc = await _auth.signInWithEmailAndPassword(
-        email: email, password: password);
+  Future<Result> signInUser(String email, String password) async {
+    Result result = Result(false, "");
+    try {
+      UserCredential uc = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
 
-    if (uc.user != null) return true;
-    return false;
+      if (uc.user != null) {
+        Result result = Result(false, "Register Success");
+        return result;
+      } else {
+        result.message = 'Error';
+        result.hasError = true;
+        return result;
+      }
+    } on Exception catch (e) {
+      result.message = (e as FirebaseAuthException).message!;
+      result.hasError = true;
+      return result;
+    }
   }
 
   Future<bool> sendEmailVerification(User? user) async {
