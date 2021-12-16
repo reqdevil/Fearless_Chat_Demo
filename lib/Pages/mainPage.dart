@@ -73,14 +73,19 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-class PlaceholderWidget extends StatelessWidget {
+class PlaceholderWidget extends StatefulWidget {
   final Color color;
   const PlaceholderWidget({Key? key, required this.color}) : super(key: key);
 
   @override
+  State<PlaceholderWidget> createState() => _PlaceholderWidgetState();
+}
+
+class _PlaceholderWidgetState extends State<PlaceholderWidget> {
+  @override
   Widget build(BuildContext context) {
     return Container(
-      color: color,
+      color: widget.color,
     );
   }
 }
