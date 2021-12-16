@@ -12,10 +12,10 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int selectedPageIndex = 0;
   final List _children = [
-    PlaceholderWidget(Colors.white),
-    PlaceholderWidget(Colors.deepOrange),
-    PlaceholderWidget(Colors.green),
-    PlaceholderWidget(Colors.blue)
+    const PlaceholderWidget(color: Colors.white),
+    const PlaceholderWidget(color: Colors.deepOrange),
+    const PlaceholderWidget(color: Colors.green),
+    const PlaceholderWidget(color: Colors.blue)
   ];
   @override
   Widget build(BuildContext context) {
@@ -75,8 +75,7 @@ class _MainPageState extends State<MainPage> {
 
 class PlaceholderWidget extends StatelessWidget {
   final Color color;
-
-  PlaceholderWidget(this.color);
+  const PlaceholderWidget({Key? key, required this.color}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
