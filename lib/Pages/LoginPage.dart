@@ -1,6 +1,8 @@
 // ignore_for_file: file_names
 
+import 'package:fearless_chat_demo/Models/error.dart';
 import 'package:fearless_chat_demo/Services/AuthService.dart';
+import 'package:fearless_chat_demo/Widgets/CustomDialogBox.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -133,12 +135,12 @@ class _LoginPageState extends State<LoginPage> {
                             setState(() {
                               _buttonColorRegister = Colors.amber;
                             });
-
-                            var success = await AuthService.instance.signUpUser(
+                            Result result = Result(false, "");
+                            result = await AuthService.instance.signUpUser(
                                 _emailController.text,
                                 _passwordController.text);
 
-                            if (success) {
+                            if (!result.hasError) {
                               setState(() {
                                 _buttonColorRegister = Colors.green;
                               });
@@ -146,6 +148,23 @@ class _LoginPageState extends State<LoginPage> {
                               setState(() {
                                 _buttonColorRegister = Colors.black;
                               });
+                              showDialog(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return WillPopScope(
+                                      onWillPop: () => Future.value(false),
+                                      child: CustomDialogBox(
+                                        title: "",
+                                        descriptions: result.result,
+                                        submitText: 'OK',
+                                        widget: const Icon(
+                                            Icons.warning_rounded,
+                                            color: Colors.red,
+                                            size: 50),
+                                      ),
+                                    );
+                                  });
                             }
                           } else {
                             setState(() {
