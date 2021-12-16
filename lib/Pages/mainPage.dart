@@ -28,10 +28,10 @@ class _MainPageState extends State<MainPage> {
           onTap: changePage,
           type: BottomNavigationBarType.fixed,
           fixedColor: Colors.white,
-          items: <BottomNavigationBarItem>[
+          items: [
             const BottomNavigationBarItem(
               icon: Icon(Icons.person),
-              title: const Text(
+              title: Text(
                 'Profile',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
@@ -64,6 +64,8 @@ class _MainPageState extends State<MainPage> {
   }
 
   void changePage(int value) {
-    setState(() {});
+    setState(() {
+      selectedPage = value;
+    });
   }
 }
