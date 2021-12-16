@@ -10,21 +10,24 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  int selectedPage = 0;
+  int selectedPageIndex = 0;
+  final List _children = [
+    PlaceholderWidget(Colors.white),
+    PlaceholderWidget(Colors.deepOrange),
+    PlaceholderWidget(Colors.green),
+    PlaceholderWidget(Colors.blue)
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
       body: SafeArea(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-        ),
+        child: _children[selectedPageIndex],
       ),
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(canvasColor: Colors.redAccent),
         child: BottomNavigationBar(
-          currentIndex: selectedPage,
+          currentIndex: selectedPageIndex,
           onTap: changePage,
           type: BottomNavigationBarType.fixed,
           fixedColor: Colors.white,
@@ -44,15 +47,15 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
             const BottomNavigationBarItem(
-              icon: const Icon(Icons.chat_bubble),
-              title: const Text(
+              icon: Icon(Icons.chat_bubble),
+              title: Text(
                 'Chat',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
             const BottomNavigationBarItem(
-              icon: const Icon(Icons.settings),
-              title: const Text(
+              icon: Icon(Icons.settings),
+              title: Text(
                 'Settings',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
@@ -65,7 +68,20 @@ class _MainPageState extends State<MainPage> {
 
   void changePage(int value) {
     setState(() {
-      selectedPage = value;
+      selectedPageIndex = value;
     });
+  }
+}
+
+class PlaceholderWidget extends StatelessWidget {
+  final Color color;
+
+  PlaceholderWidget(this.color);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: color,
+    );
   }
 }
