@@ -25,162 +25,178 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.only(top: 20),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    icon: Icon(Icons.mail),
-                    hintText: 'Sana nereden ulaşabiliriz?',
-                    labelText: 'E-Posta',
+      body: SafeArea(
+        child: Center(
+          child: Container(
+            height: MediaQuery.of(context).size.height / 1.5,
+            margin: const EdgeInsets.only(top: 20),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.person,
+                    color: Colors.blueAccent,
+                    size: 100,
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (String? value) {
-                    if (value == null) {
-                      return "Lütfen alanı doldurunuz.";
-                    }
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
+                            icon: Icon(Icons.mail),
+                            hintText: 'Sana nereden ulaşabiliriz?',
+                            labelText: 'E-Posta',
+                          ),
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (String? value) {
+                            if (value == null) {
+                              return "Lütfen alanı doldurunuz.";
+                            }
 
-                    if (!value.contains('@')) {
-                      return "Lütfen e-posta adresinizi doğru giriniz.";
-                    }
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    icon: Icon(Icons.vpn_key),
-                    hintText: 'Lütfen parolanızı gizli tutunuz.',
-                    labelText: 'Şifre',
+                            if (!value.contains('@')) {
+                              return "Lütfen e-posta adresinizi doğru giriniz.";
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: const InputDecoration(
+                            icon: Icon(Icons.vpn_key),
+                            hintText: 'Lütfen parolanızı gizli tutunuz.',
+                            labelText: 'Şifre',
+                          ),
+                          keyboardType: TextInputType.visiblePassword,
+                          obscureText: true,
+                          validator: (String? value) {
+                            if (value == null) {
+                              return "Lütfen alanı doldurunuz.";
+                            }
+
+                            if (value.length < 10) {
+                              return "Şifreniz minimum 10 karakterden oluşmalıdır.";
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Container(),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: ElevatedButton(
+                                child: const Text("Giriş"),
+                                style: ElevatedButton.styleFrom(
+                                    primary: _buttonColorLogin),
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    setState(() {
+                                      _buttonColorLogin = Colors.green;
+                                    });
+
+                                    bool success = await AuthService.instance
+                                        .signInUser(_emailController.text,
+                                            _passwordController.text);
+
+                                    if (success) {
+                                      setState(() {
+                                        _buttonColorLogin =
+                                            Colors.lightGreenAccent;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        _buttonColorLogin = Colors.black;
+                                      });
+                                    }
+                                  } else {
+                                    setState(() {
+                                      _buttonColorLogin = Colors.red;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Container(),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: ElevatedButton(
+                                child: const Text("Kayıt Ol"),
+                                style: ElevatedButton.styleFrom(
+                                    primary: _buttonColorRegister),
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    setState(() {
+                                      _buttonColorRegister = Colors.amber;
+                                    });
+                                    Result result = Result(false, "");
+                                    result = await AuthService.instance
+                                        .signUpUser(_emailController.text,
+                                            _passwordController.text);
+
+                                    if (!result.hasError) {
+                                      setState(() {
+                                        _buttonColorRegister = Colors.green;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        _buttonColorRegister = Colors.black;
+                                      });
+                                      showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return WillPopScope(
+                                              onWillPop: () =>
+                                                  Future.value(false),
+                                              child: CustomDialogBox(
+                                                title: "",
+                                                descriptions: result.result,
+                                                submitText: 'OK',
+                                                widget: const Icon(
+                                                    Icons.warning_rounded,
+                                                    color: Colors.red,
+                                                    size: 50),
+                                              ),
+                                            );
+                                          });
+                                    }
+                                  } else {
+                                    setState(() {
+                                      _buttonColorRegister = Colors.red;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  keyboardType: TextInputType.visiblePassword,
-                  obscureText: true,
-                  validator: (String? value) {
-                    if (value == null) {
-                      return "Lütfen alanı doldurunuz.";
-                    }
-
-                    if (value.length < 10) {
-                      return "Şifreniz minimum 10 karakterden oluşmalıdır.";
-                    }
-                  },
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Container(),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: ElevatedButton(
-                        child: const Text("Giriş"),
-                        style: ElevatedButton.styleFrom(
-                            primary: _buttonColorLogin),
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            setState(() {
-                              _buttonColorLogin = Colors.green;
-                            });
-
-                            bool success = await AuthService.instance
-                                .signInUser(_emailController.text,
-                                    _passwordController.text);
-
-                            if (success) {
-                              setState(() {
-                                _buttonColorLogin = Colors.lightGreenAccent;
-                              });
-                            } else {
-                              setState(() {
-                                _buttonColorLogin = Colors.black;
-                              });
-                            }
-                          } else {
-                            setState(() {
-                              _buttonColorLogin = Colors.red;
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Container(),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Container(),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: ElevatedButton(
-                        child: const Text("Kayıt Ol"),
-                        style: ElevatedButton.styleFrom(
-                            primary: _buttonColorRegister),
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            setState(() {
-                              _buttonColorRegister = Colors.amber;
-                            });
-                            Result result = Result(false, "");
-                            result = await AuthService.instance.signUpUser(
-                                _emailController.text,
-                                _passwordController.text);
-
-                            if (!result.hasError) {
-                              setState(() {
-                                _buttonColorRegister = Colors.green;
-                              });
-                            } else {
-                              setState(() {
-                                _buttonColorRegister = Colors.black;
-                              });
-                              showDialog(
-                                  barrierDismissible: false,
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return WillPopScope(
-                                      onWillPop: () => Future.value(false),
-                                      child: CustomDialogBox(
-                                        title: "",
-                                        descriptions: result.result,
-                                        submitText: 'OK',
-                                        widget: const Icon(
-                                            Icons.warning_rounded,
-                                            color: Colors.red,
-                                            size: 50),
-                                      ),
-                                    );
-                                  });
-                            }
-                          } else {
-                            setState(() {
-                              _buttonColorRegister = Colors.red;
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Container(),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
