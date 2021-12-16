@@ -29,17 +29,18 @@ class _LoginPageState extends State<LoginPage> {
         child: Center(
           child: Container(
             height: MediaQuery.of(context).size.height / 1.5,
+            width: MediaQuery.of(context).size.width,
             margin: const EdgeInsets.only(top: 20),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.person,
-                    color: Colors.blueAccent,
-                    size: 100,
-                  ),
-                  Form(
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.person,
+                  color: Colors.blueAccent,
+                  size: 100,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -195,8 +196,8 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
