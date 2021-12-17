@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:math' as math;
 import 'package:native_device_orientation/native_device_orientation.dart';
@@ -13,6 +14,8 @@ class CameraPage extends StatefulWidget {
   _CameraPageState createState() => _CameraPageState();
 }
 
+bool _isFlashOn = false;
+
 class _CameraPageState extends State<CameraPage> {
   List<CameraDescription> cameras = [];
   late String imagePath;
@@ -22,10 +25,11 @@ class _CameraPageState extends State<CameraPage> {
   @override
   void initState() {
     try {
+      enableRotation();
       getCamera();
-      // Future.delayed(const Duration(seconds: 2), () {
-      //   onCameraSelected(cameras[0]);
-      // });
+      Future.delayed(const Duration(seconds: 1), () {
+        onCameraSelected(cameras[0]);
+      });
     } catch (e) {
       print(e.toString());
     }
@@ -35,34 +39,34 @@ class _CameraPageState extends State<CameraPage> {
   @override
   void dispose() {
     controller!.dispose();
+    backToOriginalRotation();
     super.dispose();
   }
 
   Future<void> getCamera() async {
     cameras = await availableCameras();
-    onCameraSelected(cameras[0]);
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    // if (cameras.isEmpty) {
-    //   return Container(
-    //     alignment: Alignment.center,
-    //     padding: const EdgeInsets.all(16.0),
-    //     child: const Text(
-    //       'No Camera Found',
-    //       style: TextStyle(
-    //         fontSize: 16.0,
-    //         color: Colors.white,
-    //       ),
-    //     ),
-    //   );
-    // }
+    if (cameras.isEmpty) {
+      return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(16.0),
+        child: const Text(
+          '',
+          style: TextStyle(
+            fontSize: 16.0,
+            color: Colors.white,
+          ),
+        ),
+      );
+    }
 
-    // if (!controller!.value.isInitialized) {
-    //   return Container();
-    // }
+    if (!controller!.value.isInitialized) {
+      return Container();
+    }
 
     return Scaffold(
       key: _scaffoldKey,
@@ -90,15 +94,15 @@ class _CameraPageState extends State<CameraPage> {
           final deviceRatio = size.width / size.height;
 
           final mediaSize = MediaQuery.of(context).size;
-          final scale =
-              1 / (controller!.value.aspectRatio * mediaSize.aspectRatio);
+          // final scale =
+          //     1 / (controller!.value.aspectRatio * mediaSize.aspectRatio);
           return Stack(
             fit: StackFit.expand,
             alignment: Alignment.center,
             children: <Widget>[
               Expanded(
                 child: AspectRatio(
-                  aspectRatio: scale,
+                  aspectRatio: MediaQuery.of(context).size.aspectRatio,
                   child: RotatedBox(
                     quarterTurns: turns,
                     child: SizedBox(
@@ -136,19 +140,30 @@ class _CameraPageState extends State<CameraPage> {
               Align(
                 alignment: Alignment.topRight,
                 child: GestureDetector(
-                  child: const Padding(
-                    padding: EdgeInsets.only(left: 0.0, bottom: 0, top: 15),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(left: 0.0, bottom: 0, top: 15),
                     child: SizedBox(
                       width: 50,
                       height: 50,
                       child: Icon(
-                        Icons.flash_on,
+                        _isFlashOn ? Icons.flash_on : Icons.flash_off,
                         color: Colors.white,
                         size: 30,
                       ),
                     ),
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    if (!_isFlashOn) {
+                      onSetFlashModeButtonPressed(FlashMode.auto);
+                    } else {
+                      onSetFlashModeButtonPressed(FlashMode.off);
+                    }
+
+                    setState(() {
+                      _isFlashOn = !_isFlashOn;
+                    });
+                  },
                 ),
               ),
               Align(
@@ -305,4 +320,48 @@ class _CameraPageState extends State<CameraPage> {
       print('Error: $code\nMessage: $message');
 
   getApplicationDocumentsDirectory() {}
+
+  Future<void> enableRotation() async {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+// may block rotation; sets orientation back to OS defaults for the app
+  Future<void> backToOriginalRotation() async {
+    await SystemChrome.setPreferredOrientations([]);
+  }
+
+  void onSetFlashModeButtonPressed(FlashMode mode) {
+    setFlashMode(mode).then((_) {
+      if (mounted) setState(() {});
+      showInSnackBar('Flash mode set to ${mode.toString().split('.').last}');
+    });
+  }
+
+  void showInSnackBar(String message) {
+    // ignore: deprecated_member_use
+    _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> setFlashMode(FlashMode mode) async {
+    if (controller == null) {
+      return;
+    }
+
+    try {
+      await controller!.setFlashMode(mode);
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      rethrow;
+    }
+  }
+
+  void _showCameraException(CameraException e) {
+    logError(e.code, e.description ?? "Error");
+    showInSnackBar('Error: ${e.code}\n${e.description}');
+  }
 }
