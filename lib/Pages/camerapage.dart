@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:math' as math;
 import 'package:native_device_orientation/native_device_orientation.dart';
+import 'package:path_provider/path_provider.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ bool _isFlashOn = false;
 
 class _CameraPageState extends State<CameraPage> {
   List<CameraDescription> cameras = [];
-  late String imagePath;
+  String imagePath = "";
   bool _toggleCamera = false;
   CameraController? controller;
   int _pointers = 0;
@@ -26,6 +27,8 @@ class _CameraPageState extends State<CameraPage> {
   final double _maxAvailableZoom = 10.0;
   double _currentScale = 1.0;
   double _baseScale = 1.0;
+  XFile? imageFile;
+  XFile? videoFile;
   @override
   void initState() {
     try {
@@ -254,6 +257,10 @@ class _CameraPageState extends State<CameraPage> {
                           ),
                         ),
                       ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: _thumbnailWidget(),
+                      )
                     ],
                   ),
                 ),
@@ -297,7 +304,6 @@ class _CameraPageState extends State<CameraPage> {
 
         showMessage('Picture saved to $filePath');
         // setCameraResult();
-
       }
     });
   }
@@ -307,12 +313,13 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<String> takePicture() async {
+    XFile file;
     if (!controller!.value.isInitialized) {
       showMessage('Error: select a camera first.');
       return "null";
     }
     final Directory extDir = await getApplicationDocumentsDirectory();
-    final String dirPath = '${extDir.path}/FlutterDevs/Camera/Images';
+    final String dirPath = '${extDir.path}/FearlessChat/Camera/Images';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
 
@@ -322,12 +329,12 @@ class _CameraPageState extends State<CameraPage> {
     }
 
     try {
-      XFile file = await controller!.takePicture();
+      file = await controller!.takePicture();
     } on CameraException catch (e) {
       showException(e);
       return "error";
     }
-    return filePath;
+    return file.path;
   }
 
   void showException(CameraException e) {
@@ -341,8 +348,6 @@ class _CameraPageState extends State<CameraPage> {
 
   void logError(String code, String message) =>
       print('Error: $code\nMessage: $message');
-
-  getApplicationDocumentsDirectory() {}
 
   Future<void> enableRotation() async {
     await SystemChrome.setPreferredOrientations([
@@ -418,5 +423,43 @@ class _CameraPageState extends State<CameraPage> {
     );
     cameraController.setExposurePoint(offset);
     cameraController.setFocusPoint(offset);
+  }
+
+  /// Display the thumbnail of the captured image or video.
+  Widget _thumbnailWidget() {
+    return Expanded(
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            imagePath.isEmpty
+                ? Container()
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      child:
+                          // The captured image on the web contains a network-accessible URL
+                          // pointing to a location within the browser. It may be displayed
+                          // either with Image.network or Image.memory after loading the image
+                          // bytes to memory.
+                          Container(
+                        child: Center(
+                          child: Image.file(
+                            File(imagePath),
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.pink)),
+                      ),
+                      width: 64.0,
+                      height: 64.0,
+                    ),
+                  )
+          ],
+        ),
+      ),
+    );
   }
 }
