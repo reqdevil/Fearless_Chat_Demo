@@ -1,4 +1,7 @@
 // ignore_for_file: file_names
+import 'package:camera/camera.dart';
+import 'package:fearless_chat_demo/Pages/camerapage.dart';
+import 'package:fearless_chat_demo/Pages/camerapage_old.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -10,13 +13,30 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  // late List<CameraDescription> cameras;
   int selectedPageIndex = 0;
-  final List _children = [
-    const PlaceholderWidget(color: Colors.white),
-    const PlaceholderWidget(color: Colors.deepOrange),
-    const PlaceholderWidget(color: Colors.green),
-    const PlaceholderWidget(color: Colors.blue)
-  ];
+  late List _children = [];
+
+  // List<CameraDescription> cameras = [];
+
+  // set cameras(List<CameraDescription> cameras) {}
+  @override
+  void initState() {
+    _children = [
+      const PlaceholderWidget(color: Colors.white),
+      // CameraPage(),
+      // const PlaceholderWidget(color: Colors.deepOrange),
+      const PlaceholderWidget(color: Colors.green),
+      const PlaceholderWidget(color: Colors.blue)
+    ];
+
+    super.initState();
+  }
+
+  // Future<void> getCameras() async {
+  //   cameras = await availableCameras();
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,8 +88,14 @@ class _MainPageState extends State<MainPage> {
 
   void changePage(int value) {
     setState(() {
-      selectedPageIndex = value;
+      if (value != 1) selectedPageIndex = value;
     });
+    if (value == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const CameraPage()),
+      );
+    }
   }
 }
 

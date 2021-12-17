@@ -37,6 +37,11 @@ dependencies:
   overlay_support: ^1.2.1 
   #local_notification
   flutter_local_notifications: ^9.1.5
+  #camera
+  camera: ^0.9.4+5
+  path_provider: ^2.0.8
+  video_player: ^2.2.7
+  native_device_orientation: ^1.0.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
@@ -67,6 +72,10 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/ic_shutter_1.png
+    - assets/ic_switch_camera_3.png
+    - assets/ic_no_image.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
