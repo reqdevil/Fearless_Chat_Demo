@@ -21,7 +21,11 @@ class _CameraPageState extends State<CameraPage> {
   late String imagePath;
   bool _toggleCamera = false;
   CameraController? controller;
-
+  int _pointers = 0;
+  final double _minAvailableZoom = 1.0;
+  final double _maxAvailableZoom = 10.0;
+  double _currentScale = 1.0;
+  double _baseScale = 1.0;
   @override
   void initState() {
     try {
@@ -109,10 +113,29 @@ class _CameraPageState extends State<CameraPage> {
                       height: double.infinity,
                       width: double.infinity,
                       child: Center(
-                          child: Transform(
-                              alignment: Alignment.center,
-                              transform: Matrix4.rotationY(math.pi),
-                              child: CameraPreview(controller!))),
+                        child: Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.rotationY(math.pi),
+                          child: Listener(
+                            onPointerDown: (_) => _pointers++,
+                            onPointerUp: (_) => _pointers--,
+                            child: CameraPreview(
+                              controller!,
+                              child: LayoutBuilder(builder:
+                                  (BuildContext context,
+                                      BoxConstraints constraints) {
+                                return GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onScaleStart: _handleScaleStart,
+                                  onScaleUpdate: _handleScaleUpdate,
+                                  onTapDown: (details) =>
+                                      onViewFinderTap(details, constraints),
+                                );
+                              }),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -363,5 +386,37 @@ class _CameraPageState extends State<CameraPage> {
   void _showCameraException(CameraException e) {
     logError(e.code, e.description ?? "Error");
     showInSnackBar('Error: ${e.code}\n${e.description}');
+  }
+
+  void _handleScaleStart(ScaleStartDetails details) {
+    _baseScale = _currentScale;
+  }
+
+  Future<void> _handleScaleUpdate(ScaleUpdateDetails details) async {
+    // When there are not exactly two fingers on screen don't scale
+    if (controller == null || _pointers != 2) {
+      return;
+    }
+
+    _currentScale = (_baseScale * details.scale)
+        .clamp(_minAvailableZoom, _maxAvailableZoom);
+
+    print(_currentScale);
+    await controller!.setZoomLevel(_currentScale);
+  }
+
+  void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
+    if (controller == null) {
+      return;
+    }
+
+    final CameraController cameraController = controller!;
+
+    final offset = Offset(
+      details.localPosition.dx / constraints.maxWidth,
+      details.localPosition.dy / constraints.maxHeight,
+    );
+    cameraController.setExposurePoint(offset);
+    cameraController.setFocusPoint(offset);
   }
 }
