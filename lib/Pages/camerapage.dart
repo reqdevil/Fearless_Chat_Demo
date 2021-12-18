@@ -59,19 +59,19 @@ class _CameraPageState extends State<CameraPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    // if (cameras.isEmpty) {
-    //   return Container(
-    //     alignment: Alignment.center,
-    //     padding: const EdgeInsets.all(16.0),
-    //     child: const Text(
-    //       'CAMERA NOT FOUND',
-    //       style: TextStyle(
-    //         fontSize: 16.0,
-    //         color: Colors.white,
-    //       ),
-    //     ),
-    //   );
-    // }
+    if (cameras.isEmpty) {
+      return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(16.0),
+        child: const Text(
+          '',
+          style: TextStyle(
+            fontSize: 16.0,
+            color: Colors.white,
+          ),
+        ),
+      );
+    }
 
     if (!controller!.value.isInitialized) {
       return Container();
