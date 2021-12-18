@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
@@ -36,7 +37,9 @@ class _CameraPageState extends State<CameraPage> {
         onCameraSelected(cameras[0]);
       });
     } catch (e) {
-      print(e.toString());
+      if (kDebugMode) {
+        print(e.toString());
+      }
     }
     super.initState();
   }
@@ -102,8 +105,8 @@ class _CameraPageState extends State<CameraPage> {
           // final scale =
           //     1 / (controller!.value.aspectRatio * mediaSize.aspectRatio);
           return Stack(
-            fit: StackFit.expand,
-            alignment: Alignment.center,
+            // fit: StackFit.expand,
+            // alignment: Alignment.center,
             children: <Widget>[
               Expanded(
                 child: AspectRatio(
@@ -341,7 +344,9 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   void showMessage(String message) {
-    print(message);
+    if (kDebugMode) {
+      print(message);
+    }
   }
 
   void logError(String code, String message) =>
@@ -404,7 +409,9 @@ class _CameraPageState extends State<CameraPage> {
     _currentScale = (_baseScale * details.scale)
         .clamp(_minAvailableZoom, _maxAvailableZoom);
 
-    print(_currentScale);
+    if (kDebugMode) {
+      print(_currentScale);
+    }
     await controller!.setZoomLevel(_currentScale);
   }
 

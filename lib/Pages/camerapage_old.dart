@@ -41,9 +41,13 @@ IconData getCameraLensIcon(CameraLensDirection direction) {
 
 void logError(String code, String? message) {
   if (message != null) {
-    print('Error: $code\nError Message: $message');
+    if (kDebugMode) {
+      print('Error: $code\nError Message: $message');
+    }
   } else {
-    print('Error: $code');
+    if (kDebugMode) {
+      print('Error: $code');
+    }
   }
 }
 

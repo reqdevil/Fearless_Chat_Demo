@@ -2,6 +2,7 @@
 
 import 'package:fearless_chat_demo/Models/result.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
   static final instance = AuthService();
@@ -25,7 +26,9 @@ class AuthService {
         return result;
       }
     } on Exception catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       result.message = (e as FirebaseAuthException).message!;
       result.hasError = true;
       return result;
@@ -69,7 +72,9 @@ class AuthService {
       await user.sendEmailVerification();
       isVerificationSendSuccess = true;
     } on Exception catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       isVerificationSendSuccess = false;
     }
 
