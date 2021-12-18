@@ -99,22 +99,15 @@ class _CameraPageState extends State<CameraPage> {
               turns = 0;
               break;
           }
-          final size = MediaQuery.of(context).size;
-          final deviceRatio = size.width / size.height;
-
-          final mediaSize = MediaQuery.of(context).size;
-          // final scale =
-          //     1 / (controller!.value.aspectRatio * mediaSize.aspectRatio);
+         
           return Stack(
-            // fit: StackFit.expand,
-            // alignment: Alignment.center,
             children: <Widget>[
               Positioned.fill(
                 child: RotatedBox(
                   quarterTurns: 0,
                   child: Transform(
                     alignment: Alignment.center,
-                    transform: Matrix4.rotationY(math.pi),
+                    transform: Matrix4.rotationY(0),
                     child: Listener(
                       onPointerDown: (_) => _pointers++,
                       onPointerUp: (_) => _pointers--,
