@@ -18,6 +18,7 @@ bool _isFlashOn = false;
 
 class _CameraPageState extends State<CameraPage> {
   List<CameraDescription> cameras = [];
+  List<String> imagePathList = [];
   String imagePath = "";
   bool _toggleCamera = false;
   CameraController? controller;
@@ -58,19 +59,19 @@ class _CameraPageState extends State<CameraPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    if (cameras.isEmpty) {
-      return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(16.0),
-        child: const Text(
-          '',
-          style: TextStyle(
-            fontSize: 16.0,
-            color: Colors.white,
-          ),
-        ),
-      );
-    }
+    // if (cameras.isEmpty) {
+    //   return Container(
+    //     alignment: Alignment.center,
+    //     padding: const EdgeInsets.all(16.0),
+    //     child: const Text(
+    //       'CAMERA NOT FOUND',
+    //       style: TextStyle(
+    //         fontSize: 16.0,
+    //         color: Colors.white,
+    //       ),
+    //     ),
+    //   );
+    // }
 
     if (!controller!.value.isInitialized) {
       return Container();
@@ -108,37 +109,27 @@ class _CameraPageState extends State<CameraPage> {
             // fit: StackFit.expand,
             // alignment: Alignment.center,
             children: <Widget>[
-              Expanded(
-                child: AspectRatio(
-                  aspectRatio: MediaQuery.of(context).size.aspectRatio,
-                  child: RotatedBox(
-                    quarterTurns: turns,
-                    child: SizedBox(
-                      height: double.infinity,
-                      width: double.infinity,
-                      child: Center(
-                        child: Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.rotationY(math.pi),
-                          child: Listener(
-                            onPointerDown: (_) => _pointers++,
-                            onPointerUp: (_) => _pointers--,
-                            child: CameraPreview(
-                              controller!,
-                              child: LayoutBuilder(builder:
-                                  (BuildContext context,
-                                      BoxConstraints constraints) {
-                                return GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onScaleStart: _handleScaleStart,
-                                  onScaleUpdate: _handleScaleUpdate,
-                                  onTapDown: (details) =>
-                                      onViewFinderTap(details, constraints),
-                                );
-                              }),
-                            ),
-                          ),
-                        ),
+              Positioned.fill(
+                child: RotatedBox(
+                  quarterTurns: 0,
+                  child: Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.rotationY(math.pi),
+                    child: Listener(
+                      onPointerDown: (_) => _pointers++,
+                      onPointerUp: (_) => _pointers--,
+                      child: CameraPreview(
+                        controller!,
+                        child: LayoutBuilder(builder:
+                            (BuildContext context, BoxConstraints constraints) {
+                          return GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onScaleStart: _handleScaleStart,
+                            onScaleUpdate: _handleScaleUpdate,
+                            onTapDown: (details) =>
+                                onViewFinderTap(details, constraints),
+                          );
+                        }),
                       ),
                     ),
                   ),
@@ -260,7 +251,9 @@ class _CameraPageState extends State<CameraPage> {
                       ),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: _thumbnailWidget(),
+                        child: imagePath.isNotEmpty
+                            ? _thumbnailWidget()
+                            : Container(),
                       )
                     ],
                   ),
@@ -275,8 +268,7 @@ class _CameraPageState extends State<CameraPage> {
 
   void onCameraSelected(CameraDescription cameraDescription) async {
     // await controller!.dispose();
-    controller =
-        CameraController(cameraDescription, ResolutionPreset.ultraHigh);
+    controller = CameraController(cameraDescription, ResolutionPreset.max);
 
     controller!.addListener(() {
       if (mounted) setState(() {});
@@ -301,6 +293,7 @@ class _CameraPageState extends State<CameraPage> {
       if (mounted) {
         setState(() {
           imagePath = filePath;
+          imagePathList.add(imagePath);
         });
 
         showMessage('Picture saved to $filePath');
@@ -442,25 +435,50 @@ class _CameraPageState extends State<CameraPage> {
                 ? Container()
                 : Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: SizedBox(
-                      child:
-                          // The captured image on the web contains a network-accessible URL
-                          // pointing to a location within the browser. It may be displayed
-                          // either with Image.network or Image.memory after loading the image
-                          // bytes to memory.
-                          Container(
-                        child: Center(
-                          child: Image.file(
-                            File(imagePath),
-                            fit: BoxFit.contain,
+                    child: Stack(children: [
+                      SizedBox(
+                        child:
+                            // The captured image on the web contains a network-accessible URL
+                            // pointing to a location within the browser. It may be displayed
+                            // either with Image.network or Image.memory after loading the image
+                            // bytes to memory.
+                            Container(
+                          child: Center(
+                            child: Image.file(
+                              File(imagePath),
+                              fit: BoxFit.contain,
+                            ),
                           ),
+                          decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.5),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              border: Border.all(
+                                  color: Colors.white.withOpacity(0.5))),
                         ),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.pink)),
+                        width: 64.0,
+                        height: 64.0,
                       ),
-                      width: 64.0,
-                      height: 64.0,
-                    ),
+                      imagePathList.isNotEmpty
+                          ? Align(
+                              alignment: Alignment.topLeft,
+                              child: Container(
+                                margin: const EdgeInsets.all(2),
+                                height: 20,
+                                width: 20,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10)),
+                                    border: Border.all(color: Colors.red)),
+                                child: Text(
+                                  imagePathList.length.toString(),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ))
+                          : Container(),
+                    ]),
                   )
           ],
         ),
