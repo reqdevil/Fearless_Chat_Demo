@@ -450,7 +450,7 @@ class _CameraPageState extends State<CameraPageOld>
                     },
                   ),
                   TextButton(
-                    child: Text('LOCKED'),
+                    child:const Text('LOCKED'),
                     style: styleLocked,
                     onPressed: controller != null
                         ? () =>
@@ -458,7 +458,7 @@ class _CameraPageState extends State<CameraPageOld>
                         : null,
                   ),
                   TextButton(
-                    child: Text('RESET OFFSET'),
+                    child:const Text('RESET OFFSET'),
                     style: styleLocked,
                     onPressed: controller != null
                         ? () => controller!.setExposureOffset(0.0)
@@ -521,7 +521,7 @@ class _CameraPageState extends State<CameraPageOld>
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   TextButton(
-                    child: Text('AUTO'),
+                    child:const Text('AUTO'),
                     style: styleAuto,
                     onPressed: controller != null
                         ? () => onSetFocusModeButtonPressed(FocusMode.auto)

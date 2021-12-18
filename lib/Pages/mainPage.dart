@@ -1,9 +1,5 @@
-// ignore_for_file: file_names
-import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
-import 'package:fearless_chat_demo/Pages/camerapage_old.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);

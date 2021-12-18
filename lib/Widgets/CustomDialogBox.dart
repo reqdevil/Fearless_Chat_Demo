@@ -1,7 +1,4 @@
-// ignore_for_file: file_names
-import 'dart:ui';
 import 'package:fearless_chat_demo/Widgets/CustomButton.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CustomDialogBox extends StatefulWidget {
@@ -9,7 +6,7 @@ class CustomDialogBox extends StatefulWidget {
   final Image? img;
   final Widget widget;
   final Function? function;
-   CustomDialogBox(
+  const CustomDialogBox(
       {Key? key,
       this.title,
       this.descriptions,

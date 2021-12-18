@@ -4,7 +4,6 @@ import 'package:fearless_chat_demo/Models/result.dart';
 import 'package:fearless_chat_demo/Pages/mainPage.dart';
 import 'package:fearless_chat_demo/Services/AuthService.dart';
 import 'package:fearless_chat_demo/Widgets/CustomDialogBox.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
