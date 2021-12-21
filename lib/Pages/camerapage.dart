@@ -16,6 +16,7 @@ class CameraPage extends StatefulWidget {
   _CameraPageState createState() => _CameraPageState();
 }
 
+late VideoPlayerController _listviewVideoControllerItem;
 late bool _isflashTap;
 bool _isFlashOn = false;
 bool _isFlashAuto = false;
@@ -67,6 +68,7 @@ class _CameraPageState extends State<CameraPage> {
 
   @override
   void dispose() {
+    _listviewVideoControllerItem.dispose();
     controller!.dispose();
     backToOriginalRotation();
     showStatusbar();
@@ -370,6 +372,56 @@ class _CameraPageState extends State<CameraPage> {
                                     // padding: const EdgeInsets.all(5),
                                     scrollDirection: Axis.horizontal,
                                     itemBuilder: (context, itemIndex) {
+                                      // VideoPlayerController?
+                                      //     localVideoController =
+                                      //     videoController;
+                                      bool f = imagePathList.reversed
+                                              .where((element) =>
+                                                  element.fileType ==
+                                                  FileType.video)
+                                              .toList()[itemIndex]
+                                              .fileType ==
+                                          FileType.video;
+                                      if (f) {
+                                        _listviewVideoControllerItem =
+                                            VideoPlayerController.file(File(
+                                                imagePathList.reversed
+                                                    .where((element) =>
+                                                        element.fileType ==
+                                                        FileType.video)
+                                                    .toList()[itemIndex]
+                                                    .filePath));
+                                        _listviewVideoControllerItem
+                                            .setLooping(true);
+                                        _listviewVideoControllerItem
+                                            .initialize()
+                                            .then((_) => setState(() {}));
+                                        _listviewVideoControllerItem.play();
+                                      }
+
+                                      //  VideoPlayerController?
+                                      //     localVideoController =
+                                      //     VideoPlayerController.file(File(
+                                      //         imagePathList.reversed
+                                      //             .where((element) =>
+                                      //                 element.fileType ==
+                                      //                 FileType.video)
+                                      //             .toList()[itemIndex]
+                                      //             .filePath));
+                                      // VideoPlayerController.file(File(
+                                      //     imagePathList.reversed
+                                      //         .where((element) =>
+                                      //             element.fileType ==
+                                      //             FileType.video)
+                                      //         .toList()[itemIndex]
+                                      //         .filePath));
+                                      // videoController;
+                                      // imagePathList.reversed
+                                      //     .where((element) =>
+                                      //         element.fileType ==
+                                      //         FileType.video)
+                                      //     .toList()[itemIndex]
+                                      //     .filePath;
                                       return RotatedBox(
                                         quarterTurns: -turns,
                                         child: Padding(
@@ -384,13 +436,28 @@ class _CameraPageState extends State<CameraPage> {
                                                 child: SizedBox(
                                                   child: Container(
                                                     child: Center(
-                                                      child: Image.file(
-                                                        File(imagePathList
-                                                            .reversed
-                                                            .toList()[itemIndex]
-                                                            .filePath),
-                                                        fit: BoxFit.fill,
-                                                      ),
+                                                      child: imagePathList
+                                                                  .reversed
+                                                                  .toList()[
+                                                                      itemIndex]
+                                                                  .fileType ==
+                                                              FileType.photo
+                                                          ? Image.file(
+                                                              File(imagePathList
+                                                                  .reversed
+                                                                  .toList()[
+                                                                      itemIndex]
+                                                                  .filePath),
+                                                              fit: BoxFit.fill,
+                                                            )
+                                                          : AspectRatio(
+                                                              aspectRatio:
+                                                                  _listviewVideoControllerItem
+                                                                      .value
+                                                                      .aspectRatio,
+                                                              child: VideoPlayer(
+                                                                  _listviewVideoControllerItem),
+                                                            ),
                                                     ),
                                                     decoration: BoxDecoration(
                                                       color: Colors.transparent,
@@ -532,6 +599,9 @@ class _CameraPageState extends State<CameraPage> {
                                               _isVideoRecording =
                                                   !_isVideoRecording;
                                             });
+                                            if (_isVideoRecorderSelected) {
+                                              captureVideo();
+                                            }
                                           },
                                         )
                                       : (_isVideoRecorderSelected &&
@@ -548,6 +618,7 @@ class _CameraPageState extends State<CameraPage> {
                                                                 10))),
                                               ),
                                               onTap: () {
+                                                onStopButtonPressed();
                                                 setState(() {
                                                   _isVideoRecording = false;
                                                 });
@@ -623,7 +694,7 @@ class _CameraPageState extends State<CameraPage> {
                             ),
                             Align(
                               alignment: Alignment.centerLeft,
-                              child: imagePath.isNotEmpty
+                              child: imagePathList.isNotEmpty
                                   ? _thumbnailWidget()
                                   : Container(),
                             )
@@ -669,8 +740,8 @@ class _CameraPageState extends State<CameraPage> {
       if (mounted) {
         setState(() {
           imagePath = filePath;
-          TakenCameraImage image =
-              TakenCameraImage(imagePath, false, DateTime.now());
+          TakenCameraImage image = TakenCameraImage(
+              imagePath, false, DateTime.now(), FileType.photo);
           imagePathList.add(image);
         });
 
@@ -678,6 +749,102 @@ class _CameraPageState extends State<CameraPage> {
         // setCameraResult();
       }
     });
+  }
+
+  Future<void> captureVideo() async {
+    final CameraController? cameraController = controller;
+
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      showInSnackBar('Error: select a camera first.');
+      return;
+    }
+
+    if (cameraController.value.isRecordingVideo) {
+      // A recording is already started, do nothing.
+      return;
+    }
+
+    try {
+      await cameraController.startVideoRecording();
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      return;
+    }
+  }
+
+  Future<XFile?> stopVideoRecording() async {
+    final CameraController? cameraController = controller;
+
+    if (cameraController == null || !cameraController.value.isRecordingVideo) {
+      return null;
+    }
+
+    try {
+      return cameraController.stopVideoRecording();
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      return null;
+    }
+  }
+
+  Future<void> pauseVideoRecording() async {
+    final CameraController? cameraController = controller;
+
+    if (cameraController == null || !cameraController.value.isRecordingVideo) {
+      return null;
+    }
+
+    try {
+      await cameraController.pauseVideoRecording();
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      rethrow;
+    }
+  }
+
+  void onStopButtonPressed() {
+    stopVideoRecording().then((file) {
+      if (mounted) setState(() {});
+      if (file != null) {
+        showInSnackBar('Video recorded to ${file.path}');
+        videoFile = file;
+        imagePath = file.path;
+        print(videoFile!.path);
+        TakenCameraImage image =
+            TakenCameraImage(imagePath, false, DateTime.now(), FileType.video);
+        imagePathList.add(image);
+        _startVideoPlayer();
+      }
+    });
+  }
+
+  Future<void> _startVideoPlayer() async {
+    if (videoFile == null) {
+      return;
+    }
+
+    final VideoPlayerController vController = kIsWeb
+        ? VideoPlayerController.network(videoFile!.path)
+        : VideoPlayerController.file(File(videoFile!.path));
+
+    videoPlayerListener = () {
+      if (videoController != null && videoController!.value.size != null) {
+        // Refreshing the state to update video player with the correct ratio.
+        if (mounted) setState(() {});
+        videoController!.removeListener(videoPlayerListener!);
+      }
+    };
+    vController.addListener(videoPlayerListener!);
+    await vController.setLooping(true);
+    await vController.initialize();
+    await videoController?.dispose();
+    if (mounted) {
+      setState(() {
+        imageFile = null;
+        videoController = vController;
+      });
+    }
+    await vController.play();
   }
 
   void setCameraResult() {
@@ -756,7 +923,7 @@ class _CameraPageState extends State<CameraPage> {
 
   void showInSnackBar(String message) {
     // ignore: deprecated_member_use
-    _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(message)));
+    // _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> setFlashMode(FlashMode mode) async {
@@ -916,13 +1083,14 @@ class _CameraPageState extends State<CameraPage> {
 
   /// Display the thumbnail of the captured image or video.
   Widget _thumbnailWidget() {
+    final VideoPlayerController? localVideoController = videoController;
     return Expanded(
       child: Align(
         alignment: Alignment.centerLeft,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            imagePath.isEmpty
+            localVideoController == null && imagePath.isEmpty
                 ? Container()
                 : RotatedBox(
                     quarterTurns: -turns,
@@ -931,25 +1099,26 @@ class _CameraPageState extends State<CameraPage> {
                       child: Stack(children: [
                         GestureDetector(
                           child: SizedBox(
-                            child:
-                                // The captured image on the web contains a network-accessible URL
-                                // pointing to a location within the browser. It may be displayed
-                                // either with Image.network or Image.memory after loading the image
-                                // bytes to memory.
-                                Container(
-                              child: Center(
-                                child: Image.file(
-                                  File(imagePath),
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                              decoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(10)),
-                                  border: Border.all(
-                                      color: Colors.white.withOpacity(0.5))),
-                            ),
+                            child: (localVideoController == null)
+                                ? (
+                                    // The captured image on the web contains a network-accessible URL
+                                    // pointing to a location within the browser. It may be displayed
+                                    // either with Image.network or Image.memory after loading the image
+                                    // bytes to memory.
+                                    Image.file(File(imagePath)))
+                                : Container(
+                                    child: Center(
+                                      child: AspectRatio(
+                                          aspectRatio: localVideoController
+                                              .value.aspectRatio,
+                                          child: VideoPlayer(
+                                              localVideoController)),
+                                    ),
+                                    decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(10)),
+                                        border: Border.all(color: Colors.grey)),
+                                  ),
                             width: 64.0,
                             height: 64.0,
                           ),
