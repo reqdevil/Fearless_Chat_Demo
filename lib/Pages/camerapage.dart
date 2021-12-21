@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:video_player/video_player.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key}) : super(key: key);
@@ -19,6 +20,8 @@ late bool _isflashTap;
 bool _isFlashOn = false;
 bool _isFlashAuto = false;
 bool _isFlashOff = false;
+late bool _isVideoRecorderSelected;
+late bool _isVideoRecording;
 late bool _isTapImage;
 int turns = 0;
 
@@ -29,8 +32,14 @@ class _CameraPageState extends State<CameraPage> {
   bool _toggleCamera = false;
   CameraController? controller;
   int _pointers = 0;
-  final double _minAvailableZoom = 1.0;
-  final double _maxAvailableZoom = 10.0;
+  double _minAvailableZoom = 1.0;
+  double _maxAvailableZoom = 1.0;
+  VideoPlayerController? videoController;
+  VoidCallback? videoPlayerListener;
+  bool enableAudio = true;
+  double _minAvailableExposureOffset = 0.0;
+  double _maxAvailableExposureOffset = 0.0;
+  double _currentExposureOffset = 0.0;
   double _currentScale = 1.0;
   double _baseScale = 1.0;
   XFile? imageFile;
@@ -40,6 +49,8 @@ class _CameraPageState extends State<CameraPage> {
     try {
       _isTapImage = false;
       _isflashTap = false;
+      _isVideoRecorderSelected = false;
+      _isVideoRecording = false;
       hideStatusbar();
       enableRotation();
       getCamera();
@@ -120,7 +131,7 @@ class _CameraPageState extends State<CameraPage> {
             children: <Widget>[
               Positioned.fill(
                 child: RotatedBox(
-                  quarterTurns: -turns,
+                  quarterTurns: turns,
                   child: Transform(
                     alignment: Alignment.center,
                     transform: Matrix4.rotationY(math.pi),
@@ -491,59 +502,123 @@ class _CameraPageState extends State<CameraPage> {
                           children: <Widget>[
                             Align(
                               alignment: Alignment.center,
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(50.0)),
-                                  onTap: () {
-                                    _captureImage();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Image.asset(
-                                      'assets/ic_shutter_1.png',
-                                      width: 50.0,
-                                      height: 50.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(50.0)),
-                                  onTap: () {
-                                    if (!_toggleCamera) {
-                                      onCameraSelected(cameras[1]);
-                                      setState(() {
-                                        _toggleCamera = true;
-                                      });
-                                    } else {
-                                      onCameraSelected(cameras[0]);
-                                      setState(() {
-                                        _toggleCamera = false;
-                                      });
-                                    }
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.only(
-                                        bottom: 0.0, right: 50),
-                                    child: RotatedBox(
-                                      quarterTurns: turns,
-                                      child: Image.asset(
-                                        'assets/ic_switch_camera_3.png',
-                                        color: Colors.grey[200],
-                                        width: 32.0,
-                                        height: 32.0,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(50.0)),
+                                      onTap: () {
+                                        _captureImage();
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Image.asset(
+                                          'assets/ic_shutter_1.png',
+                                          width: 50.0,
+                                          height: 50.0,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
+                                  _isVideoRecorderSelected && !_isVideoRecording
+                                      ? GestureDetector(
+                                          child: const Icon(Icons.circle,
+                                              color: Colors.red, size: 50),
+                                          onTap: () {
+                                            setState(() {
+                                              _isVideoRecording =
+                                                  !_isVideoRecording;
+                                            });
+                                          },
+                                        )
+                                      : (_isVideoRecorderSelected &&
+                                              _isVideoRecording)
+                                          ? GestureDetector(
+                                              child: Container(
+                                                height: 40,
+                                                width: 40,
+                                                decoration: const BoxDecoration(
+                                                    color: Colors.red,
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                10))),
+                                              ),
+                                              onTap: () {
+                                                setState(() {
+                                                  _isVideoRecording = false;
+                                                });
+                                              },
+                                            )
+                                          : Container()
+                                ],
+                              ),
+                            ),
+
+                            // cameraTogglesRowWidget(),
+
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _isVideoRecorderSelected =
+                                            !_isVideoRecorderSelected;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      minimumSize: const Size(30, 30),
+                                      padding: const EdgeInsets.all(0),
+                                      primary: Colors.grey.withOpacity(0.3),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.video_camera_back_outlined,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(50.0)),
+                                      onTap: () {
+                                        if (!_toggleCamera) {
+                                          onCameraSelected(cameras[1]);
+                                          setState(() {
+                                            _toggleCamera = true;
+                                          });
+                                        } else {
+                                          onCameraSelected(cameras[0]);
+                                          setState(() {
+                                            _toggleCamera = false;
+                                          });
+                                        }
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.only(
+                                            bottom: 0.0, right: 25),
+                                        child: RotatedBox(
+                                          quarterTurns: turns,
+                                          child: Image.asset(
+                                            'assets/ic_switch_camera_3.png',
+                                            color: Colors.grey[200],
+                                            width: 32.0,
+                                            height: 32.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             Align(
@@ -734,6 +809,109 @@ class _CameraPageState extends State<CameraPage> {
     );
     cameraController.setExposurePoint(offset);
     cameraController.setFocusPoint(offset);
+  }
+
+  IconData getCameraLensIcon(CameraLensDirection direction) {
+    switch (direction) {
+      case CameraLensDirection.back:
+        return Icons.camera_rear;
+      case CameraLensDirection.front:
+        return Icons.camera_front;
+      case CameraLensDirection.external:
+        return Icons.camera;
+      default:
+        throw ArgumentError('Unknown lens direction');
+    }
+  }
+
+  void onNewCameraSelected(CameraDescription cameraDescription) async {
+    if (controller != null) {
+      await controller!.dispose();
+    }
+
+    final CameraController cameraController = CameraController(
+      cameraDescription,
+      kIsWeb ? ResolutionPreset.max : ResolutionPreset.medium,
+      enableAudio: enableAudio,
+      imageFormatGroup: ImageFormatGroup.jpeg,
+    );
+
+    controller = cameraController;
+    CameraDescription direction = cameraController.description;
+    int angle = direction.sensorOrientation;
+    // If the controller is updated then update the UI.
+
+    cameraController.addListener(() {
+      if (mounted) setState(() {});
+      if (cameraController.value.hasError) {
+        showInSnackBar(
+            'Camera error ${cameraController.value.errorDescription}');
+      }
+    });
+
+    try {
+      await cameraController.initialize();
+      await Future.wait([
+        // The exposure mode is currently not supported on the web.
+        ...(!kIsWeb
+            ? [
+                cameraController
+                    .getMinExposureOffset()
+                    .then((value) => _minAvailableExposureOffset = value),
+                cameraController
+                    .getMaxExposureOffset()
+                    .then((value) => _maxAvailableExposureOffset = value)
+              ]
+            : []),
+        cameraController
+            .getMaxZoomLevel()
+            .then((value) => _maxAvailableZoom = value),
+        cameraController
+            .getMinZoomLevel()
+            .then((value) => _minAvailableZoom = value),
+      ]);
+    } on CameraException catch (e) {
+      _showCameraException(e);
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Widget cameraTogglesRowWidget() {
+    final List<Widget> toggles = <Widget>[];
+
+    final onChanged = (CameraDescription? description) {
+      if (description == null) {
+        return;
+      }
+
+      onNewCameraSelected(description);
+    };
+
+    if (cameras.isEmpty) {
+      return const Text('No camera found');
+    } else {
+      for (CameraDescription cameraDescription in cameras) {
+        toggles.add(
+          SizedBox(
+            width: 90.0,
+            child: RadioListTile<CameraDescription>(
+              title: Icon(getCameraLensIcon(cameraDescription.lensDirection)),
+              groupValue: controller?.description,
+              value: cameraDescription,
+              onChanged:
+                  controller != null && controller!.value.isRecordingVideo
+                      ? null
+                      : onChanged,
+            ),
+          ),
+        );
+      }
+    }
+
+    return Row(children: toggles);
   }
 
   /// Display the thumbnail of the captured image or video.
