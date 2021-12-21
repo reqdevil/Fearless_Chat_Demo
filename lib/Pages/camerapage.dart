@@ -15,6 +15,7 @@ class CameraPage extends StatefulWidget {
 }
 
 bool _isFlashOn = false;
+bool _isTapImage = false;
 
 class _CameraPageState extends State<CameraPage> {
   List<CameraDescription> cameras = [];
@@ -186,77 +187,137 @@ class _CameraPageState extends State<CameraPage> {
               ),
               Align(
                 alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: double.infinity,
-                  height: 90,
-                  // padding: const EdgeInsets.only(bottom: 80.0),
-                  color: const Color.fromRGBO(00, 00, 00, 0.7),
-                  child: Stack(
-                    fit: StackFit.loose,
-                    alignment: Alignment.center,
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.center,
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(50.0)),
-                            onTap: () {
-                              _captureImage();
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Image.asset(
-                                'assets/ic_shutter_1.png',
-                                width: 50.0,
-                                height: 50.0,
-                              ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    AnimatedOpacity(
+                      opacity: _isTapImage ? 1 : 0,
+                      duration: const Duration(milliseconds: 450),
+                      curve: Curves.easeIn,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              color: Colors.black.withOpacity(0.7),
+                            ),
+                            // margin: const EdgeInsets.all(5),
+                            alignment: Alignment.center,
+                            width: double.infinity,
+                            height: 64,
+                            child: ListView.builder(
+                              itemCount: imagePathList.length,
+                              // padding: const EdgeInsets.all(5),
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, itemIndex) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: SizedBox(
+                                    child: Container(
+                                      child: Center(
+                                        child: Image.file(
+                                          File(imagePathList[itemIndex]),
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.transparent,
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(10)),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.5),
+                                        ),
+                                      ),
+                                    ),
+                                    width: 64.0,
+                                    height: 64.0,
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(50.0)),
-                            onTap: () {
-                              if (!_toggleCamera) {
-                                onCameraSelected(cameras[1]);
-                                setState(() {
-                                  _toggleCamera = true;
-                                });
-                              } else {
-                                onCameraSelected(cameras[0]);
-                                setState(() {
-                                  _toggleCamera = false;
-                                });
-                              }
-                            },
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.only(bottom: 0.0, right: 80),
-                              child: Image.asset(
-                                'assets/ic_switch_camera_3.png',
-                                color: Colors.grey[200],
-                                width: 32.0,
-                                height: 32.0,
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        width: double.infinity,
+                        height: 90,
+                        // padding: const EdgeInsets.only(bottom: 80.0),
+                        color: const Color.fromRGBO(00, 00, 00, 0.7),
+                        child: Stack(
+                          fit: StackFit.loose,
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            Align(
+                              alignment: Alignment.center,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(50.0)),
+                                  onTap: () {
+                                    _captureImage();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Image.asset(
+                                      'assets/ic_shutter_1.png',
+                                      width: 50.0,
+                                      height: 50.0,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(50.0)),
+                                  onTap: () {
+                                    if (!_toggleCamera) {
+                                      onCameraSelected(cameras[1]);
+                                      setState(() {
+                                        _toggleCamera = true;
+                                      });
+                                    } else {
+                                      onCameraSelected(cameras[0]);
+                                      setState(() {
+                                        _toggleCamera = false;
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.only(
+                                        bottom: 0.0, right: 80),
+                                    child: Image.asset(
+                                      'assets/ic_switch_camera_3.png',
+                                      color: Colors.grey[200],
+                                      width: 32.0,
+                                      height: 32.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: imagePath.isNotEmpty
+                                  ? _thumbnailWidget()
+                                  : Container(),
+                            )
+                          ],
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: imagePath.isNotEmpty
-                            ? _thumbnailWidget()
-                            : Container(),
-                      )
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -436,28 +497,35 @@ class _CameraPageState extends State<CameraPage> {
                 : Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Stack(children: [
-                      SizedBox(
-                        child:
-                            // The captured image on the web contains a network-accessible URL
-                            // pointing to a location within the browser. It may be displayed
-                            // either with Image.network or Image.memory after loading the image
-                            // bytes to memory.
-                            Container(
-                          child: Center(
-                            child: Image.file(
-                              File(imagePath),
-                              fit: BoxFit.contain,
+                      GestureDetector(
+                        child: SizedBox(
+                          child:
+                              // The captured image on the web contains a network-accessible URL
+                              // pointing to a location within the browser. It may be displayed
+                              // either with Image.network or Image.memory after loading the image
+                              // bytes to memory.
+                              Container(
+                            child: Center(
+                              child: Image.file(
+                                File(imagePath),
+                                fit: BoxFit.fill,
+                              ),
                             ),
+                            decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
+                                border: Border.all(
+                                    color: Colors.white.withOpacity(0.5))),
                           ),
-                          decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(0.5),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10)),
-                              border: Border.all(
-                                  color: Colors.white.withOpacity(0.5))),
+                          width: 64.0,
+                          height: 64.0,
                         ),
-                        width: 64.0,
-                        height: 64.0,
+                        onTap: () {
+                          setState(() {
+                            _isTapImage = !_isTapImage;
+                          });
+                        },
                       ),
                       imagePathList.isNotEmpty
                           ? Align(
