@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
@@ -27,6 +28,11 @@ late bool _isVideoRecording;
 late bool _isTapImage;
 bool _isSelectedImage = false;
 int turns = 0;
+late Stream<int>? timerStream;
+late StreamSubscription<int> timerSubscription;
+String hoursStr = "";
+String minutesStr = "";
+String secondsStr = "";
 
 class _CameraPageState extends State<CameraPage> {
   List<CameraDescription> cameras = [];
@@ -156,6 +162,21 @@ class _CameraPageState extends State<CameraPage> {
                       ),
                     ),
                   ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: _isVideoRecording
+                      ? Text(
+                          "$hoursStr:$minutesStr:$secondsStr",
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.yellow[600] as Color),
+                        )
+                      : Container(),
                 ),
               ),
               Align(
@@ -734,6 +755,15 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<void> captureVideo() async {
+    timerStream = stopWatchStream();
+    timerSubscription = timerStream!.listen((int newTick) {
+      setState(() {
+        hoursStr =
+            ((newTick / (60 * 60)) % 60).floor().toString().padLeft(2, '0');
+        minutesStr = ((newTick / 60) % 60).floor().toString().padLeft(2, '0');
+        secondsStr = (newTick % 60).floor().toString().padLeft(2, '0');
+      });
+    });
     final CameraController? cameraController = controller;
 
     if (cameraController == null || !cameraController.value.isInitialized) {
@@ -785,6 +815,13 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   void onStopButtonPressed() {
+    timerSubscription.cancel();
+    timerStream = null;
+    setState(() {
+      hoursStr = '00';
+      minutesStr = '00';
+      secondsStr = '00';
+    });
     stopVideoRecording().then((file) {
       if (mounted) setState(() {});
       if (file != null) {
@@ -1026,6 +1063,40 @@ class _CameraPageState extends State<CameraPage> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  Stream<int> stopWatchStream() {
+    late StreamController<int> streamController;
+    late Timer? timer;
+    Duration timerInterval = const Duration(seconds: 1);
+    int counter = 0;
+
+    void stopTimer() {
+      if (timer != null) {
+        timer!.cancel();
+        timer = null;
+        counter = 0;
+        streamController.close();
+      }
+    }
+
+    void tick(_) {
+      counter++;
+      streamController.add(counter);
+    }
+
+    void startTimer() {
+      timer = Timer.periodic(timerInterval, tick);
+    }
+
+    streamController = StreamController<int>(
+      onListen: startTimer,
+      onCancel: stopTimer,
+      onResume: startTimer,
+      onPause: stopTimer,
+    );
+
+    return streamController.stream;
   }
 
   Widget cameraTogglesRowWidget() {
