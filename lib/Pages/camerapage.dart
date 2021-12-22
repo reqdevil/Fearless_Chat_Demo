@@ -581,13 +581,27 @@ class _CameraPageState extends State<CameraPage> {
                                       onTap: () {
                                         _captureImage();
                                       },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Image.asset(
-                                          'assets/ic_shutter_1.png',
-                                          width: 50.0,
-                                          height: 50.0,
-                                        ),
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(4.0),
+                                            child: Image.asset(
+                                              'assets/ic_shutter_1.png',
+                                              width: 50.0,
+                                              height: 50.0,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 50,
+                                            width: 50,
+                                            child: CircularProgressIndicator(
+                                              value: 0.40,
+                                              color: Colors.red,
+                                              strokeWidth: 4,
+                                            ),
+                                          )
+                                        ],
                                       ),
                                     ),
                                   ),
