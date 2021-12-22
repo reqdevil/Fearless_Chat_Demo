@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
+import 'package:fearless_chat_demo/Widgets/videoitem.dart';
+import 'package:fearless_chat_demo/Widgets/videowidget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,7 +18,6 @@ class CameraPage extends StatefulWidget {
   _CameraPageState createState() => _CameraPageState();
 }
 
-late VideoPlayerController _listviewVideoControllerItem;
 late bool _isflashTap;
 bool _isFlashOn = false;
 bool _isFlashAuto = false;
@@ -68,7 +69,6 @@ class _CameraPageState extends State<CameraPage> {
 
   @override
   void dispose() {
-    _listviewVideoControllerItem.dispose();
     controller!.dispose();
     backToOriginalRotation();
     showStatusbar();
@@ -369,59 +369,8 @@ class _CameraPageState extends State<CameraPage> {
                                   child: ListView.builder(
                                     physics: const BouncingScrollPhysics(),
                                     itemCount: imagePathList.length,
-                                    // padding: const EdgeInsets.all(5),
                                     scrollDirection: Axis.horizontal,
                                     itemBuilder: (context, itemIndex) {
-                                      // VideoPlayerController?
-                                      //     localVideoController =
-                                      //     videoController;
-                                      bool f = imagePathList.reversed
-                                              .where((element) =>
-                                                  element.fileType ==
-                                                  FileType.video)
-                                              .toList()[itemIndex]
-                                              .fileType ==
-                                          FileType.video;
-                                      if (f) {
-                                        _listviewVideoControllerItem =
-                                            VideoPlayerController.file(File(
-                                                imagePathList.reversed
-                                                    .where((element) =>
-                                                        element.fileType ==
-                                                        FileType.video)
-                                                    .toList()[itemIndex]
-                                                    .filePath));
-                                        _listviewVideoControllerItem
-                                            .setLooping(true);
-                                        _listviewVideoControllerItem
-                                            .initialize()
-                                            .then((_) => setState(() {}));
-                                        _listviewVideoControllerItem.play();
-                                      }
-
-                                      //  VideoPlayerController?
-                                      //     localVideoController =
-                                      //     VideoPlayerController.file(File(
-                                      //         imagePathList.reversed
-                                      //             .where((element) =>
-                                      //                 element.fileType ==
-                                      //                 FileType.video)
-                                      //             .toList()[itemIndex]
-                                      //             .filePath));
-                                      // VideoPlayerController.file(File(
-                                      //     imagePathList.reversed
-                                      //         .where((element) =>
-                                      //             element.fileType ==
-                                      //             FileType.video)
-                                      //         .toList()[itemIndex]
-                                      //         .filePath));
-                                      // videoController;
-                                      // imagePathList.reversed
-                                      //     .where((element) =>
-                                      //         element.fileType ==
-                                      //         FileType.video)
-                                      //     .toList()[itemIndex]
-                                      //     .filePath;
                                       return RotatedBox(
                                         quarterTurns: -turns,
                                         child: Padding(
@@ -436,29 +385,35 @@ class _CameraPageState extends State<CameraPage> {
                                                 child: SizedBox(
                                                   child: Container(
                                                     child: Center(
-                                                      child: imagePathList
-                                                                  .reversed
-                                                                  .toList()[
-                                                                      itemIndex]
-                                                                  .fileType ==
-                                                              FileType.photo
-                                                          ? Image.file(
-                                                              File(imagePathList
-                                                                  .reversed
-                                                                  .toList()[
-                                                                      itemIndex]
-                                                                  .filePath),
-                                                              fit: BoxFit.fill,
-                                                            )
-                                                          : AspectRatio(
-                                                              aspectRatio:
-                                                                  _listviewVideoControllerItem
-                                                                      .value
-                                                                      .aspectRatio,
-                                                              child: VideoPlayer(
-                                                                  _listviewVideoControllerItem),
-                                                            ),
-                                                    ),
+                                                        child: imagePathList
+                                                                    .reversed
+                                                                    .toList()[
+                                                                        itemIndex]
+                                                                    .fileType ==
+                                                                FileType.photo
+                                                            ? Image.file(
+                                                                File(imagePathList
+                                                                    .reversed
+                                                                    .toList()[
+                                                                        itemIndex]
+                                                                    .filePath),
+                                                                fit:
+                                                                    BoxFit.fill,
+                                                              )
+                                                            : VideoItem(
+                                                                url: imagePathList
+                                                                    .reversed
+                                                                    .toList()[
+                                                                        itemIndex]
+                                                                    .filePath)
+                                                        // : VideoWidget(
+                                                        //     url: imagePathList
+                                                        //         .reversed
+                                                        //         .toList()[
+                                                        //             itemIndex]
+                                                        //         .filePath,
+                                                        //     play: false),
+                                                        ),
                                                     decoration: BoxDecoration(
                                                       color: Colors.transparent,
                                                       borderRadius:
