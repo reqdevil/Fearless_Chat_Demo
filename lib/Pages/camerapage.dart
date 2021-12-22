@@ -25,6 +25,7 @@ bool _isFlashOff = false;
 late bool _isVideoRecorderSelected;
 late bool _isVideoRecording;
 late bool _isTapImage;
+bool _isSelectedImage = false;
 int turns = 0;
 
 class _CameraPageState extends State<CameraPage> {
@@ -479,6 +480,17 @@ class _CameraPageState extends State<CameraPage> {
                                                           !imagePathList[
                                                                   itemIndex]
                                                               .isSelected;
+                                                      if (imagePathList
+                                                          .where((element) =>
+                                                              element
+                                                                  .isSelected)
+                                                          .toList()
+                                                          .isNotEmpty) {
+                                                        _isSelectedImage = true;
+                                                      } else {
+                                                        _isSelectedImage =
+                                                            false;
+                                                      }
                                                     });
                                                   },
                                                 ),
@@ -491,13 +503,26 @@ class _CameraPageState extends State<CameraPage> {
                                   ),
                                 ),
                                 ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      minimumSize: const Size(15, 10),
-                                      padding: const EdgeInsets.all(0),
-                                      primary: Colors.green[600],
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5),
+                                    onPressed: () {
+                                      if (!_isSelectedImage) {
+                                        null;
+                                      }
+                                    },
+                                    style: ButtonStyle(
+                                      minimumSize: MaterialStateProperty.all(
+                                          const Size(15, 15)),
+                                      padding: MaterialStateProperty.all(
+                                          const EdgeInsets.all(0)),
+                                      backgroundColor: MaterialStateProperty
+                                          .resolveWith<Color>(
+                                        (Set<MaterialState> states) {
+                                          if (_isSelectedImage) {
+                                            return Colors.green[600] as Color;
+                                          } else if (!_isSelectedImage) {
+                                            return Colors.grey;
+                                          }
+                                          return Colors.transparent;
+                                        },
                                       ),
                                     ),
                                     child: const Icon(
