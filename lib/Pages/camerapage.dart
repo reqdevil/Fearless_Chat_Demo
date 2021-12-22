@@ -495,7 +495,7 @@ class _CameraPageState extends State<CameraPage> {
                                     style: ElevatedButton.styleFrom(
                                       minimumSize: const Size(15, 10),
                                       padding: const EdgeInsets.all(0),
-                                      primary: Colors.blue.withOpacity(0.4),
+                                      primary: Colors.green[600],
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5),
                                       ),
@@ -606,10 +606,12 @@ class _CameraPageState extends State<CameraPage> {
                                         borderRadius: BorderRadius.circular(15),
                                       ),
                                     ),
-                                    child: const Icon(
-                                      Icons.video_camera_back_outlined,
-                                      size: 20,
-                                    ),
+                                    child: Icon(
+                                        Icons.video_camera_back_outlined,
+                                        size: 20,
+                                        color: _isVideoRecorderSelected
+                                            ? Colors.yellow[700]
+                                            : Colors.white),
                                   ),
                                   Material(
                                     color: Colors.transparent,
