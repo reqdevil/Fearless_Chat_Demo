@@ -639,10 +639,12 @@ class _CameraPageState extends State<CameraPage> {
                                 children: [
                                   ElevatedButton(
                                     onPressed: () {
-                                      setState(() {
-                                        _isVideoRecorderSelected =
-                                            !_isVideoRecorderSelected;
-                                      });
+                                      if (!_isVideoRecording) {
+                                        setState(() {
+                                          _isVideoRecorderSelected =
+                                              !_isVideoRecorderSelected;
+                                        });
+                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
                                       minimumSize: const Size(30, 30),
@@ -665,16 +667,18 @@ class _CameraPageState extends State<CameraPage> {
                                       borderRadius: const BorderRadius.all(
                                           Radius.circular(50.0)),
                                       onTap: () {
-                                        if (!_toggleCamera) {
-                                          onCameraSelected(cameras[1]);
-                                          setState(() {
-                                            _toggleCamera = true;
-                                          });
-                                        } else {
-                                          onCameraSelected(cameras[0]);
-                                          setState(() {
-                                            _toggleCamera = false;
-                                          });
+                                        if (!_isVideoRecording) {
+                                          if (!_toggleCamera) {
+                                            onCameraSelected(cameras[1]);
+                                            setState(() {
+                                              _toggleCamera = true;
+                                            });
+                                          } else {
+                                            onCameraSelected(cameras[0]);
+                                            setState(() {
+                                              _toggleCamera = false;
+                                            });
+                                          }
                                         }
                                       },
                                       child: Container(
