@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
+import 'package:fearless_chat_demo/Widgets/circularprogressindicator.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
-import 'package:fearless_chat_demo/Widgets/videowidget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -168,15 +168,31 @@ class _CameraPageState extends State<CameraPage> {
                 alignment: Alignment.topCenter,
                 child: Padding(
                   padding: const EdgeInsets.all(18.0),
-                  child: _isVideoRecording
-                      ? Text(
-                          "$hoursStr:$minutesStr:$secondsStr",
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.yellow[600] as Color),
+                  child: _isVideoRecording && _isVideoRecorderSelected
+                      ? Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(5.0),
+                              ),
+                              color: Colors.red),
+                          child: Text(
+                            "$hoursStr:$minutesStr:$secondsStr",
+                            style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
                         )
-                      : Container(),
+                      : !_isVideoRecording && _isVideoRecorderSelected
+                          ? const Text(
+                              "00:00:00",
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            )
+                          : Container(),
                 ),
               ),
               Align(
@@ -592,15 +608,17 @@ class _CameraPageState extends State<CameraPage> {
                                               height: 50.0,
                                             ),
                                           ),
-                                          const SizedBox(
-                                            height: 50,
-                                            width: 50,
-                                            child: CircularProgressIndicator(
-                                              value: 0.40,
-                                              color: Colors.red,
-                                              strokeWidth: 4,
-                                            ),
-                                          )
+                                          _isVideoRecording
+                                              ? SizedBox(
+                                                  height: 45,
+                                                  width: 45,
+                                                  child:
+                                                      CustomCircularProgressIndicator(
+                                                    duration: const Duration(
+                                                        seconds: 60),
+                                                  ),
+                                                )
+                                              : Container()
                                         ],
                                       ),
                                     ),
@@ -623,8 +641,8 @@ class _CameraPageState extends State<CameraPage> {
                                               _isVideoRecording)
                                           ? GestureDetector(
                                               child: Container(
-                                                height: 40,
-                                                width: 40,
+                                                height: 30,
+                                                width: 30,
                                                 decoration: const BoxDecoration(
                                                     color: Colors.red,
                                                     borderRadius:
