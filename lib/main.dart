@@ -1,4 +1,5 @@
 import 'package:fearless_chat_demo/Pages/LoginPage.dart';
+import 'package:fearless_chat_demo/Pages/progresspage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +21,7 @@ class FearlessChatApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const LoginPage(),
+      home: const ProgressPage(),
     );
   }
 }

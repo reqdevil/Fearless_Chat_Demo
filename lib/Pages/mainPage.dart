@@ -1,4 +1,5 @@
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
+import 'package:fearless_chat_demo/Pages/progresspage.dart';
 import 'package:flutter/material.dart';
 
 class MainPage extends StatefulWidget {
@@ -90,6 +91,11 @@ class _MainPageState extends State<MainPage> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const CameraPage()),
+      );
+    } else if (value == 0) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ProgressPage()),
       );
     }
   }
