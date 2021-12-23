@@ -1,10 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-// import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'dart:math' as math;
 
 class ProgressPage extends StatefulWidget {
   const ProgressPage({Key? key}) : super(key: key);
@@ -30,16 +28,20 @@ class _ProgressPageState extends State<ProgressPage>
       if (mounted) {
         int i = 0;
         timer = Timer.periodic(const Duration(milliseconds: 100), (_) {
-          if (i == _list.length - 1) {
+          if (i == _list.length + 1) {
             timer.cancel();
             print('cancelled');
           }
-          setState(() {
-            _list[i].percentage += 10;
-            // _list[i + 1].percentage = 0;
-          });
+          if (i < _list.length) {
+            setState(() {
+              _list[i].percentage += 10;
+
+              // _list[i + 1].percentage = 0;
+            });
+          }
 
           if (_list[i].percentage == 100 && i < _list.length) i++;
+          print(i);
         });
       }
     });
@@ -64,16 +66,19 @@ class _ProgressPageState extends State<ProgressPage>
           scrollDirection: Axis.vertical,
           itemBuilder: (context, itemIndex) {
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
+              padding: const EdgeInsets.symmetric(vertical: 5),
               child: Transform.rotate(
-                angle: 25.0,
+                angle: -math.pi / 13.5,
                 child: LinearPercentIndicator(
                   // key: _list[itemIndex].key,
                   padding: const EdgeInsets.all(0),
-                  curve: Curves.linear,
+                  // curve: Curves.linear,
                   restartAnimation: false,
-                  animation: false,
-                  animationDuration: 2000,
+                  animation: true,
+                  animationDuration: 100,
+                  alignment: MainAxisAlignment.center,
+                  fillColor: Colors.red,
+                  animateFromLastPercent: true,
                   width: MediaQuery.of(context).size.width,
                   lineHeight: 18.0,
                   percent: _list.isNotEmpty
