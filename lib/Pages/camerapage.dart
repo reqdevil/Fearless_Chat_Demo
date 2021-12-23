@@ -27,14 +27,16 @@ late bool _isVideoRecorderSelected;
 late bool _isVideoRecording;
 late bool _isTapImage;
 bool _isSelectedImage = false;
-int turns = 0;
+double turns = 0;
 late Stream<int>? timerStream;
 late StreamSubscription<int> timerSubscription;
 String hoursStr = "";
 String minutesStr = "";
 String secondsStr = "";
 
-class _CameraPageState extends State<CameraPage> {
+class _CameraPageState extends State<CameraPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationElementsController;
   List<CameraDescription> cameras = [];
   List<TakenCameraImage> imagePathList = [];
   String imagePath = "";
@@ -53,8 +55,15 @@ class _CameraPageState extends State<CameraPage> {
   double _baseScale = 1.0;
   XFile? imageFile;
   XFile? videoFile;
+  bool firstLoad = true;
   @override
   void initState() {
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      firstLoad = false;
+    });
+    _animationElementsController = AnimationController(
+      vsync: this,
+    );
     try {
       _isTapImage = false;
       _isflashTap = false;
@@ -76,6 +85,7 @@ class _CameraPageState extends State<CameraPage> {
 
   @override
   void dispose() {
+    _animationElementsController.dispose();
     controller!.dispose();
     backToOriginalRotation();
     showStatusbar();
@@ -116,18 +126,26 @@ class _CameraPageState extends State<CameraPage> {
 
           switch (orientation) {
             case NativeDeviceOrientation.landscapeLeft:
-              turns = -1;
+              turns = -1.0;
+
               break;
             case NativeDeviceOrientation.landscapeRight:
-              turns = 1;
+              turns = 1.0;
+
               break;
             case NativeDeviceOrientation.portraitDown:
-              turns = 2;
+              turns = 2.0;
+
               break;
             default:
-              turns = 0;
+              turns = 0.0;
+
               break;
           }
+          if (firstLoad) {
+            onRotationChangeHandler(orientation);
+          }
+
           final size = MediaQuery.of(context).size;
           final deviceRatio = size.width / size.height;
 
@@ -140,7 +158,7 @@ class _CameraPageState extends State<CameraPage> {
             children: <Widget>[
               Positioned.fill(
                 child: RotatedBox(
-                  quarterTurns: turns,
+                  quarterTurns: turns.toInt(),
                   child: Transform(
                     alignment: Alignment.center,
                     transform: Matrix4.rotationY(math.pi),
@@ -240,8 +258,9 @@ class _CameraPageState extends State<CameraPage> {
                                 padding: const EdgeInsets.only(
                                     right: 18.0, left: 18, top: 0),
                                 child: GestureDetector(
-                                  child: RotatedBox(
-                                    quarterTurns: -turns,
+                                  child: RotationTransition(
+                                    turns: Tween(begin: 0.0, end: angle)
+                                        .animate(_animationElementsController),
                                     child: Column(
                                       children: const [
                                         Icon(
@@ -275,8 +294,9 @@ class _CameraPageState extends State<CameraPage> {
                               Padding(
                                 padding: const EdgeInsets.only(right: 18.0),
                                 child: GestureDetector(
-                                  child: RotatedBox(
-                                    quarterTurns: -turns,
+                                  child: RotationTransition(
+                                    turns: Tween(begin: 0.0, end: angle)
+                                        .animate(_animationElementsController),
                                     child: Column(
                                       children: const [
                                         Icon(
@@ -310,8 +330,9 @@ class _CameraPageState extends State<CameraPage> {
                               Padding(
                                 padding: const EdgeInsets.only(right: 18.0),
                                 child: GestureDetector(
-                                  child: RotatedBox(
-                                    quarterTurns: -turns,
+                                  child: RotationTransition(
+                                    turns: Tween(begin: 0.0, end: angle)
+                                        .animate(_animationElementsController),
                                     child: Column(
                                       children: const [
                                         Icon(
@@ -351,8 +372,10 @@ class _CameraPageState extends State<CameraPage> {
                       child: Padding(
                         padding: const EdgeInsets.only(
                             left: 0.0, bottom: 0, top: 12, right: 10),
-                        child: RotatedBox(
-                          quarterTurns: -turns,
+                        child: RotationTransition(
+                          // quarterTurns: -turns,
+                          turns: Tween(begin: 0.0, end: angle)
+                              .animate(_animationElementsController),
                           child: Icon(
                             _isFlashOn
                                 ? Icons.flash_on
@@ -409,8 +432,10 @@ class _CameraPageState extends State<CameraPage> {
                                     itemCount: imagePathList.length,
                                     scrollDirection: Axis.horizontal,
                                     itemBuilder: (context, itemIndex) {
-                                      return RotatedBox(
-                                        quarterTurns: -turns,
+                                      return RotationTransition(
+                                        turns: Tween(begin: 0.0, end: angle)
+                                            .animate(
+                                                _animationElementsController),
                                         child: Padding(
                                           padding: const EdgeInsets.only(
                                               left: 8, top: 2, bottom: 8),
@@ -719,8 +744,11 @@ class _CameraPageState extends State<CameraPage> {
                                       child: Container(
                                         padding: const EdgeInsets.only(
                                             bottom: 0.0, right: 25),
-                                        child: RotatedBox(
-                                          quarterTurns: turns,
+                                        child: RotationTransition(
+                                          // quarterTurns: -turns,
+                                          turns: Tween(begin: 0.0, end: angle)
+                                              .animate(
+                                                  _animationElementsController),
                                           child: Image.asset(
                                             'assets/ic_switch_camera_3.png',
                                             color: Colors.grey[200],
@@ -753,6 +781,44 @@ class _CameraPageState extends State<CameraPage> {
         useSensor: true,
       ),
     );
+  }
+
+  double angle = 0.0;
+  void onRotationChangeHandler(NativeDeviceOrientation orientation) {
+    print(orientation);
+
+    if (orientation == NativeDeviceOrientation.landscapeLeft) {
+      setState(() {
+        angle = math.pi * turns;
+      });
+    } else if (orientation == NativeDeviceOrientation.portraitUp) {
+      setState(() {
+        angle = math.pi * turns;
+      });
+    } else if (orientation == NativeDeviceOrientation.landscapeRight) {
+      setState(() {
+        angle = math.pi * turns;
+      });
+    } else if (orientation == NativeDeviceOrientation.portraitDown) {
+      setState(() {
+        angle = math.pi * turns;
+      });
+    }
+    // var target = turns;
+    // target += 0.25;
+    // if (target > 1.0) {
+    //   target = 0.25;
+    //   _animationElementsController.reset();
+    // }
+    // _animationElementsController.animateTo(target);
+    Future.delayed(const Duration(seconds: 1), () {
+      _animationElementsController.forward(
+        from: 0,
+      );
+      _animationElementsController.animateTo(angle,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInCubic);
+    });
   }
 
   void onCameraSelected(CameraDescription cameraDescription) async {
@@ -1185,7 +1251,7 @@ class _CameraPageState extends State<CameraPage> {
             localVideoController == null && imagePath.isEmpty
                 ? Container()
                 : RotatedBox(
-                    quarterTurns: -turns,
+                    quarterTurns: -turns.toInt(),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Stack(children: [
