@@ -578,8 +578,8 @@ class _CameraPageState extends State<CameraPage> {
                       child: Container(
                         width: double.infinity,
                         height: 90,
-                        // padding: const EdgeInsets.only(bottom: 80.0),
-                        color: const Color.fromRGBO(00, 00, 00, 0.7),
+                        color: const Color.fromRGBO(00, 00, 00, 0.7)
+                            .withOpacity(0.3),
                         child: Stack(
                           fit: StackFit.loose,
                           alignment: Alignment.center,
@@ -666,9 +666,6 @@ class _CameraPageState extends State<CameraPage> {
                                 ],
                               ),
                             ),
-
-                            // cameraTogglesRowWidget(),
-
                             Align(
                               alignment: Alignment.centerRight,
                               child: Row(
@@ -684,16 +681,17 @@ class _CameraPageState extends State<CameraPage> {
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      minimumSize: const Size(30, 30),
+                                      elevation: 0,
+                                      minimumSize: const Size(32, 32),
                                       padding: const EdgeInsets.all(0),
                                       primary: Colors.grey.withOpacity(0.3),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
                                     ),
                                     child: Icon(
                                         Icons.video_camera_back_outlined,
-                                        size: 20,
+                                        size: 18,
                                         color: _isVideoRecorderSelected
                                             ? Colors.yellow[700]
                                             : Colors.white),
