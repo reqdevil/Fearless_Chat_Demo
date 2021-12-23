@@ -601,7 +601,7 @@ class _CameraPageState extends State<CameraPage> {
                                         alignment: Alignment.center,
                                         children: [
                                           Container(
-                                            padding: const EdgeInsets.all(4.0),
+                                            padding: const EdgeInsets.all(0.0),
                                             child: Image.asset(
                                               'assets/ic_shutter_1.png',
                                               width: 50.0,
@@ -614,6 +614,11 @@ class _CameraPageState extends State<CameraPage> {
                                                   width: 45,
                                                   child:
                                                       CustomCircularProgressIndicator(
+                                                    color: Colors.white,
+                                                    strokeWidth: 6.0,
+                                                    backgroundColor:
+                                                        Colors.white24,
+                                                    valueColor: Colors.red,
                                                     duration: const Duration(
                                                         seconds: 60),
                                                   ),

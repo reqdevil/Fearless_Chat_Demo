@@ -2,10 +2,18 @@ import 'package:flutter/material.dart';
 
 class CustomCircularProgressIndicator extends StatefulWidget {
   final Duration? duration;
-
+  final Color valueColor;
+  final Color backgroundColor;
+  final double strokeWidth;
+  final Color color;
   AnimationController? animationController;
   CustomCircularProgressIndicator(
-      {Key? key, this.duration, this.animationController})
+      {Key? key,
+      this.duration,
+      this.animationController,
+      required this.valueColor,
+      required this.backgroundColor,
+      required this.strokeWidth, required this.color})
       : super(key: key);
   @override
   _CustomCircularProgressIndicatorState createState() =>
@@ -16,8 +24,7 @@ class _CustomCircularProgressIndicatorState
     extends State<CustomCircularProgressIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
-  // int timerCount = 60;
-  // Timer _timer;
+
   @override
   void initState() {
     super.initState();
@@ -43,16 +50,15 @@ class _CustomCircularProgressIndicatorState
   @override
   Widget build(BuildContext context) {
     controller.forward();
-    // startTimer();
     return Transform(
       transform: Matrix4.diagonal3Values(-1.0, 1.0, 1.0),
       alignment: Alignment.center,
       child: CircularProgressIndicator(
-        strokeWidth: 6,
+        strokeWidth: widget.strokeWidth,
         value: controller.value,
-        color: Colors.white,
-        backgroundColor: Colors.white24,
-        valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
+        color: widget.color,
+        backgroundColor: widget.backgroundColor,
+        valueColor: AlwaysStoppedAnimation<Color>(widget.valueColor),
       ),
     );
   }
