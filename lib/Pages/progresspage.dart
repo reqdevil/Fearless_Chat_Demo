@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -58,39 +59,60 @@ class _ProgressPageState extends State<ProgressPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.pink[50],
-      body: ListView.builder(
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
-          physics: const BouncingScrollPhysics(),
-          itemCount: 31,
-          scrollDirection: Axis.vertical,
-          itemBuilder: (context, itemIndex) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Transform.rotate(
-                angle: -math.pi / 13.5,
-                child: LinearPercentIndicator(
-                  // key: _list[itemIndex].key,
-                  padding: const EdgeInsets.all(0),
-                  // curve: Curves.linear,
-                  restartAnimation: false,
-                  animation: true,
-                  animationDuration: 100,
-                  alignment: MainAxisAlignment.center,
-                  fillColor: Colors.red,
-                  animateFromLastPercent: true,
-                  width: MediaQuery.of(context).size.width,
-                  lineHeight: 18.0,
-                  percent: _list.isNotEmpty
-                      ? _list.reversed.toList()[itemIndex].percentage / 100
-                      : 0.0,
-                  linearStrokeCap: LinearStrokeCap.roundAll,
-                  backgroundColor: Colors.white,
-                  progressColor: Colors.indigo.withOpacity(0.5),
+      body: Stack(
+        fit: StackFit.expand,
+        clipBehavior: Clip.antiAlias,
+        alignment: Alignment.center,
+        children: [
+          ListView.builder(
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              physics: const BouncingScrollPhysics(),
+              itemCount: 31,
+              scrollDirection: Axis.vertical,
+              itemBuilder: (context, itemIndex) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: Transform.rotate(
+                    angle: -math.pi / 13.5,
+                    child: LinearPercentIndicator(
+                      // key: _list[itemIndex].key,
+                      padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                      curve: Curves.linear,
+                      restartAnimation: false,
+                      animation: true,
+                      animationDuration: 100,
+                      alignment: MainAxisAlignment.center,
+                      fillColor: Colors.transparent,
+                      animateFromLastPercent: true,
+                      width: MediaQuery.of(context).size.width,
+                      lineHeight: 18.0,
+                      percent: _list.isNotEmpty
+                          ? _list.reversed.toList()[itemIndex].percentage / 100
+                          : 0.0,
+                      linearStrokeCap: LinearStrokeCap.roundAll,
+                      backgroundColor: Colors.white,
+                      progressColor: Colors.indigo.withOpacity(0.5),
+                    ),
+                  ),
+                );
+              }),
+          Positioned.fill(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            top: 0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
+                child: Container(
+                  color: Colors.grey.withOpacity(0.1),
                 ),
               ),
-            );
-          }),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
