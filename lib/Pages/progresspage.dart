@@ -19,7 +19,7 @@ class _ProgressPageState extends State<ProgressPage>
 
   @override
   void initState() {
-    for (var i = 0; i < 31; i++) {
+    for (var i = 0; i < 30; i++) {
       LinearProgress item =
           LinearProgress(GlobalObjectKey('key' + i.toString()), 0);
 
@@ -28,8 +28,8 @@ class _ProgressPageState extends State<ProgressPage>
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (mounted) {
         int i = 0;
-        timer = Timer.periodic(const Duration(milliseconds: 100), (_) {
-          if (i == _list.length + 1) {
+        timer = Timer.periodic(const Duration(milliseconds: 10), (_) {
+          if (i == _list.length) {
             timer.cancel();
             print('cancelled');
           }
@@ -41,7 +41,7 @@ class _ProgressPageState extends State<ProgressPage>
             });
           }
 
-          if (_list[i].percentage == 100 && i < _list.length) i++;
+          if (_list[i].percentage == 100) i++;
           print(i);
         });
       }
@@ -68,20 +68,20 @@ class _ProgressPageState extends State<ProgressPage>
               shrinkWrap: true,
               padding: EdgeInsets.zero,
               physics: const BouncingScrollPhysics(),
-              itemCount: 31,
+              itemCount: 30,
               scrollDirection: Axis.vertical,
               itemBuilder: (context, itemIndex) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  padding: const EdgeInsets.symmetric(vertical: 2.5),
                   child: Transform.rotate(
-                    angle: -math.pi / 13.5,
+                    angle: -math.pi / 22,
                     child: LinearPercentIndicator(
                       // key: _list[itemIndex].key,
                       padding: const EdgeInsets.symmetric(horizontal: 0.0),
                       curve: Curves.linear,
                       restartAnimation: false,
                       animation: true,
-                      animationDuration: 100,
+                      animationDuration: 10,
                       alignment: MainAxisAlignment.center,
                       fillColor: Colors.transparent,
                       animateFromLastPercent: true,
@@ -92,7 +92,7 @@ class _ProgressPageState extends State<ProgressPage>
                           : 0.0,
                       linearStrokeCap: LinearStrokeCap.roundAll,
                       backgroundColor: Colors.white,
-                      progressColor: Colors.indigo.withOpacity(0.5),
+                      progressColor: Colors.indigo[400],
                     ),
                   ),
                 );
