@@ -104,7 +104,7 @@ class _ProgressPageState extends State<ProgressPage>
             top: 0,
             child: ClipRect(
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
+                filter: ImageFilter.blur(sigmaX: .5, sigmaY: 0.5),
                 child: Container(
                   color: Colors.grey.withOpacity(0.1),
                 ),
