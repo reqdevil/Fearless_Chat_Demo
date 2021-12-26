@@ -37,6 +37,8 @@ String secondsStr = "";
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationElementsController;
+  late Animation<double> _animation;
+
   List<CameraDescription> cameras = [];
   List<TakenCameraImage> imagePathList = [];
   String imagePath = "";
@@ -62,8 +64,13 @@ class _CameraPageState extends State<CameraPage>
       firstLoad = false;
     });
     _animationElementsController = AnimationController(
-      vsync: this,
-    );
+        duration: const Duration(milliseconds: 500),
+        vsync: this,
+        value: 0.25,
+        lowerBound: 0.25,
+        upperBound: 0.5);
+    _animation = CurvedAnimation(
+        parent: _animationElementsController, curve: Curves.linear);
     try {
       _isTapImage = false;
       _isflashTap = false;
@@ -127,19 +134,19 @@ class _CameraPageState extends State<CameraPage>
           switch (orientation) {
             case NativeDeviceOrientation.landscapeLeft:
               turns = -1.0;
-
+              _animationElementsController.forward();
               break;
             case NativeDeviceOrientation.landscapeRight:
               turns = 1.0;
-
+              _animationElementsController.forward();
               break;
             case NativeDeviceOrientation.portraitDown:
               turns = 2.0;
-
+              _animationElementsController.forward();
               break;
             default:
               turns = 0.0;
-
+              _animationElementsController.forward();
               break;
           }
           if (firstLoad) {
@@ -744,9 +751,7 @@ class _CameraPageState extends State<CameraPage>
                                             bottom: 0.0, right: 25),
                                         child: RotationTransition(
                                           // quarterTurns: -turns,
-                                          turns: Tween(begin: 0.0, end: angle)
-                                              .animate(
-                                                  _animationElementsController),
+                                          turns: _animation,
                                           child: Image.asset(
                                             'assets/ic_switch_camera_3.png',
                                             color: Colors.grey[200],
