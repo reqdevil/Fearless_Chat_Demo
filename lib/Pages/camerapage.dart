@@ -58,19 +58,24 @@ class _CameraPageState extends State<CameraPage>
   XFile? imageFile;
   XFile? videoFile;
   bool firstLoad = true;
+  late NativeDeviceOrientation _orientation;
   @override
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       firstLoad = false;
     });
     _animationElementsController = AnimationController(
-        duration: const Duration(milliseconds: 500),
-        vsync: this,
-        value: 0.25,
-        lowerBound: 0.25,
-        upperBound: 0.5);
-    _animation = CurvedAnimation(
-        parent: _animationElementsController, curve: Curves.linear);
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    // _animationElementsController = AnimationController(
+    //     duration: const Duration(milliseconds: 500),
+    //     vsync: this,
+    //     value: 0.25,
+    //     lowerBound: 0.25,
+    //     upperBound: 0.5);
+    // _animation = CurvedAnimation(
+    //     parent: _animationElementsController, curve: Curves.linear);
     try {
       _isTapImage = false;
       _isflashTap = false;
@@ -149,6 +154,9 @@ class _CameraPageState extends State<CameraPage>
               _animationElementsController.forward();
               break;
           }
+
+          _orientation = orientation;
+
           if (firstLoad) {
             onRotationChangeHandler(orientation);
           }
@@ -749,15 +757,35 @@ class _CameraPageState extends State<CameraPage>
                                       child: Container(
                                         padding: const EdgeInsets.only(
                                             bottom: 0.0, right: 25),
-                                        child: RotationTransition(
+                                        child: AnimatedBuilder(
+                                          animation:
+                                              _animationElementsController,
                                           // quarterTurns: -turns,
-                                          turns: _animation,
+                                          // turns: _animation,
                                           child: Image.asset(
                                             'assets/ic_switch_camera_3.png',
                                             color: Colors.grey[200],
                                             width: 32.0,
                                             height: 32.0,
                                           ),
+                                          builder: (context, child) {
+                                            return Transform.rotate(
+                                              angle: _orientation ==
+                                                      NativeDeviceOrientation
+                                                          .landscapeRight
+                                                  ? 90 *
+                                                      _animationElementsController
+                                                          .value
+                                                  : _orientation ==
+                                                          NativeDeviceOrientation
+                                                              .landscapeLeft
+                                                      ? -90 *
+                                                          _animationElementsController
+                                                              .value
+                                                      : 0,
+                                              child: child,
+                                            );
+                                          },
                                         ),
                                       ),
                                     ),
@@ -788,40 +816,42 @@ class _CameraPageState extends State<CameraPage>
 
   double angle = 0.0;
   void onRotationChangeHandler(NativeDeviceOrientation orientation) {
-    print(orientation);
-
-    if (orientation == NativeDeviceOrientation.landscapeLeft) {
-      setState(() {
-        angle = math.pi * turns;
-      });
-    } else if (orientation == NativeDeviceOrientation.portraitUp) {
-      setState(() {
-        angle = math.pi * turns;
-      });
-    } else if (orientation == NativeDeviceOrientation.landscapeRight) {
-      setState(() {
-        angle = math.pi * turns;
-      });
-    } else if (orientation == NativeDeviceOrientation.portraitDown) {
-      setState(() {
-        angle = math.pi * turns;
-      });
+    if (kDebugMode) {
+      print(orientation);
     }
-    // var target = turns;
-    // target += 0.25;
-    // if (target > 1.0) {
-    //   target = 0.25;
-    //   _animationElementsController.reset();
+    // _animationElementsController.forward();
+    // if (orientation == NativeDeviceOrientation.landscapeLeft) {
+    //   setState(() {
+    //     angle = math.pi * turns;
+    //   });
+    // } else if (orientation == NativeDeviceOrientation.portraitUp) {
+    //   setState(() {
+    //     angle = math.pi * turns;
+    //   });
+    // } else if (orientation == NativeDeviceOrientation.landscapeRight) {
+    //   setState(() {
+    //     angle = math.pi * turns;
+    //   });
+    // } else if (orientation == NativeDeviceOrientation.portraitDown) {
+    //   setState(() {
+    //     angle = math.pi * turns;
+    //   });
     // }
-    // _animationElementsController.animateTo(target);
-    Future.delayed(const Duration(seconds: 1), () {
-      _animationElementsController.forward(
-        from: 0,
-      );
-      _animationElementsController.animateTo(angle,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeInCubic);
-    });
+    // // var target = turns;
+    // // target += 0.25;
+    // // if (target > 1.0) {
+    // //   target = 0.25;
+    // //   _animationElementsController.reset();
+    // // }
+    // // _animationElementsController.animateTo(target);
+    // Future.delayed(const Duration(seconds: 1), () {
+    //   _animationElementsController.forward(
+    //     from: 0,
+    //   );
+    //   _animationElementsController.animateTo(angle,
+    //       duration: const Duration(milliseconds: 250),
+    //       curve: Curves.easeInCubic);
+    // });
   }
 
   void onCameraSelected(CameraDescription cameraDescription) async {
