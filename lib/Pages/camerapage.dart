@@ -57,25 +57,17 @@ class _CameraPageState extends State<CameraPage>
   double _baseScale = 1.0;
   XFile? imageFile;
   XFile? videoFile;
-  bool firstLoad = true;
-  late NativeDeviceOrientation _orientation;
+  NativeDeviceOrientation oldOrientation = NativeDeviceOrientation.portraitUp;
   @override
   void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      firstLoad = false;
-    });
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {});
     _animationElementsController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 500),
     );
-    // _animationElementsController = AnimationController(
-    //     duration: const Duration(milliseconds: 500),
-    //     vsync: this,
-    //     value: 0.25,
-    //     lowerBound: 0.25,
-    //     upperBound: 0.5);
-    // _animation = CurvedAnimation(
-    //     parent: _animationElementsController, curve: Curves.linear);
+    _animation = Tween<double>(begin: 0, end: math.pi / 2)
+        .animate(_animationElementsController);
+
     try {
       _isTapImage = false;
       _isflashTap = false;
@@ -133,38 +125,33 @@ class _CameraPageState extends State<CameraPage>
       key: _scaffoldKey,
       body: NativeDeviceOrientationReader(
         builder: (context) {
-          NativeDeviceOrientation orientation;
-          orientation = NativeDeviceOrientationReader.orientation(context);
+          // NativeDeviceOrientation orientation;
+          final orientation =
+              NativeDeviceOrientationReader.orientation(context);
 
           switch (orientation) {
             case NativeDeviceOrientation.landscapeLeft:
               turns = -1.0;
-              _animationElementsController.forward();
               break;
             case NativeDeviceOrientation.landscapeRight:
               turns = 1.0;
-              _animationElementsController.forward();
               break;
             case NativeDeviceOrientation.portraitDown:
               turns = 2.0;
-              _animationElementsController.forward();
               break;
             default:
               turns = 0.0;
-              _animationElementsController.forward();
               break;
           }
-
-          _orientation = orientation;
-
-          if (firstLoad) {
+          if (oldOrientation != orientation) {
             onRotationChangeHandler(orientation);
+            oldOrientation = orientation;
           }
 
-          final size = MediaQuery.of(context).size;
-          final deviceRatio = size.width / size.height;
+          // final size = MediaQuery.of(context).size;
+          // final deviceRatio = size.width / size.height;
 
-          final mediaSize = MediaQuery.of(context).size;
+          // final mediaSize = MediaQuery.of(context).size;
           // final scale =
           //     1 / (controller!.value.aspectRatio * mediaSize.aspectRatio);
           return Stack(
@@ -271,9 +258,8 @@ class _CameraPageState extends State<CameraPage>
                                 padding: const EdgeInsets.only(
                                     right: 18.0, left: 18, top: 0),
                                 child: GestureDetector(
-                                  child: RotationTransition(
-                                    turns: Tween(begin: 0.0, end: angle)
-                                        .animate(_animationElementsController),
+                                  child: AnimatedBuilder(
+                                    animation: _animation,
                                     child: Column(
                                       children: const [
                                         Icon(
@@ -290,6 +276,12 @@ class _CameraPageState extends State<CameraPage>
                                         ),
                                       ],
                                     ),
+                                    builder: (context, child) {
+                                      return Transform.rotate(
+                                        angle: _animation.value,
+                                        child: child,
+                                      );
+                                    },
                                   ),
                                   onTap: () {
                                     if (!_isFlashOn) {
@@ -307,9 +299,8 @@ class _CameraPageState extends State<CameraPage>
                               Padding(
                                 padding: const EdgeInsets.only(right: 18.0),
                                 child: GestureDetector(
-                                  child: RotationTransition(
-                                    turns: Tween(begin: 0.0, end: angle)
-                                        .animate(_animationElementsController),
+                                  child: AnimatedBuilder(
+                                    animation: _animation,
                                     child: Column(
                                       children: const [
                                         Icon(
@@ -326,6 +317,12 @@ class _CameraPageState extends State<CameraPage>
                                         ),
                                       ],
                                     ),
+                                    builder: (context, child) {
+                                      return Transform.rotate(
+                                        angle: _animation.value,
+                                        child: child,
+                                      );
+                                    },
                                   ),
                                   onTap: () {
                                     if (!_isFlashOff) {
@@ -343,9 +340,8 @@ class _CameraPageState extends State<CameraPage>
                               Padding(
                                 padding: const EdgeInsets.only(right: 18.0),
                                 child: GestureDetector(
-                                  child: RotationTransition(
-                                    turns: Tween(begin: 0.0, end: angle)
-                                        .animate(_animationElementsController),
+                                  child: AnimatedBuilder(
+                                    animation: _animation,
                                     child: Column(
                                       children: const [
                                         Icon(
@@ -362,6 +358,12 @@ class _CameraPageState extends State<CameraPage>
                                         ),
                                       ],
                                     ),
+                                    builder: (context, child) {
+                                      return Transform.rotate(
+                                        angle: _animation.value,
+                                        child: child,
+                                      );
+                                    },
                                   ),
                                   onTap: () {
                                     if (!_isFlashOn) {
@@ -385,10 +387,8 @@ class _CameraPageState extends State<CameraPage>
                       child: Padding(
                         padding: const EdgeInsets.only(
                             left: 0.0, bottom: 0, top: 12, right: 10),
-                        child: RotationTransition(
-                          // quarterTurns: -turns,
-                          turns: Tween(begin: 0.0, end: angle)
-                              .animate(_animationElementsController),
+                        child: AnimatedBuilder(
+                          animation: _animation,
                           child: Icon(
                             _isFlashOn
                                 ? Icons.flash_on
@@ -400,6 +400,12 @@ class _CameraPageState extends State<CameraPage>
                             color: Colors.white,
                             size: 30,
                           ),
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: _animation.value,
+                              child: child,
+                            );
+                          },
                         ),
                       ),
                       onTap: () {
@@ -445,10 +451,8 @@ class _CameraPageState extends State<CameraPage>
                                     itemCount: imagePathList.length,
                                     scrollDirection: Axis.horizontal,
                                     itemBuilder: (context, itemIndex) {
-                                      return RotationTransition(
-                                        turns: Tween(begin: 0.0, end: angle)
-                                            .animate(
-                                                _animationElementsController),
+                                      return AnimatedBuilder(
+                                        animation: _animation,
                                         child: Padding(
                                           padding: const EdgeInsets.only(
                                               left: 8, top: 2, bottom: 8),
@@ -573,38 +577,53 @@ class _CameraPageState extends State<CameraPage>
                                             ],
                                           ),
                                         ),
+                                        builder: (context, child) {
+                                          return Transform.rotate(
+                                            angle: _animation.value,
+                                            child: child,
+                                          );
+                                        },
                                       );
                                     },
                                   ),
                                 ),
-                                ElevatedButton(
-                                    onPressed: () {
-                                      if (!_isSelectedImage) {
-                                        null;
-                                      }
-                                    },
-                                    style: ButtonStyle(
-                                      minimumSize: MaterialStateProperty.all(
-                                          const Size(15, 15)),
-                                      padding: MaterialStateProperty.all(
-                                          const EdgeInsets.all(0)),
-                                      backgroundColor: MaterialStateProperty
-                                          .resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                          if (_isSelectedImage) {
-                                            return Colors.green[600] as Color;
-                                          } else if (!_isSelectedImage) {
-                                            return Colors.grey;
-                                          }
-                                          return Colors.transparent;
-                                        },
+                                AnimatedBuilder(
+                                  animation: _animation,
+                                  child: ElevatedButton(
+                                      onPressed: () {
+                                        if (!_isSelectedImage) {
+                                          null;
+                                        }
+                                      },
+                                      style: ButtonStyle(
+                                        minimumSize: MaterialStateProperty.all(
+                                            const Size(15, 15)),
+                                        padding: MaterialStateProperty.all(
+                                            const EdgeInsets.all(0)),
+                                        backgroundColor: MaterialStateProperty
+                                            .resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                            if (_isSelectedImage) {
+                                              return Colors.green[600] as Color;
+                                            } else if (!_isSelectedImage) {
+                                              return Colors.grey;
+                                            }
+                                            return Colors.transparent;
+                                          },
+                                        ),
                                       ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.upload_outlined,
-                                      color: Colors.white,
-                                      size: 25,
-                                    ))
+                                      child: const Icon(
+                                        Icons.upload_outlined,
+                                        color: Colors.white,
+                                        size: 25,
+                                      )),
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _animation.value,
+                                      child: child,
+                                    );
+                                  },
+                                )
                               ],
                             ),
                           ),
@@ -709,30 +728,40 @@ class _CameraPageState extends State<CameraPage>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      if (!_isVideoRecording) {
-                                        setState(() {
-                                          _isVideoRecorderSelected =
-                                              !_isVideoRecorderSelected;
-                                        });
-                                      }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      elevation: 0,
-                                      minimumSize: const Size(32, 32),
-                                      padding: const EdgeInsets.all(0),
-                                      primary: Colors.grey.withOpacity(0.3),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                                  AnimatedBuilder(
+                                    animation: _animation,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        if (!_isVideoRecording) {
+                                          setState(() {
+                                            _isVideoRecorderSelected =
+                                                !_isVideoRecorderSelected;
+                                          });
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        elevation: 0,
+                                        minimumSize: const Size(32, 32),
+                                        padding: const EdgeInsets.all(0),
+                                        primary: Colors.grey.withOpacity(0.3),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
                                       ),
+                                      child: Icon(
+                                          Icons.video_camera_back_outlined,
+                                          size: 18,
+                                          color: _isVideoRecorderSelected
+                                              ? Colors.yellow[700]
+                                              : Colors.white),
                                     ),
-                                    child: Icon(
-                                        Icons.video_camera_back_outlined,
-                                        size: 18,
-                                        color: _isVideoRecorderSelected
-                                            ? Colors.yellow[700]
-                                            : Colors.white),
+                                    builder: (context, child) {
+                                      return Transform.rotate(
+                                        angle: _animation.value,
+                                        child: child,
+                                      );
+                                    },
                                   ),
                                   Material(
                                     color: Colors.transparent,
@@ -758,10 +787,7 @@ class _CameraPageState extends State<CameraPage>
                                         padding: const EdgeInsets.only(
                                             bottom: 0.0, right: 25),
                                         child: AnimatedBuilder(
-                                          animation:
-                                              _animationElementsController,
-                                          // quarterTurns: -turns,
-                                          // turns: _animation,
+                                          animation: _animation,
                                           child: Image.asset(
                                             'assets/ic_switch_camera_3.png',
                                             color: Colors.grey[200],
@@ -770,19 +796,7 @@ class _CameraPageState extends State<CameraPage>
                                           ),
                                           builder: (context, child) {
                                             return Transform.rotate(
-                                              angle: _orientation ==
-                                                      NativeDeviceOrientation
-                                                          .landscapeRight
-                                                  ? 90 *
-                                                      _animationElementsController
-                                                          .value
-                                                  : _orientation ==
-                                                          NativeDeviceOrientation
-                                                              .landscapeLeft
-                                                      ? -90 *
-                                                          _animationElementsController
-                                                              .value
-                                                      : 0,
+                                              angle: _animation.value,
                                               child: child,
                                             );
                                           },
@@ -819,6 +833,23 @@ class _CameraPageState extends State<CameraPage>
     if (kDebugMode) {
       print(orientation);
     }
+
+    if (orientation == NativeDeviceOrientation.landscapeLeft) {
+      _animation = Tween<double>(begin: 0, end: math.pi / 2)
+          .animate(_animationElementsController);
+    } else if (orientation == NativeDeviceOrientation.portraitDown) {
+      _animation = Tween<double>(begin: math.pi / 2, end: math.pi)
+          .animate(_animationElementsController);
+    } else if (orientation == NativeDeviceOrientation.landscapeRight) {
+      _animation = Tween<double>(begin: math.pi, end: math.pi + math.pi / 2)
+          .animate(_animationElementsController);
+    } else if (orientation == NativeDeviceOrientation.portraitUp) {
+      _animation =
+          Tween<double>(begin: math.pi + math.pi / 2, end: math.pi + math.pi)
+              .animate(_animationElementsController);
+    }
+    _animationElementsController.forward(from: 0);
+
     // _animationElementsController.forward();
     // if (orientation == NativeDeviceOrientation.landscapeLeft) {
     //   setState(() {
@@ -1283,8 +1314,8 @@ class _CameraPageState extends State<CameraPage>
           children: <Widget>[
             localVideoController == null && imagePath.isEmpty
                 ? Container()
-                : RotatedBox(
-                    quarterTurns: -turns.toInt(),
+                : AnimatedBuilder(
+                    animation: _animation,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Stack(children: [
@@ -1348,6 +1379,12 @@ class _CameraPageState extends State<CameraPage>
                             : Container(),
                       ]),
                     ),
+                    builder: (context, child) {
+                      return Transform.rotate(
+                        angle: _animation.value,
+                        child: child,
+                      );
+                    },
                   )
           ],
         ),
