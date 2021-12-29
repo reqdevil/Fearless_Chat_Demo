@@ -41,5 +41,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+    <string>Fearless Chat whats to use camera.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Fearless Chat whats to use the mic.</string>
 </dict>
 </plist>
