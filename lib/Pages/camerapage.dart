@@ -27,7 +27,7 @@ late bool _isVideoRecorderSelected;
 late bool _isVideoRecording;
 late bool _isTapImage;
 bool _isSelectedImage = false;
-double turns = 0;
+
 late Stream<int>? timerStream;
 late StreamSubscription<int> timerSubscription;
 String hoursStr = "";
@@ -69,16 +69,17 @@ class _CameraPageState extends State<CameraPage>
         .animate(_animationElementsController);
 
     try {
+      getCamera();
       _isTapImage = false;
       _isflashTap = false;
       _isVideoRecorderSelected = false;
       _isVideoRecording = false;
       hideStatusbar();
       enableRotation();
-      getCamera();
-      Future.delayed(const Duration(seconds: 1), () {
-        onCameraSelected(cameras[0]);
-      });
+
+      // Future.delayed(const Duration(milliseconds: 1000), () {
+      //   onCameraSelected(cameras[0]);
+      // });
     } catch (e) {
       if (kDebugMode) {
         print(e.toString());
@@ -98,6 +99,7 @@ class _CameraPageState extends State<CameraPage>
 
   Future<void> getCamera() async {
     cameras = await availableCameras();
+    onCameraSelected(cameras[0]);
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -124,23 +126,24 @@ class _CameraPageState extends State<CameraPage>
     return Scaffold(
       key: _scaffoldKey,
       body: NativeDeviceOrientationReader(
+        useSensor: true,
         builder: (context) {
           // NativeDeviceOrientation orientation;
           final orientation =
               NativeDeviceOrientationReader.orientation(context);
-
+          int turns = 0;
           switch (orientation) {
             case NativeDeviceOrientation.landscapeLeft:
-              turns = -1.0;
+              turns = -1;
               break;
             case NativeDeviceOrientation.landscapeRight:
-              turns = 1.0;
+              turns = 1;
               break;
             case NativeDeviceOrientation.portraitDown:
-              turns = 2.0;
+              turns = 2;
               break;
             default:
-              turns = 0.0;
+              turns = 0;
               break;
           }
           if (oldOrientation != orientation) {
@@ -155,16 +158,14 @@ class _CameraPageState extends State<CameraPage>
           // final scale =
           //     1 / (controller!.value.aspectRatio * mediaSize.aspectRatio);
           return Stack(
-            children: <Widget>[
+            fit: StackFit.expand,
+            children: [
               Positioned.fill(
                 child: RotatedBox(
-                  quarterTurns: turns.toInt(),
-                  child: Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.rotationY(0),
-                    child: Listener(
-                      onPointerDown: (_) => _pointers++,
-                      onPointerUp: (_) => _pointers--,
+                  quarterTurns: -turns,
+                  child: Transform.scale(
+                    scale: 1,
+                    child: Center(
                       child: CameraPreview(
                         controller!,
                         child: LayoutBuilder(builder:
@@ -823,7 +824,6 @@ class _CameraPageState extends State<CameraPage>
             ],
           );
         },
-        useSensor: true,
       ),
     );
   }
@@ -887,7 +887,9 @@ class _CameraPageState extends State<CameraPage>
 
   void onCameraSelected(CameraDescription cameraDescription) async {
     // await controller!.dispose();
-    controller = CameraController(cameraDescription, ResolutionPreset.max);
+    setState(() {
+      controller = CameraController(cameraDescription, ResolutionPreset.max);
+    });
 
     controller!.addListener(() {
       if (mounted) setState(() {});
@@ -1081,7 +1083,7 @@ class _CameraPageState extends State<CameraPage>
   Future<void> enableRotation() async {
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
+      // DeviceOrientation.portraitDown,
       // DeviceOrientation.landscapeLeft,
       // DeviceOrientation.landscapeRight,
     ]);
