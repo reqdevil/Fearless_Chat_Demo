@@ -163,22 +163,20 @@ class _CameraPageState extends State<CameraPage>
               Positioned.fill(
                 child: RotatedBox(
                   quarterTurns: -turns,
-                  child: Transform.scale(
-                    scale: 1,
-                    child: Center(
-                      child: CameraPreview(
-                        controller!,
-                        child: LayoutBuilder(builder:
-                            (BuildContext context, BoxConstraints constraints) {
-                          return GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onScaleStart: _handleScaleStart,
-                            onScaleUpdate: _handleScaleUpdate,
-                            onTapDown: (details) =>
-                                onViewFinderTap(details, constraints),
-                          );
-                        }),
-                      ),
+                  child: AspectRatio(
+                    aspectRatio: 1 / controller!.value.aspectRatio,
+                    child: CameraPreview(
+                      controller!,
+                      child: LayoutBuilder(builder:
+                          (BuildContext context, BoxConstraints constraints) {
+                        return GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onScaleStart: _handleScaleStart,
+                          onScaleUpdate: _handleScaleUpdate,
+                          onTapDown: (details) =>
+                              onViewFinderTap(details, constraints),
+                        );
+                      }),
                     ),
                   ),
                 ),
@@ -285,9 +283,10 @@ class _CameraPageState extends State<CameraPage>
                                     },
                                   ),
                                   onTap: () {
-                                    if (!_isFlashOn) {
-                                      onSetFlashModeButtonPressed(
-                                          FlashMode.auto);
+                                    if (!_isFlashAuto) {
+                                      setFlashMode(FlashMode.auto);
+                                      // onSetFlashModeButtonPressed(
+                                      //     FlashMode.auto);
                                     }
                                     setState(() {
                                       _isFlashOn = false;
@@ -327,8 +326,9 @@ class _CameraPageState extends State<CameraPage>
                                   ),
                                   onTap: () {
                                     if (!_isFlashOff) {
-                                      onSetFlashModeButtonPressed(
-                                          FlashMode.off);
+                                      setFlashMode(FlashMode.off);
+                                      // onSetFlashModeButtonPressed(
+                                      //     FlashMode.off);
                                     }
                                     setState(() {
                                       _isFlashOff = true;
@@ -368,8 +368,9 @@ class _CameraPageState extends State<CameraPage>
                                   ),
                                   onTap: () {
                                     if (!_isFlashOn) {
-                                      onSetFlashModeButtonPressed(
-                                          FlashMode.always);
+                                      setFlashMode(FlashMode.torch);
+                                      // onSetFlashModeButtonPressed(
+                                      //     FlashMode.always);
                                     }
                                     setState(() {
                                       _isFlashOn = true;
@@ -1105,10 +1106,11 @@ class _CameraPageState extends State<CameraPage>
   }
 
   void onSetFlashModeButtonPressed(FlashMode mode) {
-    setFlashMode(mode).then((_) {
-      if (mounted) setState(() {});
-      // showInSnackBar('Flash mode set to ${mode.toString().split('.').last}');
-    });
+    setFlashMode(mode);
+    // setFlashMode(mode).then((_) {
+    //   if (mounted) setState(() {});
+    //   // showInSnackBar('Flash mode set to ${mode.toString().split('.').last}');
+    // });
   }
 
   void showInSnackBar(String message) {
@@ -1140,12 +1142,14 @@ class _CameraPageState extends State<CameraPage>
 
   Future<void> _handleScaleUpdate(ScaleUpdateDetails details) async {
     // When there are not exactly two fingers on screen don't scale
-    if (controller == null || _pointers != 2) {
+    if (controller == null) {
       return;
     }
-
-    _currentScale = (_baseScale * details.scale)
-        .clamp(_minAvailableZoom, _maxAvailableZoom);
+    setState(() {
+      // _currentScale = (_baseScale * details.scale)
+      //     .clamp(_minAvailableZoom, _maxAvailableZoom);
+      _currentScale = _baseScale * details.scale;
+    });
 
     if (kDebugMode) {
       print(_currentScale);
