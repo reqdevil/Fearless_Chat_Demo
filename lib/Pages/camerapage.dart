@@ -35,7 +35,7 @@ String minutesStr = "";
 String secondsStr = "";
 
 class _CameraPageState extends State<CameraPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _animationElementsController;
   late Animation<double> _animation;
 
@@ -58,6 +58,24 @@ class _CameraPageState extends State<CameraPage>
   XFile? imageFile;
   XFile? videoFile;
   NativeDeviceOrientation oldOrientation = NativeDeviceOrientation.portraitUp;
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final CameraController? cameraController = controller;
+
+    // App state changed before we got the chance to initialize.
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      // Free up memory when camera not active
+      cameraController.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      // Reinitialize the camera with same properties
+      onNewCameraSelected(cameraController.description);
+    }
+  }
+
   @override
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) async {});
