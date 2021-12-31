@@ -176,27 +176,23 @@ class _CameraPageState extends State<CameraPage>
                     fit: StackFit.expand,
                     children: [
                       Positioned.fill(
-                        child: RotatedBox(
-                          quarterTurns: -turns,
-                          child: AspectRatio(
-                            aspectRatio: controller!.value.aspectRatio != null
-                                ? 1 / controller!.value.aspectRatio
-                                : 1,
-                            // aspectRatio: 1,
-                            child: CameraPreview(
-                              controller!,
-                              child: LayoutBuilder(builder:
-                                  (BuildContext context,
-                                      BoxConstraints constraints) {
-                                return GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onScaleStart: _handleScaleStart,
-                                  onScaleUpdate: _handleScaleUpdate,
-                                  onTapDown: (details) =>
-                                      onViewFinderTap(details, constraints),
-                                );
-                              }),
-                            ),
+                        child: AspectRatio(
+                          aspectRatio: controller!.value.aspectRatio != null
+                              ? 1 / controller!.value.aspectRatio
+                              : 1,
+                          // aspectRatio: 1,
+                          child: CameraPreview(
+                            controller!,
+                            child: LayoutBuilder(builder: (BuildContext context,
+                                BoxConstraints constraints) {
+                              return GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onScaleStart: _handleScaleStart,
+                                onScaleUpdate: _handleScaleUpdate,
+                                onTapDown: (details) =>
+                                    onViewFinderTap(details, constraints),
+                              );
+                            }),
                           ),
                         ),
                       ),
@@ -1104,6 +1100,7 @@ class _CameraPageState extends State<CameraPage>
 
     try {
       await controller!.initialize();
+      await controller!.lockCaptureOrientation();
       await Future.wait([
         // The exposure mode is currently not supported on the web.
         ...(!kIsWeb
@@ -1541,107 +1538,72 @@ class _CameraPageState extends State<CameraPage>
   /// Display the thumbnail of the captured image or video.
   Widget _thumbnailWidget() {
     final VideoPlayerController? localVideoController = videoController;
-    return Expanded(
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            localVideoController == null && imagePath.isEmpty
-                ? Container()
-                : AnimatedBuilder(
-                    animation: _animation,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Stack(children: [
-                        GestureDetector(
-                          child: SizedBox(
-                            child: (localVideoController == null)
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      border: Border.all(
-                                          color: Colors.white, width: 2),
-                                    ),
-                                    child: (
-                                        // The captured image on the web contains a network-accessible URL
-                                        // pointing to a location within the browser. It may be displayed
-                                        // either with Image.network or Image.memory after loading the image
-                                        // bytes to memory.
-
-                                        Image.file(
-                                      File(imagePath),
-                                      fit: BoxFit.cover,
-                                      width: 60,
-                                      height: 60,
-                                    )),
-                                  )
-                                : Container(
-                                    width: 64,
-                                    height: 64,
-                                    child: Center(
-                                      child: AspectRatio(
-                                          aspectRatio: localVideoController
-                                              .value.aspectRatio,
-                                          child: VideoPlayer(
-                                              localVideoController)),
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      border: Border.all(
-                                          color: Colors.white, width: 2),
-                                    ),
-                                  ),
-                            width: 64.0,
-                            height: 64.0,
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _isTapImage = !_isTapImage;
-                            });
-                          },
-                        ),
-                        imagePathList.isNotEmpty
-                            ? Positioned.fill(
-                                child: Align(
-                                  alignment: Alignment.topRight,
-                                  child: Container(
-                                    margin: const EdgeInsets.only(
-                                        left: 2, right: 2, bottom: 2, top: 2),
-                                    height: 20,
-                                    width: 20,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10)),
-                                        border: Border.all(color: Colors.red)),
-                                    child: Text(
-                                      imagePathList.length.toString(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : Container(),
-                      ]),
-                    ),
-                    builder: (context, child) {
-                      return Transform.rotate(
-                        angle: _animation.value,
-                        child: child,
-                      );
-                    },
-                  )
-          ],
+    return AnimatedBuilder(
+      animation: _animation,
+      child: Stack(children: [
+        GestureDetector(
+          child: Container(
+              margin: const EdgeInsets.only(left: 10),
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(color: Colors.white, width: 2),
+                  image: DecorationImage(
+                    image: FileImage(File(imagePath)),
+                    fit: BoxFit.cover,
+                  )),
+              child: localVideoController != null &&
+                      localVideoController.value.isInitialized
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: AspectRatio(
+                        aspectRatio: localVideoController.value.aspectRatio,
+                        child: VideoPlayer(localVideoController),
+                      ),
+                    )
+                  : Container()),
+          onTap: () {
+            setState(() {
+              _isTapImage = !_isTapImage;
+            });
+          },
         ),
-      ),
+        imagePathList.isNotEmpty
+            ? Positioned.fill(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                        left: 2, right: 2, bottom: 2, top: 2),
+                    height: 20,
+                    width: 20,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10)),
+                        border: Border.all(color: Colors.red)),
+                    child: Text(
+                      imagePathList.length.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              )
+            : Container(),
+      ]),
+      builder: (context, child) {
+        return Transform.rotate(
+          angle: _animation.value,
+          child: child,
+        );
+      },
     );
   }
 }
