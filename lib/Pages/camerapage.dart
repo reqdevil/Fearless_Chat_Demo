@@ -263,33 +263,43 @@ class _CameraPageState extends State<CameraPage>
                                     const EdgeInsets.only(left: 8.0, bottom: 0),
                                 child: AnimatedBuilder(
                                   animation: _animation,
-                                  child: DropdownButton<ResolutionPreset>(
-                                    dropdownColor: Colors.black87,
-                                    underline: Container(),
-                                    value: currentResolutionPreset,
-                                    items: [
-                                      for (ResolutionPreset preset
-                                          in resolutionPresets)
-                                        DropdownMenuItem(
-                                          child: Text(
-                                            preset
-                                                .toString()
-                                                .split('.')[1]
-                                                .toUpperCase(),
-                                            style: const TextStyle(
-                                                color: Colors.white),
-                                          ),
-                                          value: preset,
-                                        )
-                                    ],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        currentResolutionPreset = value!;
-                                        _isCameraInitialized = false;
-                                      });
-                                      onCameraSelected(controller!.description);
-                                    },
-                                    hint: const Text("Select item"),
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(5.0),
+                                        )),
+                                    child: DropdownButton<ResolutionPreset>(
+                                      dropdownColor: Colors.black87,
+                                      iconEnabledColor: Colors.white,
+                                      underline: Container(),
+                                      value: currentResolutionPreset,
+                                      items: [
+                                        for (ResolutionPreset preset
+                                            in resolutionPresets)
+                                          DropdownMenuItem(
+                                            child: Text(
+                                              preset
+                                                  .toString()
+                                                  .split('.')[1]
+                                                  .toUpperCase(),
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            value: preset,
+                                          )
+                                      ],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          currentResolutionPreset = value!;
+                                          _isCameraInitialized = false;
+                                        });
+                                        onCameraSelected(
+                                            controller!.description);
+                                      },
+                                      hint: const Text("Select item"),
+                                    ),
                                   ),
                                   builder: (context, child) {
                                     return Transform.rotate(
@@ -809,41 +819,47 @@ class _CameraPageState extends State<CameraPage>
                                               onTap: () {
                                                 _captureImage();
                                               },
-                                              child: Stack(
-                                                alignment: Alignment.center,
-                                                children: [
-                                                  Container(
-                                                    height: 50,
-                                                    width: 50,
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            0.0),
-                                                    child: Image.asset(
-                                                      'assets/ic_shutter_1.png',
-                                                      width: 50.0,
-                                                      height: 50.0,
+                                              child: SizedBox(
+                                                width: 50,
+                                                height: 50,
+                                                child: Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    Container(
+                                                      height: 50,
+                                                      width: 50,
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              0.0),
+                                                      child: Image.asset(
+                                                        'assets/ic_shutter_1.png',
+                                                        width: 50.0,
+                                                        height: 50.0,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  _isVideoRecording
-                                                      ? SizedBox(
-                                                          height: 45,
-                                                          width: 45,
-                                                          child:
-                                                              CustomCircularProgressIndicator(
-                                                            color: Colors.white,
-                                                            strokeWidth: 6.0,
-                                                            backgroundColor:
-                                                                Colors.white24,
-                                                            valueColor:
-                                                                Colors.red,
-                                                            duration:
-                                                                const Duration(
-                                                                    seconds:
-                                                                        60),
-                                                          ),
-                                                        )
-                                                      : Container()
-                                                ],
+                                                    _isVideoRecording
+                                                        ? SizedBox(
+                                                            height: 45,
+                                                            width: 45,
+                                                            child:
+                                                                CustomCircularProgressIndicator(
+                                                              color:
+                                                                  Colors.white,
+                                                              strokeWidth: 6.0,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .white24,
+                                                              valueColor:
+                                                                  Colors.red,
+                                                              duration:
+                                                                  const Duration(
+                                                                      seconds:
+                                                                          60),
+                                                            ),
+                                                          )
+                                                        : Container()
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -937,44 +953,52 @@ class _CameraPageState extends State<CameraPage>
                                           ),
                                           Material(
                                             color: Colors.transparent,
-                                            child: InkWell(
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(50.0)),
-                                              onTap: () {
-                                                if (!_isVideoRecording) {
-                                                  if (!_toggleCamera) {
-                                                    onCameraSelected(
-                                                        cameras[1]);
-                                                    setState(() {
-                                                      _toggleCamera = true;
-                                                    });
-                                                  } else {
-                                                    onCameraSelected(
-                                                        cameras[0]);
-                                                    setState(() {
-                                                      _toggleCamera = false;
-                                                    });
+                                            child: Container(
+                                              margin: const EdgeInsets.only(
+                                                  right: 10),
+                                              height: 32,
+                                              width: 32,
+                                              child: InkWell(
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                        Radius.circular(50.0)),
+                                                onTap: () {
+                                                  if (!_isVideoRecording) {
+                                                    if (!_toggleCamera) {
+                                                      onCameraSelected(
+                                                          cameras[1]);
+                                                      setState(() {
+                                                        _toggleCamera = true;
+                                                      });
+                                                    } else {
+                                                      onCameraSelected(
+                                                          cameras[0]);
+                                                      setState(() {
+                                                        _toggleCamera = false;
+                                                      });
+                                                    }
                                                   }
-                                                }
-                                              },
-                                              child: Container(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 0.0, right: 25),
-                                                child: AnimatedBuilder(
-                                                  animation: _animation,
-                                                  child: Image.asset(
-                                                    'assets/ic_switch_camera_3.png',
-                                                    color: Colors.grey[200],
-                                                    width: 32.0,
-                                                    height: 32.0,
+                                                },
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 0.0,
+                                                          right: 0),
+                                                  child: AnimatedBuilder(
+                                                    animation: _animation,
+                                                    child: Image.asset(
+                                                      'assets/ic_switch_camera_3.png',
+                                                      color: Colors.grey[200],
+                                                      width: 64.0,
+                                                      height: 64.0,
+                                                    ),
+                                                    builder: (context, child) {
+                                                      return Transform.rotate(
+                                                        angle: _animation.value,
+                                                        child: child,
+                                                      );
+                                                    },
                                                   ),
-                                                  builder: (context, child) {
-                                                    return Transform.rotate(
-                                                      angle: _animation.value,
-                                                      child: child,
-                                                    );
-                                                  },
                                                 ),
                                               ),
                                             ),
