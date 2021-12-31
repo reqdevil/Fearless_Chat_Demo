@@ -792,9 +792,9 @@ class _CameraPageState extends State<CameraPage>
                                 color: const Color.fromRGBO(00, 00, 00, 0.7)
                                     .withOpacity(0.3),
                                 child: Stack(
-                                  fit: StackFit.loose,
+                                  // fit: StackFit.loose,
                                   alignment: Alignment.center,
-                                  children: <Widget>[
+                                  children: [
                                     Align(
                                       alignment: Alignment.center,
                                       child: Stack(
@@ -803,9 +803,9 @@ class _CameraPageState extends State<CameraPage>
                                           Material(
                                             color: Colors.transparent,
                                             child: InkWell(
+                                              radius: 0,
                                               borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(50.0)),
+                                                  BorderRadius.circular(50.0),
                                               onTap: () {
                                                 _captureImage();
                                               },
@@ -813,6 +813,8 @@ class _CameraPageState extends State<CameraPage>
                                                 alignment: Alignment.center,
                                                 children: [
                                                   Container(
+                                                    height: 50,
+                                                    width: 50,
                                                     padding:
                                                         const EdgeInsets.all(
                                                             0.0),
