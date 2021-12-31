@@ -45,6 +45,7 @@ class _CameraPageState extends State<CameraPage>
   bool _toggleCamera = false;
   CameraController? controller;
   int _pointers = 0;
+  // double _currentZoomLevel = 1.0;
   double _minAvailableZoom = 1.0;
   double _maxAvailableZoom = 1.0;
   VideoPlayerController? videoController;
@@ -145,718 +146,206 @@ class _CameraPageState extends State<CameraPage>
 
     return Scaffold(
         key: _scaffoldKey,
-        body: NativeDeviceOrientationReader(
-          useSensor: true,
-          builder: (context) {
-            // NativeDeviceOrientation orientation;
-            final orientation =
-                NativeDeviceOrientationReader.orientation(context);
-            int turns = 0;
-            switch (orientation) {
-              case NativeDeviceOrientation.landscapeLeft:
-                turns = -1;
-                break;
-              case NativeDeviceOrientation.landscapeRight:
-                turns = 1;
-                break;
-              case NativeDeviceOrientation.portraitDown:
-                turns = 2;
-                break;
-              default:
-                turns = 0;
-                break;
-            }
-            if (oldOrientation != orientation) {
-              onRotationChangeHandler(orientation);
-              oldOrientation = orientation;
-            }
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned.fill(
-                  child: RotatedBox(
-                    quarterTurns: -turns,
-                    child: AspectRatio(
-                      aspectRatio: 1 / controller!.value.aspectRatio,
-                      child: CameraPreview(
-                        controller!,
-                        child: LayoutBuilder(builder:
-                            (BuildContext context, BoxConstraints constraints) {
-                          return GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onScaleStart: _handleScaleStart,
-                            onScaleUpdate: _handleScaleUpdate,
-                            onTapDown: (details) =>
-                                onViewFinderTap(details, constraints),
-                          );
-                        }),
-                      ),
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: _isVideoRecording && _isVideoRecorderSelected
-                        ? Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(5.0),
-                                ),
-                                color: Colors.red),
-                            child: Text(
-                              "$hoursStr:$minutesStr:$secondsStr",
-                              style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                          )
-                        : !_isVideoRecording && _isVideoRecorderSelected
-                            ? const Text(
-                                "00:00:00",
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                              )
-                            : Container(),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: GestureDetector(
-                    child: const Padding(
-                      padding: EdgeInsets.only(left: 0.0, bottom: 0, top: 0),
-                      child: SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 35,
-                        ),
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        body: _isCameraInitialized
+            ? NativeDeviceOrientationReader(
+                useSensor: true,
+                builder: (context) {
+                  // NativeDeviceOrientation orientation;
+                  final orientation =
+                      NativeDeviceOrientationReader.orientation(context);
+                  int turns = 0;
+                  switch (orientation) {
+                    case NativeDeviceOrientation.landscapeLeft:
+                      turns = -1;
+                      break;
+                    case NativeDeviceOrientation.landscapeRight:
+                      turns = 1;
+                      break;
+                    case NativeDeviceOrientation.portraitDown:
+                      turns = 2;
+                      break;
+                    default:
+                      turns = 0;
+                      break;
+                  }
+                  if (oldOrientation != orientation) {
+                    onRotationChangeHandler(orientation);
+                    oldOrientation = orientation;
+                  }
+                  return Stack(
+                    fit: StackFit.expand,
                     children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.2,
-                        height: MediaQuery.of(context).size.height / 15,
-                        child: AnimatedOpacity(
-                          opacity: _isflashTap ? 1 : 0,
-                          duration: const Duration(milliseconds: 250),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 0.0, top: 14, right: 0, bottom: 0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      right: 18.0, left: 18, top: 0),
-                                  child: GestureDetector(
-                                    child: AnimatedBuilder(
-                                      animation: _animation,
-                                      child: Column(
-                                        children: const [
-                                          Icon(
-                                            Icons.flash_auto,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                          Text(
-                                            'Auto',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 8,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _animation.value,
-                                          child: child,
-                                        );
-                                      },
-                                    ),
-                                    onTap: () {
-                                      if (!_isFlashAuto) {
-                                        setFlashMode(FlashMode.auto);
-                                        // onSetFlashModeButtonPressed(
-                                        //     FlashMode.auto);
-                                      }
-                                      setState(() {
-                                        _isFlashOn = false;
-                                        _isFlashOff = false;
-                                        _isFlashAuto = true;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 18.0),
-                                  child: GestureDetector(
-                                    child: AnimatedBuilder(
-                                      animation: _animation,
-                                      child: Column(
-                                        children: const [
-                                          Icon(
-                                            Icons.flash_off,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                          Text(
-                                            'Off',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 8,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _animation.value,
-                                          child: child,
-                                        );
-                                      },
-                                    ),
-                                    onTap: () {
-                                      if (!_isFlashOff) {
-                                        setFlashMode(FlashMode.off);
-                                        // onSetFlashModeButtonPressed(
-                                        //     FlashMode.off);
-                                      }
-                                      setState(() {
-                                        _isFlashOff = true;
-                                        _isFlashAuto = false;
-                                        _isFlashOn = false;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 18.0),
-                                  child: GestureDetector(
-                                    child: AnimatedBuilder(
-                                      animation: _animation,
-                                      child: Column(
-                                        children: const [
-                                          Icon(
-                                            Icons.flash_on,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                          Text(
-                                            'On',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 8,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _animation.value,
-                                          child: child,
-                                        );
-                                      },
-                                    ),
-                                    onTap: () {
-                                      if (!_isFlashOn) {
-                                        setFlashMode(FlashMode.torch);
-                                        // onSetFlashModeButtonPressed(
-                                        //     FlashMode.always);
-                                      }
-                                      setState(() {
-                                        _isFlashOn = true;
-                                        _isFlashOff = false;
-                                        _isFlashAuto = false;
-                                      });
-                                    },
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              left: 0.0, bottom: 0, top: 12, right: 10),
-                          child: AnimatedBuilder(
-                            animation: _animation,
-                            child: Icon(
-                              _isFlashOn
-                                  ? Icons.flash_on
-                                  : _isFlashOff
-                                      ? Icons.flash_off
-                                      : _isFlashAuto
-                                          ? Icons.flash_auto
-                                          : Icons.flash_off,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                            builder: (context, child) {
-                              return Transform.rotate(
-                                angle: _animation.value,
-                                child: child,
-                              );
-                            },
-                          ),
-                        ),
-                        onTap: () {
-                          setState(() {
-                            _isflashTap = !_isflashTap;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      AnimatedOpacity(
-                        opacity: !_isTapImage ? 1 : 0,
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeIn,
-                        child: Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.only(left: 8.0, bottom: 0),
-                            child: DropdownButton<ResolutionPreset>(
-                              dropdownColor: Colors.black87,
-                              underline: Container(),
-                              value: currentResolutionPreset,
-                              items: [
-                                for (ResolutionPreset preset
-                                    in resolutionPresets)
-                                  DropdownMenuItem(
-                                    child: Text(
-                                      preset
-                                          .toString()
-                                          .split('.')[1]
-                                          .toUpperCase(),
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                    value: preset,
-                                  )
-                              ],
-                              onChanged: (value) {
-                                setState(() {
-                                  currentResolutionPreset = value!;
-                                  _isCameraInitialized = false;
-                                });
-                                onCameraSelected(controller!.description);
-                                // onNewCameraSelected(controller!.description);
-                              },
-                              hint: const Text("Select item"),
-                            ),
-                          ),
-                        ),
-                      ),
-                      AnimatedOpacity(
-                        opacity: _isTapImage ? 1 : 0,
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeIn,
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 0.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(5),
-                                    topRight: Radius.circular(5),
-                                    bottomLeft: Radius.circular(0),
-                                    bottomRight: Radius.circular(0)),
-                                color: Colors.black.withOpacity(0.7),
-                              ),
-                              // margin: const EdgeInsets.all(5),
-                              alignment: Alignment.center,
-                              width: double.infinity,
-                              height: 64,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: ListView.builder(
-                                      physics: const BouncingScrollPhysics(),
-                                      itemCount: imagePathList.length,
-                                      scrollDirection: Axis.horizontal,
-                                      itemBuilder: (context, itemIndex) {
-                                        return AnimatedBuilder(
-                                          animation: _animation,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 8, top: 2, bottom: 8),
-                                            child: Stack(
-                                              // fit: StackFit.loose,
-                                              // alignment: Alignment.center,
-                                              children: [
-                                                Align(
-                                                  alignment: Alignment.center,
-                                                  child: SizedBox(
-                                                    child: Container(
-                                                      child: Center(
-                                                          child: imagePathList
-                                                                      .reversed
-                                                                      .toList()[
-                                                                          itemIndex]
-                                                                      .fileType ==
-                                                                  FileType.photo
-                                                              ? Image.file(
-                                                                  File(imagePathList
-                                                                      .reversed
-                                                                      .toList()[
-                                                                          itemIndex]
-                                                                      .filePath),
-                                                                  fit: BoxFit
-                                                                      .fill,
-                                                                )
-                                                              : VideoItem(
-                                                                  url: imagePathList
-                                                                      .reversed
-                                                                      .toList()[
-                                                                          itemIndex]
-                                                                      .filePath)
-                                                          // : VideoWidget(
-                                                          //     url: imagePathList
-                                                          //         .reversed
-                                                          //         .toList()[
-                                                          //             itemIndex]
-                                                          //         .filePath,
-                                                          //     play: false),
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            Colors.transparent,
-                                                        borderRadius:
-                                                            const BorderRadius
-                                                                    .all(
-                                                                Radius.circular(
-                                                                    10)),
-                                                        border: Border.all(
-                                                          color: Colors.white
-                                                              .withOpacity(0.5),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    width: 64.0,
-                                                    height: 64.0,
-                                                  ),
-                                                ),
-                                                Positioned.fill(
-                                                  child: GestureDetector(
-                                                    child: Align(
-                                                      alignment:
-                                                          Alignment.bottomRight,
-                                                      child: Container(
-                                                        margin: const EdgeInsets
-                                                            .all(2),
-                                                        height: 20,
-                                                        width: 20,
-                                                        alignment:
-                                                            Alignment.center,
-                                                        decoration: BoxDecoration(
-                                                            color: imagePathList[
-                                                                        itemIndex]
-                                                                    .isSelected
-                                                                ? Colors.blue
-                                                                : Colors
-                                                                    .transparent,
-                                                            borderRadius:
-                                                                const BorderRadius
-                                                                        .all(
-                                                                    Radius
-                                                                        .circular(
-                                                                            10)),
-                                                            border: Border.all(
-                                                                color: Colors
-                                                                    .blue)),
-                                                        child: imagePathList[
-                                                                    itemIndex]
-                                                                .isSelected
-                                                            ? const Icon(
-                                                                Icons.check,
-                                                                color: Colors
-                                                                    .white,
-                                                                size: 15,
-                                                              )
-                                                            : Container(),
-                                                      ),
-                                                    ),
-                                                    onTap: () {
-                                                      setState(() {
-                                                        imagePathList[itemIndex]
-                                                                .isSelected =
-                                                            !imagePathList[
-                                                                    itemIndex]
-                                                                .isSelected;
-                                                        if (imagePathList
-                                                            .where((element) =>
-                                                                element
-                                                                    .isSelected)
-                                                            .toList()
-                                                            .isNotEmpty) {
-                                                          _isSelectedImage =
-                                                              true;
-                                                        } else {
-                                                          _isSelectedImage =
-                                                              false;
-                                                        }
-                                                      });
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          builder: (context, child) {
-                                            return Transform.rotate(
-                                              angle: _animation.value,
-                                              child: child,
-                                            );
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  AnimatedBuilder(
-                                    animation: _animation,
-                                    child: ElevatedButton(
-                                        onPressed: () {
-                                          if (!_isSelectedImage) {
-                                            null;
-                                          }
-                                        },
-                                        style: ButtonStyle(
-                                          minimumSize:
-                                              MaterialStateProperty.all(
-                                                  const Size(15, 15)),
-                                          padding: MaterialStateProperty.all(
-                                              const EdgeInsets.all(0)),
-                                          backgroundColor: MaterialStateProperty
-                                              .resolveWith<Color>(
-                                            (Set<MaterialState> states) {
-                                              if (_isSelectedImage) {
-                                                return Colors.green[600]
-                                                    as Color;
-                                              } else if (!_isSelectedImage) {
-                                                return Colors.grey;
-                                              }
-                                              return Colors.transparent;
-                                            },
-                                          ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.upload_outlined,
-                                          color: Colors.white,
-                                          size: 25,
-                                        )),
-                                    builder: (context, child) {
-                                      return Transform.rotate(
-                                        angle: _animation.value,
-                                        child: child,
-                                      );
-                                    },
-                                  )
-                                ],
-                              ),
+                      Positioned.fill(
+                        child: RotatedBox(
+                          quarterTurns: -turns,
+                          child: AspectRatio(
+                            aspectRatio: controller!.value.aspectRatio != null
+                                ? 1 / controller!.value.aspectRatio
+                                : 1,
+                            // aspectRatio: 1,
+                            child: CameraPreview(
+                              controller!,
+                              child: LayoutBuilder(builder:
+                                  (BuildContext context,
+                                      BoxConstraints constraints) {
+                                return GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onScaleStart: _handleScaleStart,
+                                  onScaleUpdate: _handleScaleUpdate,
+                                  onTapDown: (details) =>
+                                      onViewFinderTap(details, constraints),
+                                );
+                              }),
                             ),
                           ),
                         ),
                       ),
                       Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Container(
-                          width: double.infinity,
-                          height: 90,
-                          color: const Color.fromRGBO(00, 00, 00, 0.7)
-                              .withOpacity(0.3),
-                          child: Stack(
-                            fit: StackFit.loose,
-                            alignment: Alignment.center,
-                            children: <Widget>[
-                              Align(
-                                alignment: Alignment.center,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(50.0)),
-                                        onTap: () {
-                                          _captureImage();
-                                        },
-                                        child: Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.all(0.0),
-                                              child: Image.asset(
-                                                'assets/ic_shutter_1.png',
-                                                width: 50.0,
-                                                height: 50.0,
-                                              ),
-                                            ),
-                                            _isVideoRecording
-                                                ? SizedBox(
-                                                    height: 45,
-                                                    width: 45,
-                                                    child:
-                                                        CustomCircularProgressIndicator(
-                                                      color: Colors.white,
-                                                      strokeWidth: 6.0,
-                                                      backgroundColor:
-                                                          Colors.white24,
-                                                      valueColor: Colors.red,
-                                                      duration: const Duration(
-                                                          seconds: 60),
-                                                    ),
-                                                  )
-                                                : Container()
-                                          ],
-                                        ),
+                        alignment: Alignment.topCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: _isVideoRecording && _isVideoRecorderSelected
+                              ? Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(5.0),
                                       ),
-                                    ),
-                                    _isVideoRecorderSelected &&
-                                            !_isVideoRecording
-                                        ? GestureDetector(
-                                            child: const Icon(Icons.circle,
-                                                color: Colors.red, size: 50),
-                                            onTap: () {
-                                              setState(() {
-                                                _isVideoRecording =
-                                                    !_isVideoRecording;
-                                              });
-                                              if (_isVideoRecorderSelected) {
-                                                captureVideo();
-                                              }
-                                            },
-                                          )
-                                        : (_isVideoRecorderSelected &&
-                                                _isVideoRecording)
-                                            ? GestureDetector(
-                                                child: Container(
-                                                  height: 30,
-                                                  width: 30,
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                          color: Colors.red,
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          10))),
-                                                ),
-                                                onTap: () {
-                                                  onStopButtonPressed();
-                                                  setState(() {
-                                                    _isVideoRecording = false;
-                                                  });
-                                                },
-                                              )
-                                            : Container()
-                                  ],
+                                      color: Colors.red),
+                                  child: Text(
+                                    "$hoursStr:$minutesStr:$secondsStr",
+                                    style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  ),
+                                )
+                              : !_isVideoRecording && _isVideoRecorderSelected
+                                  ? const Text(
+                                      "00:00:00",
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white),
+                                    )
+                                  : Container(),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              child: const Padding(
+                                padding: EdgeInsets.only(
+                                    left: 0.0, bottom: 0, top: 0),
+                                child: SizedBox(
+                                  width: 50,
+                                  height: 50,
+                                  child: Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 35,
+                                  ),
                                 ),
                               ),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    AnimatedBuilder(
-                                      animation: _animation,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          if (!_isVideoRecording) {
-                                            setState(() {
-                                              _isVideoRecorderSelected =
-                                                  !_isVideoRecorderSelected;
-                                            });
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          elevation: 0,
-                                          minimumSize: const Size(32, 32),
-                                          padding: const EdgeInsets.all(0),
-                                          primary: Colors.grey.withOpacity(0.3),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(16),
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            AnimatedOpacity(
+                              opacity: !_isTapImage ? 1 : 0,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeIn,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8.0, bottom: 0),
+                                child: AnimatedBuilder(
+                                  animation: _animation,
+                                  child: DropdownButton<ResolutionPreset>(
+                                    dropdownColor: Colors.black87,
+                                    underline: Container(),
+                                    value: currentResolutionPreset,
+                                    items: [
+                                      for (ResolutionPreset preset
+                                          in resolutionPresets)
+                                        DropdownMenuItem(
+                                          child: Text(
+                                            preset
+                                                .toString()
+                                                .split('.')[1]
+                                                .toUpperCase(),
+                                            style: const TextStyle(
+                                                color: Colors.white),
                                           ),
-                                        ),
-                                        child: Icon(
-                                            Icons.video_camera_back_outlined,
-                                            size: 18,
-                                            color: _isVideoRecorderSelected
-                                                ? Colors.yellow[700]
-                                                : Colors.white),
-                                      ),
-                                      builder: (context, child) {
-                                        return Transform.rotate(
-                                          angle: _animation.value,
-                                          child: child,
-                                        );
-                                      },
-                                    ),
-                                    Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(50.0)),
-                                        onTap: () {
-                                          if (!_isVideoRecording) {
-                                            if (!_toggleCamera) {
-                                              onCameraSelected(cameras[1]);
-                                              setState(() {
-                                                _toggleCamera = true;
-                                              });
-                                            } else {
-                                              onCameraSelected(cameras[0]);
-                                              setState(() {
-                                                _toggleCamera = false;
-                                              });
-                                            }
-                                          }
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.only(
-                                              bottom: 0.0, right: 25),
+                                          value: preset,
+                                        )
+                                    ],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        currentResolutionPreset = value!;
+                                        _isCameraInitialized = false;
+                                      });
+                                      onCameraSelected(controller!.description);
+                                    },
+                                    hint: const Text("Select item"),
+                                  ),
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _animation.value,
+                                      child: child,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2.2,
+                              height: MediaQuery.of(context).size.height / 15,
+                              child: AnimatedOpacity(
+                                opacity: _isflashTap ? 1 : 0,
+                                duration: const Duration(milliseconds: 250),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 0.0, top: 14, right: 0, bottom: 0),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            right: 18.0, left: 18, top: 0),
+                                        child: GestureDetector(
                                           child: AnimatedBuilder(
                                             animation: _animation,
-                                            child: Image.asset(
-                                              'assets/ic_switch_camera_3.png',
-                                              color: Colors.grey[200],
-                                              width: 32.0,
-                                              height: 32.0,
+                                            child: Column(
+                                              children: const [
+                                                Icon(
+                                                  Icons.flash_auto,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                                Text(
+                                                  'Auto',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 8,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ],
                                             ),
                                             builder: (context, child) {
                                               return Transform.rotate(
@@ -865,29 +354,650 @@ class _CameraPageState extends State<CameraPage>
                                               );
                                             },
                                           ),
+                                          onTap: () {
+                                            if (!_isFlashAuto) {
+                                              setFlashMode(FlashMode.auto);
+                                              // onSetFlashModeButtonPressed(
+                                              //     FlashMode.auto);
+                                            }
+                                            setState(() {
+                                              _isFlashOn = false;
+                                              _isFlashOff = false;
+                                              _isFlashAuto = true;
+                                            });
+                                          },
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 18.0),
+                                        child: GestureDetector(
+                                          child: AnimatedBuilder(
+                                            animation: _animation,
+                                            child: Column(
+                                              children: const [
+                                                Icon(
+                                                  Icons.flash_off,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                                Text(
+                                                  'Off',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 8,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ],
+                                            ),
+                                            builder: (context, child) {
+                                              return Transform.rotate(
+                                                angle: _animation.value,
+                                                child: child,
+                                              );
+                                            },
+                                          ),
+                                          onTap: () {
+                                            if (!_isFlashOff) {
+                                              setFlashMode(FlashMode.off);
+                                              // onSetFlashModeButtonPressed(
+                                              //     FlashMode.off);
+                                            }
+                                            setState(() {
+                                              _isFlashOff = true;
+                                              _isFlashAuto = false;
+                                              _isFlashOn = false;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 18.0),
+                                        child: GestureDetector(
+                                          child: AnimatedBuilder(
+                                            animation: _animation,
+                                            child: Column(
+                                              children: const [
+                                                Icon(
+                                                  Icons.flash_on,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                                Text(
+                                                  'On',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 8,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ],
+                                            ),
+                                            builder: (context, child) {
+                                              return Transform.rotate(
+                                                angle: _animation.value,
+                                                child: child,
+                                              );
+                                            },
+                                          ),
+                                          onTap: () {
+                                            if (!_isFlashOn) {
+                                              setFlashMode(FlashMode.torch);
+                                              // onSetFlashModeButtonPressed(
+                                              //     FlashMode.always);
+                                            }
+                                            setState(() {
+                                              _isFlashOn = true;
+                                              _isFlashOff = false;
+                                              _isFlashAuto = false;
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: imagePathList.isNotEmpty
-                                    ? _thumbnailWidget()
-                                    : Container(),
-                              )
+                            ),
+                            GestureDetector(
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 0.0, bottom: 0, top: 12, right: 10),
+                                child: AnimatedBuilder(
+                                  animation: _animation,
+                                  child: Icon(
+                                    _isFlashOn
+                                        ? Icons.flash_on
+                                        : _isFlashOff
+                                            ? Icons.flash_off
+                                            : _isFlashAuto
+                                                ? Icons.flash_auto
+                                                : Icons.flash_off,
+                                    color: Colors.white,
+                                    size: 30,
+                                  ),
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _animation.value,
+                                      child: child,
+                                    );
+                                  },
+                                ),
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  _isflashTap = !_isflashTap;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width / 8,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              RotatedBox(
+                                quarterTurns: -1,
+                                child: Slider(
+                                  value: _baseScale,
+                                  min: _minAvailableZoom,
+                                  max: _maxAvailableZoom,
+                                  activeColor: Colors.white,
+                                  inactiveColor: Colors.white30,
+                                  onChanged: (value) async {
+                                    setState(() {
+                                      _baseScale = value;
+                                    });
+                                    await controller!.setZoomLevel(value);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              AnimatedBuilder(
+                                animation: _animation,
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black87,
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      _baseScale.toStringAsFixed(1) + 'x',
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                                builder: (context, child) {
+                                  return Transform.rotate(
+                                    angle: _animation.value,
+                                    child: child,
+                                  );
+                                },
+                              ),
                             ],
                           ),
                         ),
                       ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            AnimatedOpacity(
+                              opacity: _isTapImage ? 1 : 0,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeIn,
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 0.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(5),
+                                          topRight: Radius.circular(5),
+                                          bottomLeft: Radius.circular(0),
+                                          bottomRight: Radius.circular(0)),
+                                      color: Colors.black.withOpacity(0.7),
+                                    ),
+                                    // margin: const EdgeInsets.all(5),
+                                    alignment: Alignment.center,
+                                    width: double.infinity,
+                                    height: 64,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: ListView.builder(
+                                            physics:
+                                                const BouncingScrollPhysics(),
+                                            itemCount: imagePathList.length,
+                                            scrollDirection: Axis.horizontal,
+                                            itemBuilder: (context, itemIndex) {
+                                              return AnimatedBuilder(
+                                                animation: _animation,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8,
+                                                          top: 2,
+                                                          bottom: 8),
+                                                  child: Stack(
+                                                    // fit: StackFit.loose,
+                                                    // alignment: Alignment.center,
+                                                    children: [
+                                                      Align(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: SizedBox(
+                                                          child: Container(
+                                                            child: Center(
+                                                                child: imagePathList
+                                                                            .reversed
+                                                                            .toList()[
+                                                                                itemIndex]
+                                                                            .fileType ==
+                                                                        FileType
+                                                                            .photo
+                                                                    ? Image
+                                                                        .file(
+                                                                        File(imagePathList
+                                                                            .reversed
+                                                                            .toList()[itemIndex]
+                                                                            .filePath),
+                                                                        fit: BoxFit
+                                                                            .fill,
+                                                                      )
+                                                                    : VideoItem(
+                                                                        url: imagePathList
+                                                                            .reversed
+                                                                            .toList()[itemIndex]
+                                                                            .filePath)
+                                                                // : VideoWidget(
+                                                                //     url: imagePathList
+                                                                //         .reversed
+                                                                //         .toList()[
+                                                                //             itemIndex]
+                                                                //         .filePath,
+                                                                //     play: false),
+                                                                ),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Colors
+                                                                  .transparent,
+                                                              borderRadius:
+                                                                  const BorderRadius
+                                                                          .all(
+                                                                      Radius.circular(
+                                                                          10)),
+                                                              border:
+                                                                  Border.all(
+                                                                color: Colors
+                                                                    .white
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          width: 64.0,
+                                                          height: 64.0,
+                                                        ),
+                                                      ),
+                                                      Positioned.fill(
+                                                        child: GestureDetector(
+                                                          child: Align(
+                                                            alignment: Alignment
+                                                                .bottomRight,
+                                                            child: Container(
+                                                              margin:
+                                                                  const EdgeInsets
+                                                                      .all(2),
+                                                              height: 20,
+                                                              width: 20,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              decoration: BoxDecoration(
+                                                                  color: imagePathList[
+                                                                              itemIndex]
+                                                                          .isSelected
+                                                                      ? Colors
+                                                                          .blue
+                                                                      : Colors
+                                                                          .transparent,
+                                                                  borderRadius: const BorderRadius
+                                                                          .all(
+                                                                      Radius.circular(
+                                                                          10)),
+                                                                  border: Border.all(
+                                                                      color: Colors
+                                                                          .blue)),
+                                                              child: imagePathList[
+                                                                          itemIndex]
+                                                                      .isSelected
+                                                                  ? const Icon(
+                                                                      Icons
+                                                                          .check,
+                                                                      color: Colors
+                                                                          .white,
+                                                                      size: 15,
+                                                                    )
+                                                                  : Container(),
+                                                            ),
+                                                          ),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              imagePathList[
+                                                                          itemIndex]
+                                                                      .isSelected =
+                                                                  !imagePathList[
+                                                                          itemIndex]
+                                                                      .isSelected;
+                                                              if (imagePathList
+                                                                  .where((element) =>
+                                                                      element
+                                                                          .isSelected)
+                                                                  .toList()
+                                                                  .isNotEmpty) {
+                                                                _isSelectedImage =
+                                                                    true;
+                                                              } else {
+                                                                _isSelectedImage =
+                                                                    false;
+                                                              }
+                                                            });
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                builder: (context, child) {
+                                                  return Transform.rotate(
+                                                    angle: _animation.value,
+                                                    child: child,
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        AnimatedBuilder(
+                                          animation: _animation,
+                                          child: ElevatedButton(
+                                              onPressed: () {
+                                                if (!_isSelectedImage) {
+                                                  null;
+                                                }
+                                              },
+                                              style: ButtonStyle(
+                                                minimumSize:
+                                                    MaterialStateProperty.all(
+                                                        const Size(15, 15)),
+                                                padding:
+                                                    MaterialStateProperty.all(
+                                                        const EdgeInsets.all(
+                                                            0)),
+                                                backgroundColor:
+                                                    MaterialStateProperty
+                                                        .resolveWith<Color>(
+                                                  (Set<MaterialState> states) {
+                                                    if (_isSelectedImage) {
+                                                      return Colors.green[600]
+                                                          as Color;
+                                                    } else if (!_isSelectedImage) {
+                                                      return Colors.grey;
+                                                    }
+                                                    return Colors.transparent;
+                                                  },
+                                                ),
+                                              ),
+                                              child: const Icon(
+                                                Icons.upload_outlined,
+                                                color: Colors.white,
+                                                size: 25,
+                                              )),
+                                          builder: (context, child) {
+                                            return Transform.rotate(
+                                              angle: _animation.value,
+                                              child: child,
+                                            );
+                                          },
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Container(
+                                width: double.infinity,
+                                height: 90,
+                                color: const Color.fromRGBO(00, 00, 00, 0.7)
+                                    .withOpacity(0.3),
+                                child: Stack(
+                                  fit: StackFit.loose,
+                                  alignment: Alignment.center,
+                                  children: <Widget>[
+                                    Align(
+                                      alignment: Alignment.center,
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(50.0)),
+                                              onTap: () {
+                                                _captureImage();
+                                              },
+                                              child: Stack(
+                                                alignment: Alignment.center,
+                                                children: [
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            0.0),
+                                                    child: Image.asset(
+                                                      'assets/ic_shutter_1.png',
+                                                      width: 50.0,
+                                                      height: 50.0,
+                                                    ),
+                                                  ),
+                                                  _isVideoRecording
+                                                      ? SizedBox(
+                                                          height: 45,
+                                                          width: 45,
+                                                          child:
+                                                              CustomCircularProgressIndicator(
+                                                            color: Colors.white,
+                                                            strokeWidth: 6.0,
+                                                            backgroundColor:
+                                                                Colors.white24,
+                                                            valueColor:
+                                                                Colors.red,
+                                                            duration:
+                                                                const Duration(
+                                                                    seconds:
+                                                                        60),
+                                                          ),
+                                                        )
+                                                      : Container()
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          _isVideoRecorderSelected &&
+                                                  !_isVideoRecording
+                                              ? GestureDetector(
+                                                  child: const Icon(
+                                                      Icons.circle,
+                                                      color: Colors.red,
+                                                      size: 50),
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _isVideoRecording =
+                                                          !_isVideoRecording;
+                                                    });
+                                                    if (_isVideoRecorderSelected) {
+                                                      captureVideo();
+                                                    }
+                                                  },
+                                                )
+                                              : (_isVideoRecorderSelected &&
+                                                      _isVideoRecording)
+                                                  ? GestureDetector(
+                                                      child: Container(
+                                                        height: 30,
+                                                        width: 30,
+                                                        decoration: const BoxDecoration(
+                                                            color: Colors.red,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            10))),
+                                                      ),
+                                                      onTap: () {
+                                                        onStopButtonPressed();
+                                                        setState(() {
+                                                          _isVideoRecording =
+                                                              false;
+                                                        });
+                                                      },
+                                                    )
+                                                  : Container()
+                                        ],
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          AnimatedBuilder(
+                                            animation: _animation,
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                if (!_isVideoRecording) {
+                                                  setState(() {
+                                                    _isVideoRecorderSelected =
+                                                        !_isVideoRecorderSelected;
+                                                  });
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                elevation: 0,
+                                                minimumSize: const Size(32, 32),
+                                                padding:
+                                                    const EdgeInsets.all(0),
+                                                primary: Colors.grey
+                                                    .withOpacity(0.3),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                ),
+                                              ),
+                                              child: Icon(
+                                                  Icons
+                                                      .video_camera_back_outlined,
+                                                  size: 18,
+                                                  color:
+                                                      _isVideoRecorderSelected
+                                                          ? Colors.yellow[700]
+                                                          : Colors.white),
+                                            ),
+                                            builder: (context, child) {
+                                              return Transform.rotate(
+                                                angle: _animation.value,
+                                                child: child,
+                                              );
+                                            },
+                                          ),
+                                          Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(50.0)),
+                                              onTap: () {
+                                                if (!_isVideoRecording) {
+                                                  if (!_toggleCamera) {
+                                                    onCameraSelected(
+                                                        cameras[1]);
+                                                    setState(() {
+                                                      _toggleCamera = true;
+                                                    });
+                                                  } else {
+                                                    onCameraSelected(
+                                                        cameras[0]);
+                                                    setState(() {
+                                                      _toggleCamera = false;
+                                                    });
+                                                  }
+                                                }
+                                              },
+                                              child: Container(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 0.0, right: 25),
+                                                child: AnimatedBuilder(
+                                                  animation: _animation,
+                                                  child: Image.asset(
+                                                    'assets/ic_switch_camera_3.png',
+                                                    color: Colors.grey[200],
+                                                    width: 32.0,
+                                                    height: 32.0,
+                                                  ),
+                                                  builder: (context, child) {
+                                                    return Transform.rotate(
+                                                      angle: _animation.value,
+                                                      child: child,
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: imagePathList.isNotEmpty
+                                          ? _thumbnailWidget()
+                                          : Container(),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-              ],
-            );
-          },
-        ));
+                  );
+                },
+              )
+            : Container());
   }
 
   double angle = 0.0;
@@ -954,7 +1064,13 @@ class _CameraPageState extends State<CameraPage>
     });
 
     controller!.addListener(() {
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {
+          setState(() {
+            _isCameraInitialized = controller!.value.isInitialized;
+          });
+        });
+      }
       if (controller!.value.hasError) {
         showMessage('Camera Error: ${controller!.value.errorDescription}');
       }
@@ -962,6 +1078,25 @@ class _CameraPageState extends State<CameraPage>
 
     try {
       await controller!.initialize();
+      await Future.wait([
+        // The exposure mode is currently not supported on the web.
+        ...(!kIsWeb
+            ? [
+                controller!
+                    .getMinExposureOffset()
+                    .then((value) => _minAvailableExposureOffset = value),
+                controller!
+                    .getMaxExposureOffset()
+                    .then((value) => _maxAvailableExposureOffset = value)
+              ]
+            : []),
+        controller!
+            .getMaxZoomLevel()
+            .then((value) => _maxAvailableZoom = value),
+        controller!
+            .getMinZoomLevel()
+            .then((value) => _minAvailableZoom = value),
+      ]);
     } on CameraException catch (e) {
       showException(e);
     }
@@ -1207,15 +1342,15 @@ class _CameraPageState extends State<CameraPage>
       return;
     }
     setState(() {
-      // _currentScale = (_baseScale * details.scale)
-      //     .clamp(_minAvailableZoom, _maxAvailableZoom);
-      _currentScale = _baseScale * details.scale;
+      _currentScale = (_baseScale * details.scale)
+          .clamp(_minAvailableZoom, _maxAvailableZoom);
+      // _baseScale = _baseScale * details.scale;
     });
 
     if (kDebugMode) {
-      print(_currentScale);
+      print(_baseScale);
     }
-    await controller!.setZoomLevel(_currentScale);
+    await controller!.setZoomLevel(_baseScale);
   }
 
   void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
@@ -1396,13 +1531,29 @@ class _CameraPageState extends State<CameraPage>
                         GestureDetector(
                           child: SizedBox(
                             child: (localVideoController == null)
-                                ? (
-                                    // The captured image on the web contains a network-accessible URL
-                                    // pointing to a location within the browser. It may be displayed
-                                    // either with Image.network or Image.memory after loading the image
-                                    // bytes to memory.
-                                    Image.file(File(imagePath)))
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(
+                                          color: Colors.white, width: 2),
+                                    ),
+                                    child: (
+                                        // The captured image on the web contains a network-accessible URL
+                                        // pointing to a location within the browser. It may be displayed
+                                        // either with Image.network or Image.memory after loading the image
+                                        // bytes to memory.
+
+                                        Image.file(
+                                      File(imagePath),
+                                      fit: BoxFit.cover,
+                                      width: 60,
+                                      height: 60,
+                                    )),
+                                  )
                                 : Container(
+                                    width: 64,
+                                    height: 64,
                                     child: Center(
                                       child: AspectRatio(
                                           aspectRatio: localVideoController
@@ -1411,9 +1562,11 @@ class _CameraPageState extends State<CameraPage>
                                               localVideoController)),
                                     ),
                                     decoration: BoxDecoration(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10)),
-                                        border: Border.all(color: Colors.grey)),
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(
+                                          color: Colors.white, width: 2),
+                                    ),
                                   ),
                             width: 64.0,
                             height: 64.0,
