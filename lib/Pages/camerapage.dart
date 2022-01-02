@@ -1,12 +1,18 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
+// import 'package:fearless_chat_demo/Utils/imageRotater.dart';
+import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:fearless_chat_demo/Widgets/circularprogressindicator.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'dart:math' as math;
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_provider/path_provider.dart';
@@ -1130,7 +1136,7 @@ class _CameraPageState extends State<CameraPage>
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
   void _captureImage() {
-    takePicture().then((String filePath) {
+    takePicture().then((String filePath) async {
       if (mounted) {
         setState(() {
           imagePath = filePath;
@@ -1138,7 +1144,10 @@ class _CameraPageState extends State<CameraPage>
               imagePath, false, DateTime.now(), FileType.photo);
           imagePathList.add(image);
         });
-
+        File rotatedImage =
+            await FlutterExifRotation.rotateAndSaveImage(path: imagePath);
+        // File rotatedImage = await fixExifRotation(imagePath);
+        saveFileToGalery(rotatedImage.path);
         showMessage('Picture saved to $filePath');
         // setCameraResult();
       }
@@ -1213,16 +1222,21 @@ class _CameraPageState extends State<CameraPage>
       minutesStr = '00';
       secondsStr = '00';
     });
-    stopVideoRecording().then((file) {
+    stopVideoRecording().then((file) async {
       if (mounted) setState(() {});
       if (file != null) {
         showInSnackBar('Video recorded to ${file.path}');
         videoFile = file;
         imagePath = file.path;
-        print(videoFile!.path);
+        if (kDebugMode) {
+          print(videoFile!.path);
+        }
+        File rotatedVideoFile =
+            await FlutterExifRotation.rotateAndSaveImage(path: imagePath);
         TakenCameraImage image =
             TakenCameraImage(imagePath, false, DateTime.now(), FileType.video);
         imagePathList.add(image);
+        saveFileToGalery(rotatedVideoFile.path);
         _startVideoPlayer();
       }
     });
@@ -1605,5 +1619,17 @@ class _CameraPageState extends State<CameraPage>
         );
       },
     );
+  }
+
+  saveFileToGalery(String filePath) async {
+    final result = await ImageGallerySaver.saveFile(filePath);
+    if (kDebugMode) {
+      print(result);
+    }
+    toastInfo("$result");
+  }
+
+  toastInfo(String info) {
+    Fluttertoast.showToast(msg: info, toastLength: Toast.LENGTH_LONG);
   }
 }

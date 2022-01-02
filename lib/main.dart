@@ -1,8 +1,10 @@
-
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Pages/mainPage.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,5 +26,21 @@ class FearlessChatApp extends StatelessWidget {
       ),
       home: const CameraPage(),
     );
+  }
+
+  requestPermission() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.storage,
+    ].request();
+
+    final info = statuses[Permission.storage].toString();
+    if (kDebugMode) {
+      print(info);
+    }
+    _toastInfo(info);
+  }
+
+  _toastInfo(String info) {
+    Fluttertoast.showToast(msg: info, toastLength: Toast.LENGTH_LONG);
   }
 }
