@@ -10,6 +10,7 @@ import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'dart:math' as math;
@@ -186,8 +187,7 @@ class _CameraPageState extends State<CameraPage>
                       children: [
                         Positioned.fill(
                           child: AspectRatio(
-                            aspectRatio:
-                                MediaQuery.of(context).devicePixelRatio,
+                            aspectRatio: controller!.value.aspectRatio,
                             child: CameraPreview(
                               controller!,
                               child: LayoutBuilder(builder:
@@ -1240,31 +1240,70 @@ class _CameraPageState extends State<CameraPage>
     stopVideoRecording().then((file) async {
       if (mounted) setState(() {});
       if (file != null) {
-        showInSnackBar('Video recorded to ${file.path}');
+        // showInSnackBar('Video recorded to ${file.path}');
         videoFile = file;
         imagePath = file.path;
         if (kDebugMode) {
           print(videoFile!.path);
         }
-        // File rotatedVideoFile =
-        //     await FlutterExifRotation.rotateAndSaveImage(path: imagePath);
-        TakenCameraImage image =
-            TakenCameraImage(imagePath, false, DateTime.now(), FileType.video);
+        const int AV_LOG_ERROR = 16;
+
+        final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
+// _flutterFFmpeg.setLogLevel(AV_LOG_ERROR);
+
+        /// The :s:v:0 after -metadata is the stream specifier,
+        /// which just tells ffmpeg to which stream it should add the metadata.
+        /// :s stands for the streams of the input file,
+        /// :v selects video streams and the number is the stream index,
+        /// zero-based - so this will select the first video stream.
+        /// The -c option specifies the codec
+        /// to be used, with copy for just copying the streams, without re-encoding.
+
+        String filePath = videoFile!.path;
+        final String looselessConversion = '-i' +
+            filePath +
+            ' -c copy -metadata:s:v:0 rotate=90 ' +
+            filePath +
+            '-processed.mp4';
+// final String looselessConversions= '-i $videoPath.mp4 -c copy -metadata:s:v:0 rotate=90 $videoPath-processed.mp4';
+        try {
+          await _flutterFFmpeg.executeAsync(looselessConversion,
+              (execution) async {
+            if (execution.returnCode == 0) {
+              await File(videoFile!.path).delete();
+            }
+          });
+
+          // if (returnCode == 0) {
+          //   // delete the origina video file
+          //   await File(videoFile!.path).delete();
+          // } else {
+          //   // throw _flutterFFmpeg. .getLastCommandOutput();
+          // }
+        } catch (e) {
+          print('video processing error: $e');
+        }
+
+        TakenCameraImage image = TakenCameraImage(
+            filePath + '-processed.mp4', false, DateTime.now(), FileType.video);
         imagePathList.add(image);
-        saveFileToGalery(FileType.video, imagePath);
-        _startVideoPlayer();
+        saveFileToGalery(FileType.video, filePath + '-processed.mp4');
+        _startVideoPlayer(filePath + '-processed.mp4');
       }
     });
   }
 
-  Future<void> _startVideoPlayer() async {
-    if (videoFile == null) {
+  Future<void> _startVideoPlayer(String videoFilePath) async {
+    if (!File(videoFilePath).existsSync()) {
       return;
     }
+    // if (videoFile == null) {
+    //   return;
+    // }
 
     final VideoPlayerController vController = kIsWeb
-        ? VideoPlayerController.network(videoFile!.path)
-        : VideoPlayerController.file(File(videoFile!.path));
+        ? VideoPlayerController.network(videoFilePath)
+        : VideoPlayerController.file(File(videoFilePath));
 
     videoPlayerListener = () {
       if (videoController != null && videoController!.value.size != null) {
