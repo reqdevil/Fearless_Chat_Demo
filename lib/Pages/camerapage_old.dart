@@ -454,7 +454,7 @@ class _CameraPageState extends State<CameraPageOld>
                     },
                   ),
                   TextButton(
-                    child:const Text('LOCKED'),
+                    child: const Text('LOCKED'),
                     style: styleLocked,
                     onPressed: controller != null
                         ? () =>
@@ -462,7 +462,7 @@ class _CameraPageState extends State<CameraPageOld>
                         : null,
                   ),
                   TextButton(
-                    child:const Text('RESET OFFSET'),
+                    child: const Text('RESET OFFSET'),
                     style: styleLocked,
                     onPressed: controller != null
                         ? () => controller!.setExposureOffset(0.0)
@@ -525,7 +525,7 @@ class _CameraPageState extends State<CameraPageOld>
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   TextButton(
-                    child:const Text('AUTO'),
+                    child: const Text('AUTO'),
                     style: styleAuto,
                     onPressed: controller != null
                         ? () => onSetFocusModeButtonPressed(FocusMode.auto)
@@ -684,8 +684,8 @@ class _CameraPageState extends State<CameraPageOld>
     );
 
     controller = cameraController;
-    CameraDescription direction = cameraController.description;
-    int angle = direction.sensorOrientation;
+    // CameraDescription direction = cameraController.description;
+    // int angle = direction.sensorOrientation;
     // If the controller is updated then update the UI.
 
     cameraController.addListener(() {
@@ -903,7 +903,7 @@ class _CameraPageState extends State<CameraPageOld>
     final CameraController? cameraController = controller;
 
     if (cameraController == null || !cameraController.value.isRecordingVideo) {
-      return null;
+      return;
     }
 
     try {
@@ -918,7 +918,7 @@ class _CameraPageState extends State<CameraPageOld>
     final CameraController? cameraController = controller;
 
     if (cameraController == null || !cameraController.value.isRecordingVideo) {
-      return null;
+      return;
     }
 
     try {

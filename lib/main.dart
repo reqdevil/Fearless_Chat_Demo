@@ -1,5 +1,4 @@
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
-import 'package:fearless_chat_demo/Pages/mainPage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
