@@ -319,7 +319,7 @@ class _CameraPageState extends State<CameraPage>
                         alignment: Alignment.topRight,
                         child: Container(
                           margin: const EdgeInsets.only(
-                              bottom: 5, left: 8, top: 5, right: 0),
+                              bottom: 5, left: 8, top: 0, right: 0),
                           decoration: BoxDecoration(
                               color: Colors.black
                                   .withOpacity(_isflashTap ? 0.7 : 0.0),
@@ -426,8 +426,6 @@ class _CameraPageState extends State<CameraPage>
                                             onTap: () {
                                               if (!_isFlashOff) {
                                                 setFlashMode(FlashMode.off);
-                                                // onSetFlashModeButtonPressed(
-                                                //     FlashMode.off);
                                               }
                                               setState(() {
                                                 _isFlashOff = true;
@@ -957,20 +955,20 @@ class _CameraPageState extends State<CameraPage>
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 elevation: 0,
-                                                minimumSize: const Size(32, 32),
+                                                minimumSize: const Size(50, 50),
                                                 padding:
                                                     const EdgeInsets.all(0),
                                                 primary: Colors.grey
                                                     .withOpacity(0.3),
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
-                                                      BorderRadius.circular(16),
+                                                      BorderRadius.circular(25),
                                                 ),
                                               ),
                                               child: Icon(
                                                   Icons
                                                       .video_camera_back_outlined,
-                                                  size: 18,
+                                                  size: 30,
                                                   color:
                                                       _isVideoRecorderSelected
                                                           ? Colors.yellow[700]
@@ -983,13 +981,16 @@ class _CameraPageState extends State<CameraPage>
                                               );
                                             },
                                           ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
                                           Material(
                                             color: Colors.transparent,
                                             child: Container(
                                               margin: const EdgeInsets.only(
                                                   right: 10),
-                                              height: 32,
-                                              width: 32,
+                                              height: 50,
+                                              width: 50,
                                               child: InkWell(
                                                 borderRadius:
                                                     const BorderRadius.all(
@@ -1012,6 +1013,8 @@ class _CameraPageState extends State<CameraPage>
                                                   }
                                                 },
                                                 child: Container(
+                                                  height: 50,
+                                                  width: 50,
                                                   padding:
                                                       const EdgeInsets.only(
                                                           bottom: 0.0,
@@ -1021,8 +1024,8 @@ class _CameraPageState extends State<CameraPage>
                                                     child: Image.asset(
                                                       'assets/ic_switch_camera_3.png',
                                                       color: Colors.grey[200],
-                                                      width: 64.0,
-                                                      height: 64.0,
+                                                      width: 50.0,
+                                                      height: 50.0,
                                                     ),
                                                     builder: (context, child) {
                                                       return Transform.rotate(
