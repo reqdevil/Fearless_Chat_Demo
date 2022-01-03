@@ -239,26 +239,30 @@ class _CameraPageState extends State<CameraPage>
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            GestureDetector(
-                              child: const Padding(
-                                padding: EdgeInsets.only(
-                                    left: 0.0, bottom: 0, top: 0),
-                                child: SizedBox(
-                                  width: 50,
-                                  height: 50,
-                                  child: Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 35,
+                            AnimatedOpacity(
+                              opacity: _isVideoRecorderSelected ? 0 : 1,
+                              duration: const Duration(milliseconds: 250),
+                              child: GestureDetector(
+                                child: const Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 0.0, bottom: 0, top: 0),
+                                  child: SizedBox(
+                                    width: 50,
+                                    height: 50,
+                                    child: Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                      size: 35,
+                                    ),
                                   ),
                                 ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
                               ),
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
                             ),
                             AnimatedOpacity(
-                              opacity: !_isTapImage ? 1 : 0,
+                              opacity: !_isVideoRecorderSelected ? 1 : 0,
                               duration: const Duration(milliseconds: 250),
                               curve: Curves.easeIn,
                               child: Padding(
@@ -314,11 +318,14 @@ class _CameraPageState extends State<CameraPage>
                       Align(
                         alignment: Alignment.topRight,
                         child: Container(
-                          padding: const EdgeInsets.only(bottom: 5, left: 8),
+                          margin: const EdgeInsets.only(
+                              bottom: 5, left: 8, top: 5, right: 0),
                           decoration: BoxDecoration(
                               color: Colors.black
                                   .withOpacity(_isflashTap ? 0.7 : 0.0),
-                              borderRadius: BorderRadius.circular(10.0)),
+                              borderRadius: const BorderRadius.only(
+                                  bottomLeft: Radius.circular(10.0),
+                                  topLeft: Radius.circular(10.0))),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -333,7 +340,7 @@ class _CameraPageState extends State<CameraPage>
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 0.0,
-                                        top: 11,
+                                        top: 10,
                                         right: 0,
                                         bottom: 0),
                                     child: Row(
@@ -802,7 +809,7 @@ class _CameraPageState extends State<CameraPage>
                                                 ),
                                               ),
                                               child: const Icon(
-                                                Icons.upload_outlined,
+                                                Icons.upload,
                                                 color: Colors.white,
                                                 size: 25,
                                               )),
