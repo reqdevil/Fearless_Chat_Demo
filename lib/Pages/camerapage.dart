@@ -17,6 +17,7 @@ import 'dart:math' as math;
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
+import 'dart:typed_data';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key}) : super(key: key);
@@ -1049,40 +1050,6 @@ class _CameraPageState extends State<CameraPage>
               .animate(_animationElementsController);
     }
     _animationElementsController.forward(from: 0);
-
-    // _animationElementsController.forward();
-    // if (orientation == NativeDeviceOrientation.landscapeLeft) {
-    //   setState(() {
-    //     angle = math.pi * turns;
-    //   });
-    // } else if (orientation == NativeDeviceOrientation.portraitUp) {
-    //   setState(() {
-    //     angle = math.pi * turns;
-    //   });
-    // } else if (orientation == NativeDeviceOrientation.landscapeRight) {
-    //   setState(() {
-    //     angle = math.pi * turns;
-    //   });
-    // } else if (orientation == NativeDeviceOrientation.portraitDown) {
-    //   setState(() {
-    //     angle = math.pi * turns;
-    //   });
-    // }
-    // // var target = turns;
-    // // target += 0.25;
-    // // if (target > 1.0) {
-    // //   target = 0.25;
-    // //   _animationElementsController.reset();
-    // // }
-    // // _animationElementsController.animateTo(target);
-    // Future.delayed(const Duration(seconds: 1), () {
-    //   _animationElementsController.forward(
-    //     from: 0,
-    //   );
-    //   _animationElementsController.animateTo(angle,
-    //       duration: const Duration(milliseconds: 250),
-    //       curve: Curves.easeInCubic);
-    // });
   }
 
   void onCameraSelected(CameraDescription cameraDescription) async {
@@ -1147,7 +1114,7 @@ class _CameraPageState extends State<CameraPage>
         File rotatedImage =
             await FlutterExifRotation.rotateAndSaveImage(path: imagePath);
         // File rotatedImage = await fixExifRotation(imagePath);
-        saveFileToGalery(rotatedImage.path);
+        saveFileToGalery(FileType.photo, rotatedImage.path);
         showMessage('Picture saved to $filePath');
         // setCameraResult();
       }
@@ -1231,12 +1198,12 @@ class _CameraPageState extends State<CameraPage>
         if (kDebugMode) {
           print(videoFile!.path);
         }
-        File rotatedVideoFile =
-            await FlutterExifRotation.rotateAndSaveImage(path: imagePath);
+        // File rotatedVideoFile =
+        //     await FlutterExifRotation.rotateAndSaveImage(path: imagePath);
         TakenCameraImage image =
             TakenCameraImage(imagePath, false, DateTime.now(), FileType.video);
         imagePathList.add(image);
-        saveFileToGalery(rotatedVideoFile.path);
+        saveFileToGalery(FileType.video, imagePath);
         _startVideoPlayer();
       }
     });
@@ -1621,12 +1588,25 @@ class _CameraPageState extends State<CameraPage>
     );
   }
 
-  saveFileToGalery(String filePath) async {
-    final result = await ImageGallerySaver.saveFile(filePath);
-    if (kDebugMode) {
-      print(result);
+  saveFileToGalery(FileType fileType, String filePath) async {
+    if (fileType == FileType.video) {
+      final result = await ImageGallerySaver.saveFile(filePath);
+      if (kDebugMode) {
+        print(result);
+      }
+      toastInfo("$result");
+    } else if (fileType == FileType.photo) {
+      final originalFile = File(filePath);
+      List<int> imageBytes = await originalFile.readAsBytes();
+      // Uint8List bytes = File.fromUri(Uri.parse(filePath)).readAsBytesSync();
+      final result = await ImageGallerySaver.saveImage(
+          Uint8List.fromList(imageBytes),
+          quality: 80);
+      if (kDebugMode) {
+        print(result);
+      }
+      toastInfo("$result");
     }
-    toastInfo("$result");
   }
 
   toastInfo(String info) {
