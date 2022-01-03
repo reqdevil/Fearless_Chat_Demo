@@ -542,25 +542,37 @@ class _CameraPageState extends State<CameraPage>
                                   },
                                 ),
                               ),
-                              const Icon(Icons.remove,
-                                  color: Colors.white, size: 20),
+                              AnimatedBuilder(
+                                  animation: _animation,
+                                  child: const Icon(Icons.remove,
+                                      color: Colors.white, size: 20),
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _animation.value,
+                                      child: child,
+                                    );
+                                  }),
                               const SizedBox(
-                                width: 10,
+                                width: 15,
+                                height: 15,
                               ),
                               AnimatedBuilder(
                                 animation: _animation,
                                 child: Container(
+                                  margin: const EdgeInsets.only(right: 5),
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
                                     color: Colors.black87.withOpacity(0.7),
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5.0, vertical: 10.0),
                                     child: Text(
                                       _baseScale.toStringAsFixed(1) + 'x',
-                                      style:
-                                          const TextStyle(color: Colors.white),
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ),
