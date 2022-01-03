@@ -236,7 +236,7 @@ class _CameraPageState extends State<CameraPage>
                       ),
                       Align(
                         alignment: Alignment.topLeft,
-                        child: Column(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             GestureDetector(
@@ -264,52 +264,47 @@ class _CameraPageState extends State<CameraPage>
                               child: Padding(
                                 padding:
                                     const EdgeInsets.only(left: 8.0, bottom: 0),
-                                child: AnimatedBuilder(
-                                  animation: _animation,
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(5.0),
-                                        )),
-                                    child: DropdownButton<ResolutionPreset>(
-                                      dropdownColor: Colors.black87,
-                                      iconEnabledColor: Colors.white,
-                                      underline: Container(),
-                                      value: currentResolutionPreset,
-                                      items: [
-                                        for (ResolutionPreset preset
-                                            in resolutionPresets)
-                                          DropdownMenuItem(
-                                            child: Text(
-                                              preset
-                                                  .toString()
-                                                  .split('.')[1]
-                                                  .toUpperCase(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            value: preset,
-                                          )
-                                      ],
-                                      onChanged: (value) {
-                                        setState(() {
-                                          currentResolutionPreset = value!;
-                                          _isCameraInitialized = false;
-                                        });
-                                        onCameraSelected(
-                                            controller!.description);
-                                      },
-                                      hint: const Text("Select item"),
-                                    ),
+                                child: Container(
+                                  margin: const EdgeInsets.only(top: 13),
+                                  height: 25,
+                                  decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.7),
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(5.0),
+                                      )),
+                                  child: DropdownButton<ResolutionPreset>(
+                                    alignment: Alignment.center,
+                                    dropdownColor: Colors.black87,
+                                    iconEnabledColor: Colors.white,
+                                    underline: Container(),
+                                    value: currentResolutionPreset,
+                                    items: [
+                                      for (ResolutionPreset preset
+                                          in resolutionPresets)
+                                        DropdownMenuItem(
+                                          child: Text(
+                                            preset
+                                                .toString()
+                                                .split('.')[1]
+                                                .toUpperCase(),
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          value: preset,
+                                        )
+                                    ],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        currentResolutionPreset = value!;
+                                        _isCameraInitialized = false;
+                                      });
+                                      onCameraSelected(controller!.description);
+                                    },
+                                    hint: const Text("Select item"),
                                   ),
-                                  builder: (context, child) {
-                                    return Transform.rotate(
-                                      angle: _animation.value,
-                                      child: child,
-                                    );
-                                  },
                                 ),
                               ),
                             ),
@@ -318,194 +313,205 @@ class _CameraPageState extends State<CameraPage>
                       ),
                       Align(
                         alignment: Alignment.topRight,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 2.2,
-                              height: MediaQuery.of(context).size.height / 15,
-                              child: AnimatedOpacity(
-                                opacity: _isflashTap ? 1 : 0,
-                                duration: const Duration(milliseconds: 250),
+                        child: Container(
+                          padding: const EdgeInsets.only(bottom: 5, left: 8),
+                          decoration: BoxDecoration(
+                              color: Colors.black
+                                  .withOpacity(_isflashTap ? 0.7 : 0.0),
+                              borderRadius: BorderRadius.circular(10.0)),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width / 2.6,
+                                height: MediaQuery.of(context).size.height / 15,
+                                child: AnimatedOpacity(
+                                  opacity: _isflashTap ? 1 : 0,
+                                  duration: const Duration(milliseconds: 250),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 0.0,
+                                        top: 11,
+                                        right: 0,
+                                        bottom: 0),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 18.0, left: 18, top: 0),
+                                          child: GestureDetector(
+                                            child: AnimatedBuilder(
+                                              animation: _animation,
+                                              child: Column(
+                                                children: const [
+                                                  Icon(
+                                                    Icons.flash_auto,
+                                                    color: Colors.white,
+                                                    size: 25,
+                                                  ),
+                                                  Text(
+                                                    'Auto',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 8,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ],
+                                              ),
+                                              builder: (context, child) {
+                                                return Transform.rotate(
+                                                  angle: _animation.value,
+                                                  child: child,
+                                                );
+                                              },
+                                            ),
+                                            onTap: () {
+                                              if (!_isFlashAuto) {
+                                                setFlashMode(FlashMode.auto);
+                                                // onSetFlashModeButtonPressed(
+                                                //     FlashMode.auto);
+                                              }
+                                              setState(() {
+                                                _isFlashOn = false;
+                                                _isFlashOff = false;
+                                                _isFlashAuto = true;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 18.0),
+                                          child: GestureDetector(
+                                            child: AnimatedBuilder(
+                                              animation: _animation,
+                                              child: Column(
+                                                children: const [
+                                                  Icon(
+                                                    Icons.flash_off,
+                                                    color: Colors.white,
+                                                    size: 25,
+                                                  ),
+                                                  Text(
+                                                    'Off',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 8,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ],
+                                              ),
+                                              builder: (context, child) {
+                                                return Transform.rotate(
+                                                  angle: _animation.value,
+                                                  child: child,
+                                                );
+                                              },
+                                            ),
+                                            onTap: () {
+                                              if (!_isFlashOff) {
+                                                setFlashMode(FlashMode.off);
+                                                // onSetFlashModeButtonPressed(
+                                                //     FlashMode.off);
+                                              }
+                                              setState(() {
+                                                _isFlashOff = true;
+                                                _isFlashAuto = false;
+                                                _isFlashOn = false;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 16.0),
+                                          child: GestureDetector(
+                                            child: AnimatedBuilder(
+                                              animation: _animation,
+                                              child: Column(
+                                                children: const [
+                                                  Icon(
+                                                    Icons.flash_on,
+                                                    color: Colors.white,
+                                                    size: 25,
+                                                  ),
+                                                  Text(
+                                                    'On',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 8,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ],
+                                              ),
+                                              builder: (context, child) {
+                                                return Transform.rotate(
+                                                  angle: _animation.value,
+                                                  child: child,
+                                                );
+                                              },
+                                            ),
+                                            onTap: () {
+                                              if (!_isFlashOn) {
+                                                setFlashMode(FlashMode.torch);
+                                                // onSetFlashModeButtonPressed(
+                                                //     FlashMode.always);
+                                              }
+                                              setState(() {
+                                                _isFlashOn = true;
+                                                _isFlashOff = false;
+                                                _isFlashAuto = false;
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
                                 child: Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 0.0, top: 14, right: 0, bottom: 0),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            right: 18.0, left: 18, top: 0),
-                                        child: GestureDetector(
-                                          child: AnimatedBuilder(
-                                            animation: _animation,
-                                            child: Column(
-                                              children: const [
-                                                Icon(
-                                                  Icons.flash_auto,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                ),
-                                                Text(
-                                                  'Auto',
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 8,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
-                                            ),
-                                            builder: (context, child) {
-                                              return Transform.rotate(
-                                                angle: _animation.value,
-                                                child: child,
-                                              );
-                                            },
-                                          ),
-                                          onTap: () {
-                                            if (!_isFlashAuto) {
-                                              setFlashMode(FlashMode.auto);
-                                              // onSetFlashModeButtonPressed(
-                                              //     FlashMode.auto);
-                                            }
-                                            setState(() {
-                                              _isFlashOn = false;
-                                              _isFlashOff = false;
-                                              _isFlashAuto = true;
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 18.0),
-                                        child: GestureDetector(
-                                          child: AnimatedBuilder(
-                                            animation: _animation,
-                                            child: Column(
-                                              children: const [
-                                                Icon(
-                                                  Icons.flash_off,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                ),
-                                                Text(
-                                                  'Off',
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 8,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
-                                            ),
-                                            builder: (context, child) {
-                                              return Transform.rotate(
-                                                angle: _animation.value,
-                                                child: child,
-                                              );
-                                            },
-                                          ),
-                                          onTap: () {
-                                            if (!_isFlashOff) {
-                                              setFlashMode(FlashMode.off);
-                                              // onSetFlashModeButtonPressed(
-                                              //     FlashMode.off);
-                                            }
-                                            setState(() {
-                                              _isFlashOff = true;
-                                              _isFlashAuto = false;
-                                              _isFlashOn = false;
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 18.0),
-                                        child: GestureDetector(
-                                          child: AnimatedBuilder(
-                                            animation: _animation,
-                                            child: Column(
-                                              children: const [
-                                                Icon(
-                                                  Icons.flash_on,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                ),
-                                                Text(
-                                                  'On',
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 8,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
-                                            ),
-                                            builder: (context, child) {
-                                              return Transform.rotate(
-                                                angle: _animation.value,
-                                                child: child,
-                                              );
-                                            },
-                                          ),
-                                          onTap: () {
-                                            if (!_isFlashOn) {
-                                              setFlashMode(FlashMode.torch);
-                                              // onSetFlashModeButtonPressed(
-                                              //     FlashMode.always);
-                                            }
-                                            setState(() {
-                                              _isFlashOn = true;
-                                              _isFlashOff = false;
-                                              _isFlashAuto = false;
-                                            });
-                                          },
-                                        ),
-                                      )
-                                    ],
+                                      left: 0.0, bottom: 0, top: 12, right: 10),
+                                  child: AnimatedBuilder(
+                                    animation: _animation,
+                                    child: Icon(
+                                      _isFlashOn
+                                          ? Icons.flash_on
+                                          : _isFlashOff
+                                              ? Icons.flash_off
+                                              : _isFlashAuto
+                                                  ? Icons.flash_auto
+                                                  : Icons.flash_off,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                    builder: (context, child) {
+                                      return Transform.rotate(
+                                        angle: _animation.value,
+                                        child: child,
+                                      );
+                                    },
                                   ),
                                 ),
+                                onTap: () {
+                                  setState(() {
+                                    _isflashTap = !_isflashTap;
+                                  });
+                                },
                               ),
-                            ),
-                            GestureDetector(
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 0.0, bottom: 0, top: 12, right: 10),
-                                child: AnimatedBuilder(
-                                  animation: _animation,
-                                  child: Icon(
-                                    _isFlashOn
-                                        ? Icons.flash_on
-                                        : _isFlashOff
-                                            ? Icons.flash_off
-                                            : _isFlashAuto
-                                                ? Icons.flash_auto
-                                                : Icons.flash_off,
-                                    color: Colors.white,
-                                    size: 30,
-                                  ),
-                                  builder: (context, child) {
-                                    return Transform.rotate(
-                                      angle: _animation.value,
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  _isflashTap = !_isflashTap;
-                                });
-                              },
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       Align(
@@ -518,6 +524,8 @@ class _CameraPageState extends State<CameraPage>
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.max,
                             children: [
+                              const Icon(Icons.add,
+                                  color: Colors.white, size: 20),
                               RotatedBox(
                                 quarterTurns: -1,
                                 child: Slider(
@@ -534,6 +542,8 @@ class _CameraPageState extends State<CameraPage>
                                   },
                                 ),
                               ),
+                              const Icon(Icons.remove,
+                                  color: Colors.white, size: 20),
                               const SizedBox(
                                 width: 10,
                               ),
@@ -542,7 +552,7 @@ class _CameraPageState extends State<CameraPage>
                                 child: Container(
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                    color: Colors.black87,
+                                    color: Colors.black87.withOpacity(0.7),
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
                                   child: Padding(
