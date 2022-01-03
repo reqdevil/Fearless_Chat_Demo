@@ -183,62 +183,25 @@ class _CameraPageState extends State<CameraPage>
                     fit: StackFit.expand,
                     children: [
                       Positioned.fill(
-                        child: FutureBuilder(
-                          future:
-                              Future.delayed(const Duration(milliseconds: 250)),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(
-                                  child: Container(
-                                      alignment: Alignment.center,
-                                      height:
-                                          MediaQuery.of(context).size.height,
-                                      width: MediaQuery.of(context).size.width,
-                                      color: Colors.black,
-                                      child: const Text(
-                                        'Please wait its loading...',
-                                        style: TextStyle(color: Colors.white),
-                                      )));
-                            } else {
-                              if (snapshot.hasError) {
-                                return Center(
-                                    child: Container(
-                                        alignment: Alignment.center,
-                                        height:
-                                            MediaQuery.of(context).size.height,
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        color: Colors.black,
-                                        child: Text('Error: ${snapshot.error}',
-                                            style: const TextStyle(
-                                                color: Colors.white))));
-                              } else {
-                                return AspectRatio(
-                                  aspectRatio:
-                                      1 / controller!.value.aspectRatio,
-
-                                  // aspectRatio: 1,
-                                  child: CameraPreview(
-                                    controller!,
-                                    child: LayoutBuilder(builder:
-                                        (BuildContext context,
-                                            BoxConstraints constraints) {
-                                      return GestureDetector(
-                                        behavior: HitTestBehavior.opaque,
-                                        onScaleStart: _handleScaleStart,
-                                        onScaleUpdate: _handleScaleUpdate,
-                                        onTapDown: (details) => onViewFinderTap(
-                                            details, constraints),
-                                      );
-                                    }),
-                                  ),
-                                );
-                              } // snapshot.data  :- get your object which is pass from your downloadData() function
-                            }
-                          },
+                          child: AspectRatio(
+                        aspectRatio: MediaQuery.of(context).devicePixelRatio,
+                        child: CameraPreview(
+                          controller!,
+                          child: LayoutBuilder(builder: (BuildContext context,
+                              BoxConstraints constraints) {
+                            return GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onScaleStart: _handleScaleStart,
+                              onScaleUpdate: _handleScaleUpdate,
+                              onTapDown: (details) =>
+                                  onViewFinderTap(details, constraints),
+                            );
+                          }),
                         ),
-                      ),
+                      )
+                          // snapshot.data  :- get your object which is pass from your downloadData() function
+
+                          ),
                       Align(
                         alignment: Alignment.topCenter,
                         child: Padding(
