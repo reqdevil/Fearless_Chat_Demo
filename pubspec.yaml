@@ -44,8 +44,8 @@ dependencies:
   native_device_orientation: ^1.0.0
   percent_indicator: ^3.4.0
   #decode Exif data from tiff, jpeg and heic files
-  # exif: ^3.1.1
-  flutter_exif_rotation: ^0.4.3
+  exif: ^3.1.1
+  # flutter_exif_rotation: ^0.4.3
   # to load, save and manipulate images in a variety of different file formats
   image: ^3.1.0
   image_gallery_saver: ^1.7.1

@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
+import 'package:fearless_chat_demo/Utils/fixExifRotation.dart';
 // import 'package:fearless_chat_demo/Utils/imageRotater.dart';
-import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
+// import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:fearless_chat_demo/Widgets/circularprogressindicator.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -130,6 +129,8 @@ class _CameraPageState extends State<CameraPage>
     onCameraSelected(cameras[0]);
   }
 
+  NativeDeviceOrientation _currentDeviceOrientation =
+      NativeDeviceOrientation.portraitUp;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
@@ -183,25 +184,23 @@ class _CameraPageState extends State<CameraPage>
                     fit: StackFit.expand,
                     children: [
                       Positioned.fill(
-                          child: AspectRatio(
-                        aspectRatio: MediaQuery.of(context).devicePixelRatio,
-                        child: CameraPreview(
-                          controller!,
-                          child: LayoutBuilder(builder: (BuildContext context,
-                              BoxConstraints constraints) {
-                            return GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onScaleStart: _handleScaleStart,
-                              onScaleUpdate: _handleScaleUpdate,
-                              onTapDown: (details) =>
-                                  onViewFinderTap(details, constraints),
-                            );
-                          }),
-                        ),
-                      )
-                          // snapshot.data  :- get your object which is pass from your downloadData() function
-
+                        child: AspectRatio(
+                          aspectRatio: MediaQuery.of(context).devicePixelRatio,
+                          child: CameraPreview(
+                            controller!,
+                            child: LayoutBuilder(builder: (BuildContext context,
+                                BoxConstraints constraints) {
+                              return GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onScaleStart: _handleScaleStart,
+                                onScaleUpdate: _handleScaleUpdate,
+                                onTapDown: (details) =>
+                                    onViewFinderTap(details, constraints),
+                              );
+                            }),
                           ),
+                        ),
+                      ),
                       Align(
                         alignment: Alignment.topCenter,
                         child: Padding(
@@ -1104,7 +1103,7 @@ class _CameraPageState extends State<CameraPage>
 
     try {
       await controller!.initialize();
-      await controller!.lockCaptureOrientation();
+      await controller!.lockCaptureOrientation(DeviceOrientation.portraitUp);
       await Future.wait([
         // The exposure mode is currently not supported on the web.
         ...(!kIsWeb
@@ -1138,15 +1137,14 @@ class _CameraPageState extends State<CameraPage>
       if (mounted) {
         setState(() {
           imagePath = filePath;
-          TakenCameraImage image = TakenCameraImage(
-              imagePath, false, DateTime.now(), FileType.photo);
-          imagePathList.add(image);
         });
-        File rotatedImage =
-            await FlutterExifRotation.rotateAndSaveImage(path: imagePath);
-        // File rotatedImage = await fixExifRotation(imagePath);
-        saveFileToGalery(FileType.photo, rotatedImage.path);
-        showMessage('Picture saved to $filePath');
+        File file = await fixExifRotation(imagePath, oldOrientation);
+        TakenCameraImage image =
+            TakenCameraImage(file.path, false, DateTime.now(), FileType.photo);
+        imagePathList.add(image);
+
+        saveFileToGalery(FileType.photo, file.path);
+        // showMessage('Picture saved to $filePath');
         // setCameraResult();
       }
     });
@@ -1315,9 +1313,7 @@ class _CameraPageState extends State<CameraPage>
   Future<void> enableRotation() async {
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
-      // DeviceOrientation.portraitDown,
-      // DeviceOrientation.landscapeLeft,
-      // DeviceOrientation.landscapeRight,
+      DeviceOrientation.portraitDown,
     ]);
   }
 
