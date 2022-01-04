@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -21,6 +20,7 @@ class _VideoItemState extends State<VideoItem> {
         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
         setState(() {});
       });
+
     _controller.addListener(() {
       // if (_controller.value.position ==
       //     const Duration(seconds: 0, minutes: 0, hours: 0)) {
