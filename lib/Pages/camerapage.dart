@@ -7,10 +7,11 @@ import 'package:fearless_chat_demo/Utils/fixExifRotation.dart';
 // import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:fearless_chat_demo/Widgets/circularprogressindicator.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'dart:math' as math;
@@ -18,6 +19,7 @@ import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key}) : super(key: key);
@@ -1246,49 +1248,62 @@ class _CameraPageState extends State<CameraPage>
         if (kDebugMode) {
           print(videoFile!.path);
         }
-        const int AV_LOG_ERROR = 16;
+        Directory videoFileDirectory = File(videoFile!.path).parent;
 
-        final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
-// _flutterFFmpeg.setLogLevel(AV_LOG_ERROR);
+        // 0 = 90CounterCLockwise and Vertical Flip (default)
+        // 1 = 90Clockwise
+        // 2 = 90CounterClockwise
+        // 3 = 90Clockwise and Vertical Flip
+        String rotation = '';
 
-        /// The :s:v:0 after -metadata is the stream specifier,
-        /// which just tells ffmpeg to which stream it should add the metadata.
-        /// :s stands for the streams of the input file,
-        /// :v selects video streams and the number is the stream index,
-        /// zero-based - so this will select the first video stream.
-        /// The -c option specifies the codec
-        /// to be used, with copy for just copying the streams, without re-encoding.
+        if (oldOrientation == NativeDeviceOrientation.landscapeLeft) {
+          // fixedImage = img.copyRotate(originalImage, -90);
+          rotation = '2';
+        } else if (oldOrientation == NativeDeviceOrientation.landscapeRight) {
+          // fixedImage = img.copyRotate(originalImage, 90);
+          rotation = '1';
+        } else if (oldOrientation == NativeDeviceOrientation.portraitUp) {
+          rotation = '0';
+        } else if (oldOrientation == NativeDeviceOrientation.portraitDown) {
+          rotation = '3';
+        }
 
+        DateTime now = DateTime.now();
+        String newFilePath = videoFileDirectory.path +
+            '/' +
+            DateFormat('yyyy-MM-dd–kk:mm').format(now) +
+            '.mp4';
         String filePath = videoFile!.path;
-        final String looselessConversion = '-i' +
+
+        final String looselessConversion = '-i ' +
             filePath +
-            ' -c copy -metadata:s:v:0 rotate=90 ' +
-            filePath +
-            '-processed.mp4';
-// final String looselessConversions= '-i $videoPath.mp4 -c copy -metadata:s:v:0 rotate=90 $videoPath-processed.mp4';
+            ' -vf "transpose=' +
+            rotation +
+            '" ' +
+            newFilePath;
         try {
-          await _flutterFFmpeg.executeAsync(looselessConversion,
-              (execution) async {
-            if (execution.returnCode == 0) {
+          FFmpegKit.execute(looselessConversion).then((session) async {
+            final returnCode = await session.getReturnCode();
+
+            if (ReturnCode.isSuccess(returnCode)) {
+              // SUCCESS
               await File(videoFile!.path).delete();
+              TakenCameraImage image = TakenCameraImage(
+                  newFilePath, false, DateTime.now(), FileType.video);
+              imagePathList.add(image);
+              saveFileToGalery(FileType.video, newFilePath);
+              _startVideoPlayer(newFilePath);
+            } else if (ReturnCode.isCancel(returnCode)) {
+              // CANCEL
+
+            } else {
+              // ERROR
+
             }
           });
-
-          // if (returnCode == 0) {
-          //   // delete the origina video file
-          //   await File(videoFile!.path).delete();
-          // } else {
-          //   // throw _flutterFFmpeg. .getLastCommandOutput();
-          // }
         } catch (e) {
           print('video processing error: $e');
         }
-
-        TakenCameraImage image = TakenCameraImage(
-            filePath + '-processed.mp4', false, DateTime.now(), FileType.video);
-        imagePathList.add(image);
-        saveFileToGalery(FileType.video, filePath + '-processed.mp4');
-        _startVideoPlayer(filePath + '-processed.mp4');
       }
     });
   }
