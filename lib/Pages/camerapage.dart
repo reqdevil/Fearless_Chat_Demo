@@ -1732,7 +1732,7 @@ class _CameraPageState extends State<CameraPage>
       if (kDebugMode) {
         print(result);
       }
-      toastInfo("$result");
+      // toastInfo("$result");
     }
   }
 
