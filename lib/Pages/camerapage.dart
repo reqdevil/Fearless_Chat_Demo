@@ -1270,7 +1270,7 @@ class _CameraPageState extends State<CameraPage>
 
         DateTime now = DateTime.now();
         String newFilePath = videoFileDirectory.path +
-            '/' +
+            '/RECFearlessChat' +
             DateFormat('yyyy-MM-dd–kk:mm').format(now) +
             '.mp4';
         String filePath = videoFile!.path;
