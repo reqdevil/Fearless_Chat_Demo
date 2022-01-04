@@ -5,6 +5,7 @@ import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Utils/fixExifRotation.dart';
 import 'package:fearless_chat_demo/Widgets/circularprogressindicator.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
+import 'package:fearless_chat_demo/enums.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/foundation.dart';
@@ -40,6 +41,7 @@ late StreamSubscription<int> timerSubscription;
 String hoursStr = "";
 String minutesStr = "";
 String secondsStr = "";
+late CameraType cameraType;
 
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -129,6 +131,9 @@ class _CameraPageState extends State<CameraPage>
 
   Future<void> getCamera() async {
     cameras = await availableCameras();
+    setState(() {
+      cameraType = CameraType.back;
+    });
     onCameraSelected(cameras[0]);
   }
 
@@ -1024,12 +1029,16 @@ class _CameraPageState extends State<CameraPage>
                                                             cameras[1]);
                                                         setState(() {
                                                           _toggleCamera = true;
+                                                          cameraType =
+                                                              CameraType.front;
                                                         });
                                                       } else {
                                                         onCameraSelected(
                                                             cameras[0]);
                                                         setState(() {
                                                           _toggleCamera = false;
+                                                          cameraType =
+                                                              CameraType.back;
                                                         });
                                                       }
                                                     }
@@ -1166,7 +1175,8 @@ class _CameraPageState extends State<CameraPage>
         setState(() {
           imagePath = filePath;
         });
-        File file = await fixExifRotation(imagePath, oldOrientation);
+        File file =
+            await fixExifRotation(imagePath, oldOrientation, cameraType);
         TakenCameraMedia media =
             TakenCameraMedia(file.path, false, DateTime.now(), FileType.photo);
         setState(() {

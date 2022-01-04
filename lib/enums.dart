@@ -1,0 +1,1 @@
+enum CameraType { front, back }

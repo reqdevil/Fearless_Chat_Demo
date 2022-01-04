@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:camera/camera.dart';
+import 'package:fearless_chat_demo/enums.dart';
 import 'package:image/image.dart' as img;
 import 'package:native_device_orientation/native_device_orientation.dart';
 
-Future<File> fixExifRotation(
-    String imagePath, NativeDeviceOrientation orientation) async {
+Future<File> fixExifRotation(String imagePath,
+    NativeDeviceOrientation orientation, CameraType cameraType) async {
   final originalFile = File(imagePath);
   List<int> imageBytes = await originalFile.readAsBytes();
 
@@ -13,15 +15,31 @@ Future<File> fixExifRotation(
   final width = originalImage.width;
   // final exifData = await readExifFromBytes(imageBytes);
   img.Image? fixedImage;
-  if (orientation == NativeDeviceOrientation.landscapeLeft) {
-    fixedImage = img.copyRotate(originalImage, -90);
-  } else if (orientation == NativeDeviceOrientation.landscapeRight) {
-    fixedImage = img.copyRotate(originalImage, 90);
-  } else if (orientation == NativeDeviceOrientation.portraitUp) {
-    fixedImage = img.copyRotate(originalImage, 0);
-  } else if (orientation == NativeDeviceOrientation.portraitDown) {
-    fixedImage = img.copyRotate(originalImage, 180);
+  if (cameraType == CameraType.back) {
+    if (orientation == NativeDeviceOrientation.landscapeLeft) {
+      fixedImage = img.copyRotate(originalImage, -90);
+    } else if (orientation == NativeDeviceOrientation.landscapeRight) {
+      fixedImage = img.copyRotate(originalImage, 90);
+    } else if (orientation == NativeDeviceOrientation.portraitUp) {
+      fixedImage = img.copyRotate(originalImage, 0);
+    } else if (orientation == NativeDeviceOrientation.portraitDown) {
+      fixedImage = img.copyRotate(originalImage, 180);
+    }
+  } else if (cameraType == CameraType.front) {
+    if (orientation == NativeDeviceOrientation.landscapeLeft) {
+      img.Image _fixedImage = img.flipHorizontal(originalImage);
+      fixedImage = img.copyRotate(_fixedImage, -90);
+    } else if (orientation == NativeDeviceOrientation.landscapeRight) {
+      img.Image _fixedImage = img.flipHorizontal(originalImage);
+      fixedImage = img.copyRotate(_fixedImage, 90);
+    } else if (orientation == NativeDeviceOrientation.portraitUp) {
+      fixedImage = img.flipHorizontal(originalImage);
+    } else if (orientation == NativeDeviceOrientation.portraitDown) {
+      img.Image _fixedImage = img.flipHorizontal(originalImage);
+      fixedImage = img.copyRotate(_fixedImage, 180);
+    }
   }
+
   // // Let's check for the image size
   // // This will be true also for upside-down photos but it's ok for me
   // if (height >= width) {
