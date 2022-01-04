@@ -365,16 +365,21 @@ class _CameraPageState extends State<CameraPage>
                                               child: AnimatedBuilder(
                                                 animation: _animation,
                                                 child: Column(
-                                                  children: const [
+                                                  children: [
                                                     Icon(
                                                       Icons.flash_auto,
-                                                      color: Colors.white,
+                                                      color: _isFlashAuto
+                                                          ? Colors.yellow[700]
+                                                          : Colors.white,
                                                       size: 25,
                                                     ),
                                                     Text(
                                                       'Auto',
                                                       style: TextStyle(
-                                                          color: Colors.white,
+                                                          color: _isFlashAuto
+                                                              ? Colors
+                                                                  .yellow[700]
+                                                              : Colors.white,
                                                           fontSize: 8,
                                                           fontWeight:
                                                               FontWeight.bold),
@@ -391,8 +396,6 @@ class _CameraPageState extends State<CameraPage>
                                               onTap: () {
                                                 if (!_isFlashAuto) {
                                                   setFlashMode(FlashMode.auto);
-                                                  // onSetFlashModeButtonPressed(
-                                                  //     FlashMode.auto);
                                                 }
                                                 setState(() {
                                                   _isFlashOn = false;
@@ -409,16 +412,21 @@ class _CameraPageState extends State<CameraPage>
                                               child: AnimatedBuilder(
                                                 animation: _animation,
                                                 child: Column(
-                                                  children: const [
+                                                  children: [
                                                     Icon(
                                                       Icons.flash_off,
-                                                      color: Colors.white,
+                                                      color: _isFlashOff
+                                                          ? Colors.yellow[700]
+                                                          : Colors.white,
                                                       size: 25,
                                                     ),
                                                     Text(
                                                       'Off',
                                                       style: TextStyle(
-                                                          color: Colors.white,
+                                                          color: _isFlashOff
+                                                              ? Colors
+                                                                  .yellow[700]
+                                                              : Colors.white,
                                                           fontSize: 8,
                                                           fontWeight:
                                                               FontWeight.bold),
@@ -451,16 +459,21 @@ class _CameraPageState extends State<CameraPage>
                                               child: AnimatedBuilder(
                                                 animation: _animation,
                                                 child: Column(
-                                                  children: const [
+                                                  children: [
                                                     Icon(
                                                       Icons.flash_on,
-                                                      color: Colors.white,
+                                                      color: _isFlashOn
+                                                          ? Colors.yellow[700]
+                                                          : Colors.white,
                                                       size: 25,
                                                     ),
                                                     Text(
                                                       'On',
                                                       style: TextStyle(
-                                                          color: Colors.white,
+                                                          color: _isFlashOn
+                                                              ? Colors
+                                                                  .yellow[700]
+                                                              : Colors.white,
                                                           fontSize: 8,
                                                           fontWeight:
                                                               FontWeight.bold),
@@ -477,8 +490,6 @@ class _CameraPageState extends State<CameraPage>
                                               onTap: () {
                                                 if (!_isFlashOn) {
                                                   setFlashMode(FlashMode.torch);
-                                                  // onSetFlashModeButtonPressed(
-                                                  //     FlashMode.always);
                                                 }
                                                 setState(() {
                                                   _isFlashOn = true;
@@ -510,7 +521,9 @@ class _CameraPageState extends State<CameraPage>
                                                 : _isFlashAuto
                                                     ? Icons.flash_auto
                                                     : Icons.flash_off,
-                                        color: Colors.white,
+                                        color: (_isFlashAuto || _isFlashOn)
+                                            ? Colors.yellow[700]
+                                            : Colors.white,
                                         size: 30,
                                       ),
                                       builder: (context, child) {
@@ -1674,7 +1687,51 @@ class _CameraPageState extends State<CameraPage>
                   : Container()),
           onTap: () {
             setState(() {
-              _isTapImage = !_isTapImage;
+              // _isTapImage = !_isTapImage;
+              showModalBottomSheet(
+                enableDrag: true,
+                isDismissible: true,
+                isScrollControlled: false,
+                context: context,
+                builder: (context) {
+                  return SizedBox(
+                    // width: MediaQuery.of(context).size.width / 3,
+                    height: MediaQuery.of(context).size.height / 2,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: imagePathList.length,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 20),
+                          // height: 50,
+                          // width: 50,
+                          width: MediaQuery.of(context).size.width / 2,
+                          height: MediaQuery.of(context).size.width / 2,
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(color: Colors.amber, width: 2),
+                            image: DecorationImage(
+                              image: FileImage(
+                                File(imagePathList.reversed
+                                    .toList()[index]
+                                    .filePath),
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: VideoItem(
+                              url: imagePathList.reversed
+                                  .toList()[index]
+                                  .filePath),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
             });
           },
         ),
