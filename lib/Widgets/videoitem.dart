@@ -22,13 +22,13 @@ class _VideoItemState extends State<VideoItem> {
       });
 
     _controller.addListener(() {
-      // if (_controller.value.position ==
-      //     const Duration(seconds: 0, minutes: 0, hours: 0)) {
-      //   // print('video Started');
-      //   setState(() {
-      //     _isPlaying = false;
-      //   });
-      // }
+      if (_controller.value.position ==
+          const Duration(seconds: 0, minutes: 0, hours: 0)) {
+        // print('video Started');
+        setState(() {
+          // _isPlaying = false;
+        });
+      }
 
       if (_controller.value.position == _controller.value.duration) {
         // print('video Ended');

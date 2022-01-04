@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Utils/fixExifRotation.dart';
-// import 'package:fearless_chat_demo/Utils/imageRotater.dart';
-// import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:fearless_chat_demo/Widgets/circularprogressindicator.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
@@ -692,15 +690,7 @@ class _CameraPageState extends State<CameraPage>
                                                                           url: imagePathList
                                                                               .reversed
                                                                               .toList()[itemIndex]
-                                                                              .filePath)
-                                                                  // : VideoWidget(
-                                                                  //     url: imagePathList
-                                                                  //         .reversed
-                                                                  //         .toList()[
-                                                                  //             itemIndex]
-                                                                  //         .filePath,
-                                                                  //     play: false),
-                                                                  ),
+                                                                              .filePath)),
                                                               decoration:
                                                                   BoxDecoration(
                                                                 color: Colors
@@ -1691,41 +1681,55 @@ class _CameraPageState extends State<CameraPage>
               showModalBottomSheet(
                 enableDrag: true,
                 isDismissible: true,
-                isScrollControlled: false,
+                isScrollControlled: true,
+                backgroundColor: Colors.black,
                 context: context,
                 builder: (context) {
                   return SizedBox(
                     // width: MediaQuery.of(context).size.width / 3,
-                    height: MediaQuery.of(context).size.height / 2,
+                    height: MediaQuery.of(context).size.height / 2.5,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: imagePathList.length,
                       physics: const BouncingScrollPhysics(),
                       itemBuilder: (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 20),
-                          // height: 50,
-                          // width: 50,
-                          width: MediaQuery.of(context).size.width / 2,
-                          height: MediaQuery.of(context).size.width / 2,
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(color: Colors.amber, width: 2),
-                            image: DecorationImage(
-                              image: FileImage(
-                                File(imagePathList.reversed
-                                    .toList()[index]
-                                    .filePath),
+                          child: AnimatedBuilder(
+                            animation: _animation,
+                            child: Container(
+                              alignment: Alignment.center,
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 20),
+                              width: MediaQuery.of(context).size.width / 2,
+                              height: MediaQuery.of(context).size.width / 2,
+                              decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: BorderRadius.circular(10.0),
+                                border:
+                                    Border.all(color: Colors.amber, width: 2),
+                                image: DecorationImage(
+                                  image: FileImage(
+                                    File(imagePathList.reversed
+                                        .toList()[index]
+                                        .filePath),
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                              fit: BoxFit.cover,
+                              child: VideoItem(
+                                  url: imagePathList.reversed
+                                      .toList()[index]
+                                      .filePath),
                             ),
+                            builder: (context, child) {
+                              return Transform.rotate(
+                                angle: _animation.value,
+                                child: child,
+                              );
+                            },
                           ),
-                          child: VideoItem(
-                              url: imagePathList.reversed
-                                  .toList()[index]
-                                  .filePath),
                         );
                       },
                     ),
