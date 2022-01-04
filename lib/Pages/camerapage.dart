@@ -68,6 +68,7 @@ class _CameraPageState extends State<CameraPage>
   XFile? imageFile;
   XFile? videoFile;
   NativeDeviceOrientation oldOrientation = NativeDeviceOrientation.portraitUp;
+  NativeDeviceOrientation? _orientationBeforeCapturevideo;
   final resolutionPresets = ResolutionPreset.values;
   ResolutionPreset currentResolutionPreset = ResolutionPreset.high;
   @override
@@ -177,6 +178,7 @@ class _CameraPageState extends State<CameraPage>
                       turns = 0;
                       break;
                   }
+
                   if (oldOrientation != orientation) {
                     onRotationChangeHandler(orientation);
                     oldOrientation = orientation;
@@ -1124,7 +1126,8 @@ class _CameraPageState extends State<CameraPage>
 
     try {
       await controller!.initialize();
-      await controller!.lockCaptureOrientation(DeviceOrientation.portraitUp);
+      const Duration(milliseconds: 500);
+      await controller!.lockCaptureOrientation();
       await Future.wait([
         // The exposure mode is currently not supported on the web.
         ...(!kIsWeb
@@ -1172,6 +1175,8 @@ class _CameraPageState extends State<CameraPage>
   }
 
   Future<void> captureVideo() async {
+    _orientationBeforeCapturevideo = oldOrientation;
+
     timerStream = stopWatchStream();
     timerSubscription = timerStream!.listen((int newTick) {
       setState(() {
@@ -1254,33 +1259,52 @@ class _CameraPageState extends State<CameraPage>
         // 1 = 90Clockwise
         // 2 = 90CounterClockwise
         // 3 = 90Clockwise and Vertical Flip
-        String rotation = '';
-
-        if (oldOrientation == NativeDeviceOrientation.landscapeLeft) {
-          // fixedImage = img.copyRotate(originalImage, -90);
-          rotation = '2';
-        } else if (oldOrientation == NativeDeviceOrientation.landscapeRight) {
-          // fixedImage = img.copyRotate(originalImage, 90);
-          rotation = '1';
-        } else if (oldOrientation == NativeDeviceOrientation.portraitUp) {
-          rotation = '0';
-        } else if (oldOrientation == NativeDeviceOrientation.portraitDown) {
-          rotation = '3';
-        }
-
+        // String rotation = '';
         DateTime now = DateTime.now();
         String newFilePath = videoFileDirectory.path +
             '/RECFearlessChat' +
             DateFormat('yyyy-MM-dd–kk:mm').format(now) +
             '.mp4';
         String filePath = videoFile!.path;
+        String looselessConversion = '';
+        if (_orientationBeforeCapturevideo ==
+            NativeDeviceOrientation.landscapeLeft) {
+          looselessConversion =
+              '-i ' + filePath + ' -vf "transpose=2" ' + newFilePath;
+          // rotation = '2';
+        } else if (_orientationBeforeCapturevideo ==
+            NativeDeviceOrientation.landscapeRight) {
+          // rotation = '1';
+          looselessConversion =
+              '-i ' + filePath + ' -vf "transpose=1" ' + newFilePath;
+        } else if (oldOrientation == NativeDeviceOrientation.portraitUp) {
+          // rotation = '0';
+          TakenCameraImage image =
+              TakenCameraImage(filePath, false, DateTime.now(), FileType.video);
+          imagePathList.add(image);
+          saveFileToGalery(FileType.video, filePath);
+          _startVideoPlayer(filePath);
+          return;
+          // looselessConversion =
+          //     '-i ' + filePath + ' -vf "transpose=0" ' + newFilePath;
+        } else if (oldOrientation == NativeDeviceOrientation.portraitDown) {
+          // rotation = '3';
+          looselessConversion = '-i ' +
+              filePath +
+              ' -vf "transpose=2,transpose=2" ' +
+              newFilePath;
+        }
 
-        final String looselessConversion = '-i ' +
-            filePath +
-            ' -vf "transpose=' +
-            rotation +
-            '" ' +
-            newFilePath;
+        // final String ac = '-i ' +
+        //     filePath +
+        //     ' -map_metadata 0 -metadata:s:v rotate="90" -codec copy ' +
+        //     newFilePath;
+        // final String looselessConversion = '-i ' +
+        //     filePath +
+        //     ' -vf "transpose=' +
+        //     rotation +
+        //     '" ' +
+        //     newFilePath;
         try {
           FFmpegKit.execute(looselessConversion).then((session) async {
             final returnCode = await session.getReturnCode();
@@ -1328,6 +1352,7 @@ class _CameraPageState extends State<CameraPage>
       }
     };
     vController.addListener(videoPlayerListener!);
+
     await vController.setLooping(true);
     await vController.initialize();
     await videoController?.dispose();
@@ -1337,7 +1362,9 @@ class _CameraPageState extends State<CameraPage>
         videoController = vController;
       });
     }
-    await vController.play();
+    await vController.seekTo(const Duration(milliseconds: 900));
+    await vController.setVolume(0.0);
+    await vController.pause();
   }
 
   void setCameraResult() {
