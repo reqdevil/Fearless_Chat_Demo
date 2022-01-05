@@ -42,6 +42,7 @@ String hoursStr = "";
 String minutesStr = "";
 String secondsStr = "";
 late CameraType cameraType;
+TapDownDetails? exposedAreaDetails;
 
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -191,7 +192,8 @@ class _CameraPageState extends State<CameraPage>
                     onPointerDown: (_) => _pointers++,
                     onPointerUp: (_) => _pointers--,
                     child: Stack(
-                      fit: StackFit.expand,
+                      clipBehavior: Clip.none,
+                      // fit: StackFit.expand,
                       children: [
                         Positioned.fill(
                           child: AspectRatio(
@@ -1108,12 +1110,55 @@ class _CameraPageState extends State<CameraPage>
                             ],
                           ),
                         ),
+                        exposedAreaDetails != null
+                            ? addExposedArea(exposedAreaDetails!)
+                            : Container(),
                       ],
                     ),
                   );
                 },
               )
             : Container(color: Colors.black));
+  }
+
+  Widget addExposedArea(TapDownDetails details) {
+    Widget exposedArea = Row(
+      children: [
+        Positioned(
+          left: details.globalPosition.dx,
+          top: details.globalPosition.dy,
+          child: SizedBox(
+            height: 100,
+            width: 100,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.amber, width: 1),
+              ),
+            ),
+          ),
+        ),
+        RotatedBox(
+          quarterTurns: 3,
+          child: SizedBox(
+            height: 30,
+            child: Slider(
+              value: currentExposureOffset,
+              min: minAvailableExposureOffset,
+              max: maxAvailableExposureOffset,
+              activeColor: Colors.amber,
+              inactiveColor: Colors.amber[300],
+              onChanged: (value) async {
+                setState(() {
+                  currentExposureOffset = value;
+                });
+                await controller!.setExposureOffset(value);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+    return exposedArea;
   }
 
   double angle = 0.0;
@@ -1534,8 +1579,13 @@ class _CameraPageState extends State<CameraPage>
       details.localPosition.dx / constraints.maxWidth,
       details.localPosition.dy / constraints.maxHeight,
     );
+
     cameraController.setExposurePoint(offset);
     cameraController.setFocusPoint(offset);
+    setState(() {
+      exposedAreaDetails = details;
+    });
+    // addExposedArea(details);
   }
 
   IconData getCameraLensIcon(CameraLensDirection direction) {
