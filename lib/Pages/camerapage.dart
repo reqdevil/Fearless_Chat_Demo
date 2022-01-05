@@ -207,6 +207,8 @@ class _CameraPageState extends State<CameraPage>
                     onRotationChangeHandler(orientation);
                     oldOrientation = orientation;
                   }
+                  final double mirror =
+                      cameraType == CameraType.front ? math.pi : 0;
                   return Listener(
                     onPointerDown: (_) => _pointers++,
                     onPointerUp: (_) => _pointers--,
@@ -217,19 +219,23 @@ class _CameraPageState extends State<CameraPage>
                         Positioned.fill(
                           child: AspectRatio(
                             aspectRatio: controller!.value.aspectRatio,
-                            child: CameraPreview(
-                              controller!,
-                              child: LayoutBuilder(builder:
-                                  (BuildContext context,
-                                      BoxConstraints constraints) {
-                                return GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onScaleStart: _handleScaleStart,
-                                  onScaleUpdate: _handleScaleUpdate,
-                                  onTapDown: (details) =>
-                                      onViewFinderTap(details, constraints),
-                                );
-                              }),
+                            child: Transform(
+                              alignment: Alignment.center,
+                              transform: Matrix4.rotationY(mirror),
+                              child: CameraPreview(
+                                controller!,
+                                child: LayoutBuilder(builder:
+                                    (BuildContext context,
+                                        BoxConstraints constraints) {
+                                  return GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onScaleStart: _handleScaleStart,
+                                    onScaleUpdate: _handleScaleUpdate,
+                                    onTapDown: (details) =>
+                                        onViewFinderTap(details, constraints),
+                                  );
+                                }),
+                              ),
                             ),
                           ),
                         ),
@@ -1313,6 +1319,9 @@ class _CameraPageState extends State<CameraPage>
 
   void onCameraSelected(CameraDescription cameraDescription) async {
     // await controller!.dispose();
+    if (controller != null) {
+      await controller!.dispose();
+    }
     setState(() {
       controller = CameraController(cameraDescription, currentResolutionPreset);
     });
@@ -1760,6 +1769,8 @@ class _CameraPageState extends State<CameraPage>
 
     try {
       await cameraController.initialize();
+      const Duration(milliseconds: 500);
+      await controller!.lockCaptureOrientation();
       setState(() {
         _isCameraInitialized = true;
       });
