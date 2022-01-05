@@ -583,14 +583,14 @@ class _CameraPageState extends State<CameraPage>
                                 RotatedBox(
                                   quarterTurns: -1,
                                   child: Slider(
-                                    value: _baseScale,
+                                    value: _currentScale,
                                     min: _minAvailableZoom,
-                                    max: _maxAvailableZoom,
+                                    max: _maxAvailableZoom / 10,
                                     activeColor: Colors.white,
                                     inactiveColor: Colors.white30,
                                     onChanged: (value) async {
                                       setState(() {
-                                        _baseScale = value;
+                                        _currentScale = value;
                                       });
                                       await controller!.setZoomLevel(value);
                                     },
@@ -613,6 +613,7 @@ class _CameraPageState extends State<CameraPage>
                                 AnimatedBuilder(
                                   animation: _animation,
                                   child: Container(
+                                    width: 70,
                                     margin: const EdgeInsets.only(right: 5),
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
@@ -621,9 +622,9 @@ class _CameraPageState extends State<CameraPage>
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 5.0, vertical: 10.0),
+                                          horizontal: 2.0, vertical: 10.0),
                                       child: Text(
-                                        _baseScale.toStringAsFixed(1) + 'x',
+                                        _currentScale.toStringAsFixed(1) + 'x',
                                         style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
@@ -1512,14 +1513,14 @@ class _CameraPageState extends State<CameraPage>
     }
     setState(() {
       _currentScale = (_baseScale * details.scale)
-          .clamp(_minAvailableZoom, _maxAvailableZoom);
+          .clamp(_minAvailableZoom, _maxAvailableZoom / 10);
       // _baseScale = _baseScale * details.scale;
     });
 
     if (kDebugMode) {
       print(_currentScale);
     }
-    await controller!.setZoomLevel(_currentScale / 10);
+    await controller!.setZoomLevel(_currentScale);
   }
 
   void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
