@@ -1231,7 +1231,7 @@ class _CameraPageState extends State<CameraPage>
     final CameraController? cameraController = controller;
 
     if (cameraController == null || !cameraController.value.isRecordingVideo) {
-      return ;
+      return;
     }
 
     try {
@@ -1973,7 +1973,7 @@ class _CameraPageState extends State<CameraPage>
       if (kDebugMode) {
         print(result);
       }
-      toastInfo("$result");
+      // toastInfo("$result");
     } else if (fileType == FileType.photo) {
       final originalFile = File(filePath);
       List<int> imageBytes = await originalFile.readAsBytes();
