@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/enums.dart';
 import 'package:image/image.dart' as img;
 import 'package:native_device_orientation/native_device_orientation.dart';
