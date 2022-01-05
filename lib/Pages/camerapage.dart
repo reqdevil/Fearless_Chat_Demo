@@ -252,13 +252,16 @@ class _CameraPageState extends State<CameraPage>
                                 opacity: _isVideoRecorderSelected ? 0 : 1,
                                 duration: const Duration(milliseconds: 250),
                                 child: GestureDetector(
-                                  child: const Padding(
-                                    padding: EdgeInsets.only(
-                                        left: 0.0, bottom: 0, top: 0),
-                                    child: SizedBox(
-                                      width: 50,
-                                      height: 50,
-                                      child: Icon(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 5.0, bottom: 0, top: 10),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.5),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      child: const Icon(
                                         Icons.close,
                                         color: Colors.white,
                                         size: 35,
@@ -278,10 +281,10 @@ class _CameraPageState extends State<CameraPage>
                                   padding: const EdgeInsets.only(
                                       left: 8.0, bottom: 0),
                                   child: Container(
-                                    margin: const EdgeInsets.only(top: 13),
-                                    height: 25,
+                                    margin: const EdgeInsets.only(top: 11),
+                                    height: 32,
                                     decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.7),
+                                        color: Colors.black.withOpacity(0.5),
                                         borderRadius: const BorderRadius.all(
                                           Radius.circular(5.0),
                                         )),
@@ -328,11 +331,15 @@ class _CameraPageState extends State<CameraPage>
                         Align(
                           alignment: Alignment.topRight,
                           child: Container(
+                            width: MediaQuery.of(context).size.width / 1.8,
+                            height: MediaQuery.of(context).size.height / 12.5,
+                            alignment: Alignment.topRight,
+                            padding: EdgeInsets.only(top: 0, bottom: 8),
                             margin: const EdgeInsets.only(
-                                bottom: 5, left: 8, top: 0, right: 0),
+                                bottom: 5, left: 8, top: 5, right: 0),
                             decoration: BoxDecoration(
                                 color: Colors.black
-                                    .withOpacity(_isflashTap ? 0.7 : 0.0),
+                                    .withOpacity(_isflashTap ? 0.5 : 0.0),
                                 borderRadius: const BorderRadius.only(
                                     bottomLeft: Radius.circular(10.0),
                                     topLeft: Radius.circular(10.0))),
@@ -343,9 +350,9 @@ class _CameraPageState extends State<CameraPage>
                               children: [
                                 SizedBox(
                                   width:
-                                      MediaQuery.of(context).size.width / 2.6,
+                                      MediaQuery.of(context).size.width / 2.5,
                                   height:
-                                      MediaQuery.of(context).size.height / 15,
+                                      MediaQuery.of(context).size.height / 12,
                                   child: AnimatedOpacity(
                                     opacity: _isflashTap ? 1 : 0,
                                     duration: const Duration(milliseconds: 250),
@@ -359,12 +366,12 @@ class _CameraPageState extends State<CameraPage>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
                                         mainAxisAlignment:
-                                            MainAxisAlignment.end,
+                                            MainAxisAlignment.center,
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Padding(
                                             padding: const EdgeInsets.only(
-                                                right: 18.0, left: 18, top: 0),
+                                                right: 18.0, left: 5, top: 0),
                                             child: GestureDetector(
                                               child: AnimatedBuilder(
                                                 animation: _animation,
@@ -402,6 +409,7 @@ class _CameraPageState extends State<CameraPage>
                                                   setFlashMode(FlashMode.auto);
                                                 }
                                                 setState(() {
+                                                  _isflashTap = false;
                                                   _isFlashOn = false;
                                                   _isFlashOff = false;
                                                   _isFlashAuto = true;
@@ -411,7 +419,7 @@ class _CameraPageState extends State<CameraPage>
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.only(
-                                                right: 18.0),
+                                                left: 5, right: 18.0),
                                             child: GestureDetector(
                                               child: AnimatedBuilder(
                                                 animation: _animation,
@@ -449,6 +457,7 @@ class _CameraPageState extends State<CameraPage>
                                                   setFlashMode(FlashMode.off);
                                                 }
                                                 setState(() {
+                                                  _isflashTap = false;
                                                   _isFlashOff = true;
                                                   _isFlashAuto = false;
                                                   _isFlashOn = false;
@@ -458,7 +467,7 @@ class _CameraPageState extends State<CameraPage>
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.only(
-                                                right: 16.0),
+                                                left: 5, right: 16.0),
                                             child: GestureDetector(
                                               child: AnimatedBuilder(
                                                 animation: _animation,
@@ -496,6 +505,7 @@ class _CameraPageState extends State<CameraPage>
                                                   setFlashMode(FlashMode.torch);
                                                 }
                                                 setState(() {
+                                                  _isflashTap = false;
                                                   _isFlashOn = true;
                                                   _isFlashOff = false;
                                                   _isFlashAuto = false;
@@ -513,22 +523,32 @@ class _CameraPageState extends State<CameraPage>
                                     padding: const EdgeInsets.only(
                                         left: 0.0,
                                         bottom: 0,
-                                        top: 12,
-                                        right: 10),
+                                        top: 5,
+                                        right: 5.0),
                                     child: AnimatedBuilder(
                                       animation: _animation,
-                                      child: Icon(
-                                        _isFlashOn
-                                            ? Icons.flash_on
-                                            : _isFlashOff
-                                                ? Icons.flash_off
-                                                : _isFlashAuto
-                                                    ? Icons.flash_auto
-                                                    : Icons.flash_off,
-                                        color: (_isFlashAuto || _isFlashOn)
-                                            ? Colors.yellow[700]
-                                            : Colors.white,
-                                        size: 30,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                          color: _isflashTap
+                                              ? Colors.transparent
+                                              : Colors.black.withOpacity(0.5),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                        child: Icon(
+                                          _isFlashOn
+                                              ? Icons.flash_on
+                                              : _isFlashOff
+                                                  ? Icons.flash_off
+                                                  : _isFlashAuto
+                                                      ? Icons.flash_auto
+                                                      : Icons.flash_off,
+                                          color: (_isFlashAuto || _isFlashOn)
+                                              ? Colors.yellow[700]
+                                              : Colors.white,
+                                          size: 32,
+                                        ),
                                       ),
                                       builder: (context, child) {
                                         return Transform.rotate(
@@ -596,7 +616,7 @@ class _CameraPageState extends State<CameraPage>
                                     margin: const EdgeInsets.only(right: 5),
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
-                                      color: Colors.black87.withOpacity(0.7),
+                                      color: Colors.black87.withOpacity(0.5),
                                       borderRadius: BorderRadius.circular(10.0),
                                     ),
                                     child: Padding(
@@ -1858,7 +1878,8 @@ class _CameraPageState extends State<CameraPage>
                                                             .toList()[index]
                                                             .isSelected
                                                         ? Colors.amber
-                                                        : Colors.black,
+                                                        : Colors.grey
+                                                            .withOpacity(0.5),
                                                     width: 2),
                                                 image: DecorationImage(
                                                   image: FileImage(

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -15,7 +18,9 @@ class _VideoItemState extends State<VideoItem> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(widget.url)
+    _controller = kIsWeb
+        ? VideoPlayerController.network(widget.url)
+        : VideoPlayerController.file(File(widget.url))
       ..initialize().then((_) {
         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
         setState(() {});
@@ -54,6 +59,7 @@ class _VideoItemState extends State<VideoItem> {
                     onTap: playPause,
                     child: Icon(
                         _isPlaying ? Icons.pause_circle : Icons.play_circle,
+                        size: 45,
                         color: Colors.white.withOpacity(0.6))))
           ])
         : Container();
