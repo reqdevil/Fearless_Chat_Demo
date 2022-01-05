@@ -1517,9 +1517,9 @@ class _CameraPageState extends State<CameraPage>
     });
 
     if (kDebugMode) {
-      print(_baseScale);
+      print(_currentScale);
     }
-    await controller!.setZoomLevel(_currentScale);
+    await controller!.setZoomLevel(_currentScale / 10);
   }
 
   void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
