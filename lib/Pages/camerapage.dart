@@ -47,7 +47,8 @@ class _CameraPageState extends State<CameraPage>
   late Animation<double> _animation;
 
   List<CameraDescription> cameras = [];
-  List<TakenCameraImage> imagePathList = [];
+  List<TakenCameraMedia> mediaPathList = [];
+  List<TakenCameraMedia> _listShareMedia = [];
   String imagePath = "";
   bool _toggleCamera = false;
   CameraController? controller;
@@ -58,9 +59,9 @@ class _CameraPageState extends State<CameraPage>
   VideoPlayerController? videoController;
   VoidCallback? videoPlayerListener;
   bool enableAudio = true;
-  double _minAvailableExposureOffset = 0.0;
-  double _maxAvailableExposureOffset = 0.0;
-  double _currentExposureOffset = 0.0;
+  double minAvailableExposureOffset = 0.0;
+  double maxAvailableExposureOffset = 0.0;
+  double currentExposureOffset = 0.0;
   double _currentScale = 1.0;
   double _baseScale = 1.0;
   XFile? imageFile;
@@ -648,7 +649,7 @@ class _CameraPageState extends State<CameraPage>
                                             child: ListView.builder(
                                               physics:
                                                   const BouncingScrollPhysics(),
-                                              itemCount: imagePathList.length,
+                                              itemCount: mediaPathList.length,
                                               scrollDirection: Axis.horizontal,
                                               itemBuilder:
                                                   (context, itemIndex) {
@@ -670,7 +671,7 @@ class _CameraPageState extends State<CameraPage>
                                                           child: SizedBox(
                                                             child: Container(
                                                               child: Center(
-                                                                  child: imagePathList
+                                                                  child: mediaPathList
                                                                               .reversed
                                                                               .toList()[
                                                                                   itemIndex]
@@ -679,7 +680,7 @@ class _CameraPageState extends State<CameraPage>
                                                                               .photo
                                                                       ? Image
                                                                           .file(
-                                                                          File(imagePathList
+                                                                          File(mediaPathList
                                                                               .reversed
                                                                               .toList()[itemIndex]
                                                                               .filePath),
@@ -687,7 +688,7 @@ class _CameraPageState extends State<CameraPage>
                                                                               .fill,
                                                                         )
                                                                       : VideoItem(
-                                                                          url: imagePathList
+                                                                          url: mediaPathList
                                                                               .reversed
                                                                               .toList()[itemIndex]
                                                                               .filePath)),
@@ -729,7 +730,7 @@ class _CameraPageState extends State<CameraPage>
                                                                     Alignment
                                                                         .center,
                                                                 decoration: BoxDecoration(
-                                                                    color: imagePathList[
+                                                                    color: mediaPathList[
                                                                                 itemIndex]
                                                                             .isSelected
                                                                         ? Colors
@@ -743,7 +744,7 @@ class _CameraPageState extends State<CameraPage>
                                                                     border: Border.all(
                                                                         color: Colors
                                                                             .blue)),
-                                                                child: imagePathList[
+                                                                child: mediaPathList[
                                                                             itemIndex]
                                                                         .isSelected
                                                                     ? const Icon(
@@ -759,12 +760,12 @@ class _CameraPageState extends State<CameraPage>
                                                             ),
                                                             onTap: () {
                                                               setState(() {
-                                                                imagePathList[
+                                                                mediaPathList[
                                                                         itemIndex]
-                                                                    .isSelected = !imagePathList[
+                                                                    .isSelected = !mediaPathList[
                                                                         itemIndex]
                                                                     .isSelected;
-                                                                if (imagePathList
+                                                                if (mediaPathList
                                                                     .where((element) =>
                                                                         element
                                                                             .isSelected)
@@ -1066,7 +1067,7 @@ class _CameraPageState extends State<CameraPage>
                                       ),
                                       Align(
                                         alignment: Alignment.centerLeft,
-                                        child: imagePathList.length > 0
+                                        child: mediaPathList.isNotEmpty
                                             ? _thumbnailWidget()
                                             : Container(),
                                       )
@@ -1137,10 +1138,10 @@ class _CameraPageState extends State<CameraPage>
             ? [
                 controller!
                     .getMinExposureOffset()
-                    .then((value) => _minAvailableExposureOffset = value),
+                    .then((value) => minAvailableExposureOffset = value),
                 controller!
                     .getMaxExposureOffset()
-                    .then((value) => _maxAvailableExposureOffset = value)
+                    .then((value) => maxAvailableExposureOffset = value)
               ]
             : []),
         controller!
@@ -1166,10 +1167,10 @@ class _CameraPageState extends State<CameraPage>
           imagePath = filePath;
         });
         File file = await fixExifRotation(imagePath, oldOrientation);
-        TakenCameraImage image =
-            TakenCameraImage(file.path, false, DateTime.now(), FileType.photo);
+        TakenCameraMedia media =
+            TakenCameraMedia(file.path, false, DateTime.now(), FileType.photo);
         setState(() {
-          imagePathList.add(image);
+          mediaPathList.add(media);
         });
 
         saveFileToGalery(FileType.photo, file.path);
@@ -1230,7 +1231,7 @@ class _CameraPageState extends State<CameraPage>
     final CameraController? cameraController = controller;
 
     if (cameraController == null || !cameraController.value.isRecordingVideo) {
-      return null;
+      return ;
     }
 
     try {
@@ -1284,9 +1285,9 @@ class _CameraPageState extends State<CameraPage>
               '-i ' + filePath + ' -vf "transpose=1" ' + newFilePath;
         } else if (oldOrientation == NativeDeviceOrientation.portraitUp) {
           // rotation = '0';
-          TakenCameraImage image =
-              TakenCameraImage(filePath, false, DateTime.now(), FileType.video);
-          imagePathList.add(image);
+          TakenCameraMedia media =
+              TakenCameraMedia(filePath, false, DateTime.now(), FileType.video);
+          mediaPathList.add(media);
           saveFileToGalery(FileType.video, filePath);
           _startVideoPlayer(filePath);
           return;
@@ -1317,9 +1318,9 @@ class _CameraPageState extends State<CameraPage>
             if (ReturnCode.isSuccess(returnCode)) {
               // SUCCESS
               await File(videoFile!.path).delete();
-              TakenCameraImage image = TakenCameraImage(
+              TakenCameraMedia media = TakenCameraMedia(
                   newFilePath, false, DateTime.now(), FileType.video);
-              imagePathList.add(image);
+              mediaPathList.add(media);
               saveFileToGalery(FileType.video, newFilePath);
               _startVideoPlayer(newFilePath);
             } else if (ReturnCode.isCancel(returnCode)) {
@@ -1331,7 +1332,9 @@ class _CameraPageState extends State<CameraPage>
             }
           });
         } catch (e) {
-          print('video processing error: $e');
+          if (kDebugMode) {
+            print('video processing error: $e');
+          }
         }
       }
     });
@@ -1530,7 +1533,7 @@ class _CameraPageState extends State<CameraPage>
     );
 
     controller = cameraController;
-    CameraDescription direction = cameraController.description;
+    // CameraDescription direction = cameraController.description;
     // If the controller is updated then update the UI.
 
     cameraController.addListener(() {
@@ -1557,10 +1560,10 @@ class _CameraPageState extends State<CameraPage>
             ? [
                 cameraController
                     .getMinExposureOffset()
-                    .then((value) => _minAvailableExposureOffset = value),
+                    .then((value) => minAvailableExposureOffset = value),
                 cameraController
                     .getMaxExposureOffset()
-                    .then((value) => _maxAvailableExposureOffset = value)
+                    .then((value) => maxAvailableExposureOffset = value)
               ]
             : []),
         cameraController
@@ -1664,7 +1667,7 @@ class _CameraPageState extends State<CameraPage>
                   borderRadius: BorderRadius.circular(10.0),
                   border: Border.all(color: Colors.white, width: 2),
                   image: DecorationImage(
-                    image: FileImage(File(imagePathList.last.filePath)),
+                    image: FileImage(File(mediaPathList.last.filePath)),
                     fit: BoxFit.cover,
                   )),
               child: localVideoController != null &&
@@ -1680,6 +1683,7 @@ class _CameraPageState extends State<CameraPage>
           onTap: () {
             setState(() {
               // _isTapImage = !_isTapImage;
+              _listShareMedia = mediaPathList;
               showModalBottomSheet(
                 enableDrag: true,
                 isDismissible: true,
@@ -1744,31 +1748,9 @@ class _CameraPageState extends State<CameraPage>
                                       if (!_isSelectedImage) {
                                         null;
                                       } else {
-                                        for (var i = 0;
-                                            i < imagePathList.length;
-                                            i++) {
-                                          if (imagePathList[i].isSelected) {
-                                            await File(
-                                                    imagePathList[i].filePath)
-                                                .delete();
-
-                                            setState(() {
-                                              imagePathList.removeAt(i);
-                                            });
-                                          }
-                                        }
-                                        if (imagePathList.isEmpty) {
-                                          Navigator.pop(context);
-                                        }
-                                        if (imagePathList
-                                            .where(
-                                                (element) => element.isSelected)
-                                            .toList()
-                                            .isEmpty) {
-                                          setState(() {
-                                            _isSelectedImage = false;
-                                          });
-                                        }
+                                        setState(() {
+                                          removeMediaFromShareList();
+                                        });
                                       }
                                     },
                                     style: ButtonStyle(
@@ -1807,7 +1789,7 @@ class _CameraPageState extends State<CameraPage>
                             height: MediaQuery.of(context).size.height / 2.5,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              itemCount: imagePathList.length,
+                              itemCount: mediaPathList.length,
                               physics: const BouncingScrollPhysics(),
                               itemBuilder: (context, index) {
                                 return Padding(
@@ -1815,53 +1797,83 @@ class _CameraPageState extends State<CameraPage>
                                       horizontal: 5, vertical: 20),
                                   child: AnimatedBuilder(
                                     animation: _animation,
-                                    child: Stack(
-                                      children: [
-                                        Align(
-                                          alignment: Alignment.center,
-                                          child: Container(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          mediaPathList.reversed
+                                                  .toList()[index]
+                                                  .isSelected =
+                                              !mediaPathList.reversed
+                                                  .toList()[index]
+                                                  .isSelected;
+                                          if (mediaPathList.reversed
+                                              .toList()
+                                              .where((element) =>
+                                                  element.isSelected)
+                                              .toList()
+                                              .isNotEmpty) {
+                                            _isSelectedImage = true;
+                                          } else {
+                                            _isSelectedImage = false;
+                                          }
+                                          _listShareMedia =
+                                              mediaPathList.reversed.toList();
+                                        });
+                                      },
+                                      child: Stack(
+                                        children: [
+                                          Align(
                                             alignment: Alignment.center,
-                                            margin: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 20),
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                            decoration: BoxDecoration(
-                                              color: Colors.black,
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              border: Border.all(
-                                                  color: Colors.amber,
-                                                  width: 2),
-                                              image: DecorationImage(
-                                                image: FileImage(
-                                                  File(imagePathList.reversed
-                                                      .toList()[index]
-                                                      .filePath),
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 20),
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2,
+                                              decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                                border: Border.all(
+                                                    color: mediaPathList
+                                                            .reversed
+                                                            .toList()[index]
+                                                            .isSelected
+                                                        ? Colors.amber
+                                                        : Colors.black,
+                                                    width: 2),
+                                                image: DecorationImage(
+                                                  image: FileImage(
+                                                    File(mediaPathList.reversed
+                                                        .toList()[index]
+                                                        .filePath),
+                                                  ),
+                                                  fit: BoxFit.cover,
                                                 ),
-                                                fit: BoxFit.cover,
                                               ),
+                                              child: mediaPathList.reversed
+                                                          .toList()[index]
+                                                          .fileType ==
+                                                      FileType.video
+                                                  ? VideoItem(
+                                                      url: mediaPathList
+                                                          .reversed
+                                                          .toList()[index]
+                                                          .filePath)
+                                                  : Container(),
                                             ),
-                                            child: imagePathList.reversed
-                                                        .toList()[index]
-                                                        .fileType ==
-                                                    FileType.video
-                                                ? VideoItem(
-                                                    url: imagePathList.reversed
-                                                        .toList()[index]
-                                                        .filePath)
-                                                : Container(),
                                           ),
-                                        ),
-                                        Positioned.fill(
-                                          top: 22,
-                                          right: 12,
-                                          child: GestureDetector(
+                                          Positioned.fill(
+                                            top: 22,
+                                            right: 12,
                                             child: Align(
                                               alignment: Alignment.topRight,
                                               child: Container(
@@ -1870,7 +1882,9 @@ class _CameraPageState extends State<CameraPage>
                                                 width: 20,
                                                 alignment: Alignment.center,
                                                 decoration: BoxDecoration(
-                                                    color: imagePathList[index]
+                                                    color: mediaPathList
+                                                            .reversed
+                                                            .toList()[index]
                                                             .isSelected
                                                         ? Colors.blue
                                                         : Colors.transparent,
@@ -1881,7 +1895,8 @@ class _CameraPageState extends State<CameraPage>
                                                     border: Border.all(
                                                         color: Colors.white
                                                             .withOpacity(0.5))),
-                                                child: imagePathList[index]
+                                                child: mediaPathList.reversed
+                                                        .toList()[index]
                                                         .isSelected
                                                     ? const Icon(
                                                         Icons.check,
@@ -1891,26 +1906,9 @@ class _CameraPageState extends State<CameraPage>
                                                     : Container(),
                                               ),
                                             ),
-                                            onTap: () {
-                                              setState(() {
-                                                imagePathList[index]
-                                                        .isSelected =
-                                                    !imagePathList[index]
-                                                        .isSelected;
-                                                if (imagePathList
-                                                    .where((element) =>
-                                                        element.isSelected)
-                                                    .toList()
-                                                    .isNotEmpty) {
-                                                  _isSelectedImage = true;
-                                                } else {
-                                                  _isSelectedImage = false;
-                                                }
-                                              });
-                                            },
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                     builder: (context, child) {
                                       return Transform.rotate(
@@ -1932,7 +1930,7 @@ class _CameraPageState extends State<CameraPage>
             });
           },
         ),
-        imagePathList.isNotEmpty
+        mediaPathList.isNotEmpty
             ? Positioned.fill(
                 child: Align(
                   alignment: Alignment.topRight,
@@ -1948,7 +1946,7 @@ class _CameraPageState extends State<CameraPage>
                             const BorderRadius.all(Radius.circular(10)),
                         border: Border.all(color: Colors.red)),
                     child: Text(
-                      imagePathList.length.toString(),
+                      mediaPathList.length.toString(),
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -1993,5 +1991,32 @@ class _CameraPageState extends State<CameraPage>
 
   toastInfo(String info) {
     Fluttertoast.showToast(msg: info, toastLength: Toast.LENGTH_LONG);
+  }
+
+  void removeMediaFromShareList() {
+    for (var item in _listShareMedia.reversed.toList()) {
+      if (item.isSelected) {
+        setState(() {
+          mediaPathList.remove(item);
+        });
+      }
+    }
+
+    if (mediaPathList.isEmpty) {
+      setState(() {
+        _listShareMedia.clear();
+      });
+
+      Navigator.pop(context);
+    }
+    if (mediaPathList.reversed
+        .toList()
+        .where((element) => element.isSelected)
+        .toList()
+        .isEmpty) {
+      setState(() {
+        _isSelectedImage = false;
+      });
+    }
   }
 }

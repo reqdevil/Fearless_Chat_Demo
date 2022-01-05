@@ -1,10 +1,10 @@
-class TakenCameraImage {
+class TakenCameraMedia {
   String filePath;
   bool isSelected;
   DateTime dateTime;
   FileType fileType;
 
-  TakenCameraImage(
+  TakenCameraMedia(
       this.filePath, this.isSelected, this.dateTime, this.fileType);
 }
 
