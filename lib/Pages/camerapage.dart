@@ -219,23 +219,19 @@ class _CameraPageState extends State<CameraPage>
                         Positioned.fill(
                           child: AspectRatio(
                             aspectRatio: controller!.value.aspectRatio,
-                            child: Transform(
-                              alignment: Alignment.center,
-                              transform: Matrix4.rotationY(mirror),
-                              child: CameraPreview(
-                                controller!,
-                                child: LayoutBuilder(builder:
-                                    (BuildContext context,
-                                        BoxConstraints constraints) {
-                                  return GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onScaleStart: _handleScaleStart,
-                                    onScaleUpdate: _handleScaleUpdate,
-                                    onTapDown: (details) =>
-                                        onViewFinderTap(details, constraints),
-                                  );
-                                }),
-                              ),
+                            child: CameraPreview(
+                              controller!,
+                              child: LayoutBuilder(builder:
+                                  (BuildContext context,
+                                      BoxConstraints constraints) {
+                                return GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onScaleStart: _handleScaleStart,
+                                  onScaleUpdate: _handleScaleUpdate,
+                                  onTapDown: (details) =>
+                                      onViewFinderTap(details, constraints),
+                                );
+                              }),
                             ),
                           ),
                         ),
@@ -1377,17 +1373,53 @@ class _CameraPageState extends State<CameraPage>
         setState(() {
           imagePath = filePath;
         });
-        File file =
-            await fixExifRotation(imagePath, oldOrientation, cameraType);
-        TakenCameraMedia media =
-            TakenCameraMedia(file.path, false, DateTime.now(), FileType.photo);
-        setState(() {
-          mediaPathList.add(media);
-        });
+        if (cameraType == CameraType.front) {
+          Directory imageFileDirectory = File(imagePath).parent;
+          DateTime now = DateTime.now();
+          String newFilePath = imageFileDirectory.path +
+              '/IMGFearlessChat' +
+              DateFormat('yyyy-MM-dd–kk:mm').format(now) +
+              '.jpg';
 
-        saveFileToGalery(FileType.photo, file.path);
-        // showMessage('Picture saved to $filePath');
-        // setCameraResult();
+          String looselessConversion =
+              "-y -i " + imagePath + " -vf transpose=3 " + newFilePath;
+
+          FFmpegKit.execute(looselessConversion).then((session) async {
+            final returnCode = await session.getReturnCode();
+
+            if (ReturnCode.isSuccess(returnCode)) {
+              // SUCCESS
+              await File(imagePath).delete();
+              File file = await fixExifRotation(
+                  newFilePath, oldOrientation, cameraType);
+              TakenCameraMedia media = TakenCameraMedia(
+                  file.path, false, DateTime.now(), FileType.photo);
+              setState(() {
+                mediaPathList.add(media);
+              });
+
+              saveFileToGalery(FileType.photo, file.path);
+            } else if (ReturnCode.isCancel(returnCode)) {
+              // CANCEL
+
+            } else {
+              // ERROR
+
+            }
+          });
+        } else {
+          File file =
+              await fixExifRotation(imagePath, oldOrientation, cameraType);
+          TakenCameraMedia media = TakenCameraMedia(
+              file.path, false, DateTime.now(), FileType.photo);
+          setState(() {
+            mediaPathList.add(media);
+          });
+
+          saveFileToGalery(FileType.photo, file.path);
+          // showMessage('Picture saved to $filePath');
+          // setCameraResult();
+        }
       }
     });
   }
@@ -1471,6 +1503,7 @@ class _CameraPageState extends State<CameraPage>
         if (kDebugMode) {
           print(videoFile!.path);
         }
+
         Directory videoFileDirectory = File(videoFile!.path).parent;
 
         // 0 = 90CounterCLockwise and Vertical Flip (default)
@@ -1487,42 +1520,67 @@ class _CameraPageState extends State<CameraPage>
         String looselessConversion = '';
         if (_orientationBeforeCapturevideo ==
             NativeDeviceOrientation.landscapeLeft) {
-          looselessConversion =
-              '-i ' + filePath + ' -vf "transpose=2" ' + newFilePath;
+          if (cameraType == CameraType.front) {
+            looselessConversion = '-i ' +
+                filePath +
+                ' -metadata:s:v "rotate=90,transpose=3" -codec copy ' +
+                newFilePath;
+          } else {
+            looselessConversion =
+                '-i ' + filePath + ' -vf "transpose=2" ' + newFilePath;
+          }
+
           // rotation = '2';
         } else if (_orientationBeforeCapturevideo ==
             NativeDeviceOrientation.landscapeRight) {
+          if (cameraType == CameraType.front) {
+            looselessConversion = ' -i ' +
+                filePath +
+                ' -vf "transpose=3,transpose=2,transpose=2" ' +
+                // ' -metadata:s:v:0 ' +
+                // // ' "transpose=1" ' +
+                // '-c:a copy ' +
+                newFilePath;
+          } else {
+            looselessConversion =
+                '-i ' + filePath + ' -vf "transpose=1" ' + newFilePath;
+          }
           // rotation = '1';
-          looselessConversion =
-              '-i ' + filePath + ' -vf "transpose=1" ' + newFilePath;
+
         } else if (oldOrientation == NativeDeviceOrientation.portraitUp) {
           // rotation = '0';
-          TakenCameraMedia media =
-              TakenCameraMedia(filePath, false, DateTime.now(), FileType.video);
-          mediaPathList.add(media);
-          saveFileToGalery(FileType.video, filePath);
-          _startVideoPlayer(filePath);
-          return;
+          if (cameraType == CameraType.front) {
+            looselessConversion = '-i ' +
+                filePath +
+                ' -vf "transpose=0,transpose=1" ' +
+                newFilePath;
+          } else {
+            TakenCameraMedia media = TakenCameraMedia(
+                filePath, false, DateTime.now(), FileType.video);
+            setState(() {
+              mediaPathList.add(media);
+            });
+
+            saveFileToGalery(FileType.video, filePath);
+            _startVideoPlayer(filePath);
+            return;
+          }
+
           // looselessConversion =
           //     '-i ' + filePath + ' -vf "transpose=0" ' + newFilePath;
         } else if (oldOrientation == NativeDeviceOrientation.portraitDown) {
           // rotation = '3';
-          looselessConversion = '-i ' +
-              filePath +
-              ' -vf "transpose=2,transpose=2" ' +
-              newFilePath;
+          if (cameraType == CameraType.front) {
+            looselessConversion =
+                '-i ' + filePath + ' -vf "transpose=3" ' + newFilePath;
+          } else {
+            looselessConversion = '-i ' +
+                filePath +
+                ' -vf "transpose=2,transpose=2" ' +
+                newFilePath;
+          }
         }
 
-        // final String ac = '-i ' +
-        //     filePath +
-        //     ' -map_metadata 0 -metadata:s:v rotate="90" -codec copy ' +
-        //     newFilePath;
-        // final String looselessConversion = '-i ' +
-        //     filePath +
-        //     ' -vf "transpose=' +
-        //     rotation +
-        //     '" ' +
-        //     newFilePath;
         try {
           FFmpegKit.execute(looselessConversion).then((session) async {
             final returnCode = await session.getReturnCode();
@@ -1532,7 +1590,10 @@ class _CameraPageState extends State<CameraPage>
               await File(videoFile!.path).delete();
               TakenCameraMedia media = TakenCameraMedia(
                   newFilePath, false, DateTime.now(), FileType.video);
-              mediaPathList.add(media);
+              setState(() {
+                mediaPathList.add(media);
+              });
+
               saveFileToGalery(FileType.video, newFilePath);
               _startVideoPlayer(newFilePath);
             } else if (ReturnCode.isCancel(returnCode)) {
