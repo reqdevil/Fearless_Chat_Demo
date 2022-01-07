@@ -16,6 +16,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'dart:math' as math;
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
 import 'package:intl/intl.dart';
@@ -31,6 +32,10 @@ late bool _isflashTap;
 bool _isFlashOn = false;
 bool _isFlashAuto = false;
 bool _isFlashOff = false;
+bool _isVisibleItemFlash = true;
+bool _isVisibleItemCloseAndDropDown = true;
+bool _isVisibleExposureContainer = false;
+bool _isExposeChanging = false;
 late bool _isVideoRecorderSelected;
 late bool _isVideoRecording;
 late bool _isTapImage;
@@ -43,6 +48,7 @@ String minutesStr = "";
 String secondsStr = "";
 late CameraType cameraType;
 TapDownDetails? exposedAreaDetails;
+bool _isFingerTapped = false;
 
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -93,6 +99,7 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void initState() {
+    requestPermission();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {});
     _animationElementsController = AnimationController(
       vsync: this,
@@ -119,6 +126,18 @@ class _CameraPageState extends State<CameraPage>
       }
     }
     super.initState();
+  }
+
+  requestPermission() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.storage,
+    ].request();
+
+    final info = statuses[Permission.storage].toString();
+    if (kDebugMode) {
+      print(info);
+    }
+    toastInfo(info);
   }
 
   @override
@@ -253,76 +272,104 @@ class _CameraPageState extends State<CameraPage>
                               AnimatedOpacity(
                                 opacity: _isVideoRecorderSelected ? 0 : 1,
                                 duration: const Duration(milliseconds: 250),
-                                child: GestureDetector(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 5.0, bottom: 0, top: 10),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.5),
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 35,
+                                onEnd: () {
+                                  if (_isVideoRecorderSelected) {
+                                    setState(() {
+                                      _isVisibleItemCloseAndDropDown = false;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _isVisibleItemCloseAndDropDown = true;
+                                    });
+                                  }
+                                },
+                                child: Visibility(
+                                  visible: _isVisibleItemCloseAndDropDown,
+                                  child: GestureDetector(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 5.0, bottom: 0, top: 10),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.5),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 35,
+                                        ),
                                       ),
                                     ),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    },
                                   ),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
                                 ),
                               ),
                               AnimatedOpacity(
                                 opacity: !_isVideoRecorderSelected ? 1 : 0,
                                 duration: const Duration(milliseconds: 250),
+                                onEnd: () {
+                                  if (_isVideoRecorderSelected) {
+                                    setState(() {
+                                      _isVisibleItemCloseAndDropDown = false;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _isVisibleItemCloseAndDropDown = true;
+                                    });
+                                  }
+                                },
                                 curve: Curves.easeIn,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 8.0, bottom: 0),
-                                  child: Container(
-                                    margin: const EdgeInsets.only(top: 11),
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.5),
-                                        borderRadius: const BorderRadius.all(
-                                          Radius.circular(5.0),
-                                        )),
-                                    child: DropdownButton<ResolutionPreset>(
-                                      alignment: Alignment.center,
-                                      dropdownColor: Colors.black87,
-                                      iconEnabledColor: Colors.white,
-                                      underline: Container(),
-                                      value: currentResolutionPreset,
-                                      items: [
-                                        for (ResolutionPreset preset
-                                            in resolutionPresets)
-                                          DropdownMenuItem(
-                                            child: Text(
-                                              preset
-                                                  .toString()
-                                                  .split('.')[1]
-                                                  .toUpperCase(),
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 12),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            value: preset,
-                                          )
-                                      ],
-                                      onChanged: (value) {
-                                        setState(() {
-                                          currentResolutionPreset = value!;
-                                          _isCameraInitialized = false;
-                                        });
-                                        onCameraSelected(
-                                            controller!.description);
-                                      },
-                                      hint: const Text("Select item"),
+                                child: Visibility(
+                                  visible: _isVisibleItemCloseAndDropDown,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8.0, bottom: 0),
+                                    child: Container(
+                                      margin: const EdgeInsets.only(top: 11),
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.5),
+                                          borderRadius: const BorderRadius.all(
+                                            Radius.circular(5.0),
+                                          )),
+                                      child: DropdownButton<ResolutionPreset>(
+                                        alignment: Alignment.center,
+                                        dropdownColor: Colors.black87,
+                                        iconEnabledColor: Colors.white,
+                                        underline: Container(),
+                                        value: currentResolutionPreset,
+                                        items: [
+                                          for (ResolutionPreset preset
+                                              in resolutionPresets)
+                                            DropdownMenuItem(
+                                              child: Text(
+                                                preset
+                                                    .toString()
+                                                    .split('.')[1]
+                                                    .toUpperCase(),
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              value: preset,
+                                            )
+                                        ],
+                                        onChanged: (value) {
+                                          setState(() {
+                                            currentResolutionPreset = value!;
+                                            _isCameraInitialized = false;
+                                          });
+                                          onCameraSelected(
+                                              controller!.description);
+                                        },
+                                        hint: const Text("Select item"),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -336,7 +383,7 @@ class _CameraPageState extends State<CameraPage>
                             width: MediaQuery.of(context).size.width / 1.8,
                             height: MediaQuery.of(context).size.height / 12.5,
                             alignment: Alignment.topRight,
-                            padding: EdgeInsets.only(top: 0, bottom: 8),
+                            padding: const EdgeInsets.only(top: 0, bottom: 8),
                             margin: const EdgeInsets.only(
                                 bottom: 5, left: 8, top: 5, right: 0),
                             decoration: BoxDecoration(
@@ -358,164 +405,183 @@ class _CameraPageState extends State<CameraPage>
                                   child: AnimatedOpacity(
                                     opacity: _isflashTap ? 1 : 0,
                                     duration: const Duration(milliseconds: 250),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 0.0,
-                                          top: 10,
-                                          right: 0,
-                                          bottom: 0),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 18.0, left: 5, top: 0),
-                                            child: GestureDetector(
-                                              child: AnimatedBuilder(
-                                                animation: _animation,
-                                                child: Column(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.flash_auto,
-                                                      color: _isFlashAuto
-                                                          ? Colors.yellow[700]
-                                                          : Colors.white,
-                                                      size: 25,
-                                                    ),
-                                                    Text(
-                                                      'Auto',
-                                                      style: TextStyle(
-                                                          color: _isFlashAuto
-                                                              ? Colors
-                                                                  .yellow[700]
-                                                              : Colors.white,
-                                                          fontSize: 8,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                  ],
+                                    onEnd: () {
+                                      if (!_isflashTap) {
+                                        setState(() {
+                                          _isVisibleItemFlash = false;
+                                        });
+                                      } else {
+                                        setState(() {
+                                          _isVisibleItemFlash = true;
+                                        });
+                                      }
+                                    },
+                                    child: Visibility(
+                                      visible: _isVisibleItemFlash,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 0.0,
+                                            top: 10,
+                                            right: 0,
+                                            bottom: 0),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 18.0, left: 5, top: 0),
+                                              child: GestureDetector(
+                                                child: AnimatedBuilder(
+                                                  animation: _animation,
+                                                  child: Column(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.flash_auto,
+                                                        color: _isFlashAuto
+                                                            ? Colors.yellow[700]
+                                                            : Colors.white,
+                                                        size: 25,
+                                                      ),
+                                                      Text(
+                                                        'Auto',
+                                                        style: TextStyle(
+                                                            color: _isFlashAuto
+                                                                ? Colors
+                                                                    .yellow[700]
+                                                                : Colors.white,
+                                                            fontSize: 8,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  builder: (context, child) {
+                                                    return Transform.rotate(
+                                                      angle: _animation.value,
+                                                      child: child,
+                                                    );
+                                                  },
                                                 ),
-                                                builder: (context, child) {
-                                                  return Transform.rotate(
-                                                    angle: _animation.value,
-                                                    child: child,
-                                                  );
+                                                onTap: () {
+                                                  if (!_isFlashAuto) {
+                                                    setFlashMode(
+                                                        FlashMode.auto);
+                                                  }
+                                                  setState(() {
+                                                    _isflashTap = false;
+                                                    _isFlashOn = false;
+                                                    _isFlashOff = false;
+                                                    _isFlashAuto = true;
+                                                  });
                                                 },
                                               ),
-                                              onTap: () {
-                                                if (!_isFlashAuto) {
-                                                  setFlashMode(FlashMode.auto);
-                                                }
-                                                setState(() {
-                                                  _isflashTap = false;
-                                                  _isFlashOn = false;
-                                                  _isFlashOff = false;
-                                                  _isFlashAuto = true;
-                                                });
-                                              },
                                             ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 5, right: 18.0),
-                                            child: GestureDetector(
-                                              child: AnimatedBuilder(
-                                                animation: _animation,
-                                                child: Column(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.flash_off,
-                                                      color: _isFlashOff
-                                                          ? Colors.yellow[700]
-                                                          : Colors.white,
-                                                      size: 25,
-                                                    ),
-                                                    Text(
-                                                      'Off',
-                                                      style: TextStyle(
-                                                          color: _isFlashOff
-                                                              ? Colors
-                                                                  .yellow[700]
-                                                              : Colors.white,
-                                                          fontSize: 8,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                  ],
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 5, right: 18.0),
+                                              child: GestureDetector(
+                                                child: AnimatedBuilder(
+                                                  animation: _animation,
+                                                  child: Column(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.flash_off,
+                                                        color: _isFlashOff
+                                                            ? Colors.yellow[700]
+                                                            : Colors.white,
+                                                        size: 25,
+                                                      ),
+                                                      Text(
+                                                        'Off',
+                                                        style: TextStyle(
+                                                            color: _isFlashOff
+                                                                ? Colors
+                                                                    .yellow[700]
+                                                                : Colors.white,
+                                                            fontSize: 8,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  builder: (context, child) {
+                                                    return Transform.rotate(
+                                                      angle: _animation.value,
+                                                      child: child,
+                                                    );
+                                                  },
                                                 ),
-                                                builder: (context, child) {
-                                                  return Transform.rotate(
-                                                    angle: _animation.value,
-                                                    child: child,
-                                                  );
+                                                onTap: () {
+                                                  if (!_isFlashOff) {
+                                                    setFlashMode(FlashMode.off);
+                                                  }
+                                                  setState(() {
+                                                    _isflashTap = false;
+                                                    _isFlashOff = true;
+                                                    _isFlashAuto = false;
+                                                    _isFlashOn = false;
+                                                  });
                                                 },
                                               ),
-                                              onTap: () {
-                                                if (!_isFlashOff) {
-                                                  setFlashMode(FlashMode.off);
-                                                }
-                                                setState(() {
-                                                  _isflashTap = false;
-                                                  _isFlashOff = true;
-                                                  _isFlashAuto = false;
-                                                  _isFlashOn = false;
-                                                });
-                                              },
                                             ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 5, right: 16.0),
-                                            child: GestureDetector(
-                                              child: AnimatedBuilder(
-                                                animation: _animation,
-                                                child: Column(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.flash_on,
-                                                      color: _isFlashOn
-                                                          ? Colors.yellow[700]
-                                                          : Colors.white,
-                                                      size: 25,
-                                                    ),
-                                                    Text(
-                                                      'On',
-                                                      style: TextStyle(
-                                                          color: _isFlashOn
-                                                              ? Colors
-                                                                  .yellow[700]
-                                                              : Colors.white,
-                                                          fontSize: 8,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                  ],
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 5, right: 16.0),
+                                              child: GestureDetector(
+                                                child: AnimatedBuilder(
+                                                  animation: _animation,
+                                                  child: Column(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.flash_on,
+                                                        color: _isFlashOn
+                                                            ? Colors.yellow[700]
+                                                            : Colors.white,
+                                                        size: 25,
+                                                      ),
+                                                      Text(
+                                                        'On',
+                                                        style: TextStyle(
+                                                            color: _isFlashOn
+                                                                ? Colors
+                                                                    .yellow[700]
+                                                                : Colors.white,
+                                                            fontSize: 8,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  builder: (context, child) {
+                                                    return Transform.rotate(
+                                                      angle: _animation.value,
+                                                      child: child,
+                                                    );
+                                                  },
                                                 ),
-                                                builder: (context, child) {
-                                                  return Transform.rotate(
-                                                    angle: _animation.value,
-                                                    child: child,
-                                                  );
+                                                onTap: () {
+                                                  if (!_isFlashOn) {
+                                                    setFlashMode(
+                                                        FlashMode.torch);
+                                                  }
+                                                  setState(() {
+                                                    _isflashTap = false;
+                                                    _isFlashOn = true;
+                                                    _isFlashOff = false;
+                                                    _isFlashAuto = false;
+                                                  });
                                                 },
                                               ),
-                                              onTap: () {
-                                                if (!_isFlashOn) {
-                                                  setFlashMode(FlashMode.torch);
-                                                }
-                                                setState(() {
-                                                  _isflashTap = false;
-                                                  _isFlashOn = true;
-                                                  _isFlashOff = false;
-                                                  _isFlashAuto = false;
-                                                });
-                                              },
-                                            ),
-                                          )
-                                        ],
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -1110,8 +1176,8 @@ class _CameraPageState extends State<CameraPage>
                             ],
                           ),
                         ),
-                        exposedAreaDetails != null
-                            ? addExposedArea(exposedAreaDetails!)
+                        exposedAreaDetails != null && _isFingerTapped
+                            ? addExposedArea(exposedAreaDetails!, turns)
                             : Container(),
                       ],
                     ),
@@ -1121,43 +1187,104 @@ class _CameraPageState extends State<CameraPage>
             : Container(color: Colors.black));
   }
 
-  Widget addExposedArea(TapDownDetails details) {
-    Widget exposedArea = Row(
-      children: [
-        Positioned(
-          left: details.globalPosition.dx,
-          top: details.globalPosition.dy,
-          child: SizedBox(
-            height: 100,
-            width: 100,
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.amber, width: 1),
+  Widget addExposedArea(TapDownDetails details, int turn) {
+    if (!_isExposeChanging) {
+      Future.delayed(const Duration(seconds: 3), () {
+        setState(() {
+          if (_isFingerTapped) {
+            _isFingerTapped = false;
+          }
+        });
+      });
+    }
+
+    Widget exposedArea = Positioned(
+      left: details.globalPosition.dx,
+      top: details.globalPosition.dy,
+      child: AnimatedOpacity(
+        opacity: _isFingerTapped ? 1 : 0,
+        duration: const Duration(milliseconds: 250),
+        child: RotatedBox(
+          quarterTurns: turn,
+          child: Row(
+            children: [
+              SizedBox(
+                height: 100,
+                width: 100,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.amber, width: 1),
+                  ),
+                ),
               ),
-            ),
+              RotatedBox(
+                quarterTurns: -1,
+                child: SizedBox(
+                  height: 30,
+                  width: 150,
+                  child: SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      activeTrackColor: Colors.amber,
+                      inactiveTrackColor: Colors.amber[300],
+                      trackShape: const RectangularSliderTrackShape(),
+                      trackHeight: 4.0,
+                      thumbColor: Colors.amber,
+                      thumbShape:
+                          const RoundSliderThumbShape(enabledThumbRadius: 8.0),
+                      overlayColor: Colors.amber.withAlpha(32),
+                      overlayShape:
+                          const RoundSliderOverlayShape(overlayRadius: 28.0),
+                      tickMarkShape: const RoundSliderTickMarkShape(),
+                      activeTickMarkColor: Colors.amber[300],
+                      inactiveTickMarkColor: Colors.amber[300],
+                      valueIndicatorShape:
+                          const PaddleSliderValueIndicatorShape(),
+                      valueIndicatorColor: Colors.redAccent,
+                      valueIndicatorTextStyle: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    child: Slider(
+                      value: currentExposureOffset,
+                      min: minAvailableExposureOffset,
+                      max: maxAvailableExposureOffset,
+                      // activeColor: Colors.amber,
+                      // inactiveColor: Colors.amber[300],
+                      onChanged: (value) async {
+                        setState(() {
+                          currentExposureOffset = value;
+                          _isExposeChanging = true;
+                        });
+                        await controller!.setExposureOffset(value);
+                      },
+                      onChangeEnd: (value) {
+                        if (_isExposeChanging) {
+                          _isExposeChanging = false;
+                        }
+                        // setState(() {
+                        //   if (_isFingerTapped) {
+                        //     _isFingerTapped = false;
+                        //   }
+                        //   _isExposeChanging = false;
+                        // });
+                        // Future.delayed(const Duration(seconds: 6), () {
+                        //   setState(() {
+                        //     if (_isExposeChanging) {
+                        //       _isExposeChanging = false;
+                        //     }
+                        //   });
+                        // });
+                      },
+                    ),
+                  ),
+                ),
+              )
+            ],
           ),
         ),
-        RotatedBox(
-          quarterTurns: 3,
-          child: SizedBox(
-            height: 30,
-            child: Slider(
-              value: currentExposureOffset,
-              min: minAvailableExposureOffset,
-              max: maxAvailableExposureOffset,
-              activeColor: Colors.amber,
-              inactiveColor: Colors.amber[300],
-              onChanged: (value) async {
-                setState(() {
-                  currentExposureOffset = value;
-                });
-                await controller!.setExposureOffset(value);
-              },
-            ),
-          ),
-        ),
-      ],
+      ),
     );
+
     return exposedArea;
   }
 
@@ -1583,6 +1710,7 @@ class _CameraPageState extends State<CameraPage>
     cameraController.setExposurePoint(offset);
     cameraController.setFocusPoint(offset);
     setState(() {
+      _isFingerTapped = true;
       exposedAreaDetails = details;
     });
     // addExposedArea(details);
