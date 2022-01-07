@@ -28,6 +28,8 @@ class CameraPage extends StatefulWidget {
   _CameraPageState createState() => _CameraPageState();
 }
 
+double mirror = 0;
+
 late bool _isflashTap;
 bool _isFlashOn = false;
 bool _isFlashAuto = false;
@@ -207,8 +209,7 @@ class _CameraPageState extends State<CameraPage>
                     onRotationChangeHandler(orientation);
                     oldOrientation = orientation;
                   }
-                  final double mirror =
-                      cameraType == CameraType.front ? math.pi : 0;
+
                   return Listener(
                     onPointerDown: (_) => _pointers++,
                     onPointerUp: (_) => _pointers--,
@@ -218,20 +219,25 @@ class _CameraPageState extends State<CameraPage>
                       children: [
                         Positioned.fill(
                           child: AspectRatio(
-                            aspectRatio: controller!.value.aspectRatio,
-                            child: CameraPreview(
-                              controller!,
-                              child: LayoutBuilder(builder:
-                                  (BuildContext context,
+                            aspectRatio: 1,
+                            child: Transform(
+                              alignment: Alignment.center,
+                              transform: Matrix4.rotationY(mirror),
+                              child: CameraPreview(
+                                controller!,
+                                child: LayoutBuilder(
+                                  builder: (BuildContext context,
                                       BoxConstraints constraints) {
-                                return GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onScaleStart: _handleScaleStart,
-                                  onScaleUpdate: _handleScaleUpdate,
-                                  onTapDown: (details) =>
-                                      onViewFinderTap(details, constraints),
-                                );
-                              }),
+                                    return GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onScaleStart: _handleScaleStart,
+                                      onScaleUpdate: _handleScaleUpdate,
+                                      onTapDown: (details) =>
+                                          onViewFinderTap(details, constraints),
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -655,7 +661,7 @@ class _CameraPageState extends State<CameraPage>
                                   child: Slider(
                                     value: _currentScale,
                                     min: _minAvailableZoom,
-                                    max: _maxAvailableZoom / 10,
+                                    max: _maxAvailableZoom / 10.0,
                                     activeColor: Colors.white,
                                     inactiveColor: Colors.white30,
                                     onChanged: (value) async {
@@ -1199,10 +1205,20 @@ class _CameraPageState extends State<CameraPage>
         });
       });
     }
-
+    var position = details.globalPosition;
+    bool isLeftSideTapped = false;
+    if (position.dx < MediaQuery.of(context).size.width / 2) {
+//tap lef side
+      isLeftSideTapped = true;
+    } else {
+      //tap right side
+      isLeftSideTapped = false;
+    }
     Widget exposedArea = Positioned(
-      left: details.globalPosition.dx,
-      top: details.globalPosition.dy,
+      // details.localPosition.dx / constraints.maxWidth,
+      // details.localPosition.dy / constraints.maxHeight,
+      left: details.globalPosition.dx - 50.0,
+      top: details.globalPosition.dy - 50.0,
       child: AnimatedOpacity(
         opacity: _isFingerTapped ? 1 : 0,
         duration: const Duration(milliseconds: 250),
@@ -1315,9 +1331,9 @@ class _CameraPageState extends State<CameraPage>
 
   void onCameraSelected(CameraDescription cameraDescription) async {
     // await controller!.dispose();
-    if (controller != null) {
-      await controller!.dispose();
-    }
+    // if (controller != null) {
+    //   await controller!.dispose();
+    // }
     setState(() {
       controller = CameraController(cameraDescription, currentResolutionPreset);
     });
@@ -1337,7 +1353,7 @@ class _CameraPageState extends State<CameraPage>
 
     try {
       await controller!.initialize();
-      const Duration(milliseconds: 500);
+      // const Duration(milliseconds: 500);
       await controller!.lockCaptureOrientation();
       await Future.wait([
         // The exposure mode is currently not supported on the web.
@@ -1362,7 +1378,11 @@ class _CameraPageState extends State<CameraPage>
       showException(e);
     }
 
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {
+        controller!.cameraId == 1 ? mirror = -math.pi : 0;
+      });
+    }
   }
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
@@ -1520,73 +1540,43 @@ class _CameraPageState extends State<CameraPage>
         String looselessConversion = '';
         if (_orientationBeforeCapturevideo ==
             NativeDeviceOrientation.landscapeLeft) {
-          if (cameraType == CameraType.front) {
-            // looselessConversion = '-i ' +
-            //     filePath +
-            //     ' -metadata:s:v "rotate=90,transpose=3" -codec copy ' +
-            //     newFilePath;
-            looselessConversion = '-i ' +
-                filePath +
-                ' -vf "transpose=3" -metadata:s:v:0 rotate=90 ' +
-                newFilePath;
-          } else {
-            looselessConversion = '-i ' +
-                filePath +
-                ' -c copy -metadata:s:v rotate="270" ' +
-                newFilePath;
-            // looselessConversion =
-            //     '-i ' + filePath + ' -vf "transpose=2" ' + newFilePath;
-          }
+          looselessConversion = '-i ' +
+              filePath +
+              ' -c copy -metadata:s:v rotate="270" ' +
+              newFilePath;
+          // looselessConversion =
+          //     '-i ' + filePath + ' -vf "transpose=2" ' + newFilePath;
 
           // rotation = '2';
         } else if (_orientationBeforeCapturevideo ==
             NativeDeviceOrientation.landscapeRight) {
-          if (cameraType == CameraType.front) {
-            looselessConversion = ' -i ' +
-                filePath +
-                ' -vf "transpose=3,transpose=2,transpose=2" ' +
-                // ' -metadata:s:v:0 ' +
-                // // ' "transpose=1" ' +
-                // '-c:a copy ' +
-                newFilePath;
-          } else {
-            looselessConversion =
-                '-i ' + filePath + ' -vf "transpose=1" ' + newFilePath;
-          }
+          looselessConversion =
+              '-i ' + filePath + ' -vf "transpose=1" ' + newFilePath;
+
           // rotation = '1';
 
         } else if (oldOrientation == NativeDeviceOrientation.portraitUp) {
           // rotation = '0';
-          if (cameraType == CameraType.front) {
-            looselessConversion = '-i ' +
-                filePath +
-                ' -vf "transpose=0,transpose=1" ' +
-                newFilePath;
-          } else {
-            TakenCameraMedia media = TakenCameraMedia(
-                filePath, false, DateTime.now(), FileType.video);
-            setState(() {
-              mediaPathList.add(media);
-            });
 
-            saveFileToGalery(FileType.video, filePath);
-            _startVideoPlayer(filePath);
-            return;
-          }
+          TakenCameraMedia media =
+              TakenCameraMedia(filePath, false, DateTime.now(), FileType.video);
+          setState(() {
+            mediaPathList.add(media);
+          });
+
+          saveFileToGalery(FileType.video, filePath);
+          _startVideoPlayer(filePath);
+          return;
 
           // looselessConversion =
           //     '-i ' + filePath + ' -vf "transpose=0" ' + newFilePath;
         } else if (oldOrientation == NativeDeviceOrientation.portraitDown) {
           // rotation = '3';
-          if (cameraType == CameraType.front) {
-            looselessConversion =
-                '-i ' + filePath + ' -vf "transpose=3" ' + newFilePath;
-          } else {
-            looselessConversion = '-i ' +
-                filePath +
-                ' -vf "transpose=2,transpose=2" ' +
-                newFilePath;
-          }
+
+          looselessConversion = '-i ' +
+              filePath +
+              ' -vf "transpose=2,transpose=2" ' +
+              newFilePath;
         }
 
         try {
@@ -1620,6 +1610,138 @@ class _CameraPageState extends State<CameraPage>
       }
     });
   }
+  // void onStopButtonPressed() {
+  //   timerSubscription.cancel();
+  //   timerStream = null;
+  //   setState(() {
+  //     hoursStr = '00';
+  //     minutesStr = '00';
+  //     secondsStr = '00';
+  //   });
+  //   stopVideoRecording().then((file) async {
+  //     if (mounted) setState(() {});
+  //     if (file != null) {
+  //       // showInSnackBar('Video recorded to ${file.path}');
+  //       videoFile = file;
+  //       imagePath = file.path;
+  //       if (kDebugMode) {
+  //         print(videoFile!.path);
+  //       }
+
+  //       Directory videoFileDirectory = File(videoFile!.path).parent;
+
+  //       // 0 = 90CounterCLockwise and Vertical Flip (default)
+  //       // 1 = 90Clockwise
+  //       // 2 = 90CounterClockwise
+  //       // 3 = 90Clockwise and Vertical Flip
+  //       // String rotation = '';
+  //       DateTime now = DateTime.now();
+  //       String newFilePath = videoFileDirectory.path +
+  //           '/RECFearlessChat' +
+  //           DateFormat('yyyy-MM-dd–kk:mm').format(now) +
+  //           '.mp4';
+  //       String filePath = videoFile!.path;
+  //       String looselessConversion = '';
+  //       if (_orientationBeforeCapturevideo ==
+  //           NativeDeviceOrientation.landscapeLeft) {
+  //         if (cameraType == CameraType.front) {
+  //           // looselessConversion = '-i ' +
+  //           //     filePath +
+  //           //     ' -metadata:s:v "rotate=90,transpose=3" -codec copy ' +
+  //           //     newFilePath;
+  //           looselessConversion =
+  //               '-i ' + filePath + ' -vf "vflip" ' + newFilePath;
+  //         } else {
+  //           looselessConversion = '-i ' +
+  //               filePath +
+  //               ' -c copy -metadata:s:v rotate="270" ' +
+  //               newFilePath;
+  //           // looselessConversion =
+  //           //     '-i ' + filePath + ' -vf "transpose=2" ' + newFilePath;
+  //         }
+
+  //         // rotation = '2';
+  //       } else if (_orientationBeforeCapturevideo ==
+  //           NativeDeviceOrientation.landscapeRight) {
+  //         if (cameraType == CameraType.front) {
+  //           looselessConversion = ' -i ' +
+  //               filePath +
+  //               ' -vf "transpose=3,transpose=2,transpose=2" ' +
+  //               // ' -metadata:s:v:0 ' +
+  //               // // ' "transpose=1" ' +
+  //               // '-c:a copy ' +
+  //               newFilePath;
+  //         } else {
+  //           looselessConversion =
+  //               '-i ' + filePath + ' -vf "transpose=1" ' + newFilePath;
+  //         }
+  //         // rotation = '1';
+
+  //       } else if (oldOrientation == NativeDeviceOrientation.portraitUp) {
+  //         // rotation = '0';
+  //         if (cameraType == CameraType.front) {
+  //           looselessConversion = '-i ' +
+  //               filePath +
+  //               ' -vf "transpose=0,transpose=1" ' +
+  //               newFilePath;
+  //         } else {
+  //           TakenCameraMedia media = TakenCameraMedia(
+  //               filePath, false, DateTime.now(), FileType.video);
+  //           setState(() {
+  //             mediaPathList.add(media);
+  //           });
+
+  //           saveFileToGalery(FileType.video, filePath);
+  //           _startVideoPlayer(filePath);
+  //           return;
+  //         }
+
+  //         // looselessConversion =
+  //         //     '-i ' + filePath + ' -vf "transpose=0" ' + newFilePath;
+  //       } else if (oldOrientation == NativeDeviceOrientation.portraitDown) {
+  //         // rotation = '3';
+  //         if (cameraType == CameraType.front) {
+  //           looselessConversion =
+  //               '-i ' + filePath + ' -vf "transpose=3" ' + newFilePath;
+  //         } else {
+  //           looselessConversion = '-i ' +
+  //               filePath +
+  //               ' -vf "transpose=2,transpose=2" ' +
+  //               newFilePath;
+  //         }
+  //       }
+
+  //       try {
+  //         FFmpegKit.execute(looselessConversion).then((session) async {
+  //           final returnCode = await session.getReturnCode();
+
+  //           if (ReturnCode.isSuccess(returnCode)) {
+  //             // SUCCESS
+  //             await File(videoFile!.path).delete();
+  //             TakenCameraMedia media = TakenCameraMedia(
+  //                 newFilePath, false, DateTime.now(), FileType.video);
+  //             setState(() {
+  //               mediaPathList.add(media);
+  //             });
+
+  //             saveFileToGalery(FileType.video, newFilePath);
+  //             _startVideoPlayer(newFilePath);
+  //           } else if (ReturnCode.isCancel(returnCode)) {
+  //             // CANCEL
+
+  //           } else {
+  //             // ERROR
+
+  //           }
+  //         });
+  //       } catch (e) {
+  //         if (kDebugMode) {
+  //           print('video processing error: $e');
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
 
   Future<void> _startVideoPlayer(String videoFilePath) async {
     if (!File(videoFilePath).existsSync()) {
@@ -1773,6 +1895,7 @@ class _CameraPageState extends State<CameraPage>
     await controller!.setZoomLevel(_currentScale);
   }
 
+  BoxConstraints? _tappedBoxConstraints;
   void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
     if (controller == null) {
       return;
@@ -1790,6 +1913,7 @@ class _CameraPageState extends State<CameraPage>
     setState(() {
       _isFingerTapped = true;
       exposedAreaDetails = details;
+      _tappedBoxConstraints = constraints;
     });
     // addExposedArea(details);
   }
