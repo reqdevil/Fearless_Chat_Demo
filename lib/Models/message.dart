@@ -1,3 +1,5 @@
+import 'package:fearless_chat_demo/Utils/global.dart';
+
 class Message {
   int userId;
   String userName;
@@ -7,5 +9,3 @@ class Message {
   Message(
       this.userId, this.userName, this.message, this.time, this.messagetype);
 }
-
-enum MessageType { camedMessage, sendedMessage }
