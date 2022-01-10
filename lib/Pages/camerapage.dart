@@ -1521,13 +1521,21 @@ class _CameraPageState extends State<CameraPage>
         if (_orientationBeforeCapturevideo ==
             NativeDeviceOrientation.landscapeLeft) {
           if (cameraType == CameraType.front) {
+            // looselessConversion = '-i ' +
+            //     filePath +
+            //     ' -metadata:s:v "rotate=90,transpose=3" -codec copy ' +
+            //     newFilePath;
             looselessConversion = '-i ' +
                 filePath +
-                ' -metadata:s:v "rotate=90,transpose=3" -codec copy ' +
+                ' -vf "transpose=3" -metadata:s:v:0 rotate=90 ' +
                 newFilePath;
           } else {
-            looselessConversion =
-                '-i ' + filePath + ' -vf "transpose=2" ' + newFilePath;
+            looselessConversion = '-i ' +
+                filePath +
+                ' -c copy -metadata:s:v rotate="270" ' +
+                newFilePath;
+            // looselessConversion =
+            //     '-i ' + filePath + ' -vf "transpose=2" ' + newFilePath;
           }
 
           // rotation = '2';
@@ -1830,8 +1838,8 @@ class _CameraPageState extends State<CameraPage>
 
     try {
       await cameraController.initialize();
-      const Duration(milliseconds: 500);
-      await controller!.lockCaptureOrientation();
+      // const Duration(milliseconds: 500);
+      await controller!.lockCaptureOrientation(DeviceOrientation.portraitUp);
       setState(() {
         _isCameraInitialized = true;
       });
