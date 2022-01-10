@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
-import 'package:fearless_chat_demo/Models/message.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Utils/TransitionHelpers.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
@@ -31,6 +30,7 @@ late Map<String, dynamic> _friend;
 List<Map<String, dynamic>> _messages = [];
 late String formattedDate;
 final ImagePicker _picker = ImagePicker();
+final ScrollController _controller = ScrollController();
 
 class _ChatPageState extends State<ChatPage> {
   @override
@@ -48,6 +48,9 @@ class _ChatPageState extends State<ChatPage> {
     //   Message(1, 'userName', 'message', formattedDate, true,
     //       MessageType.received, false, 3, true)
     // ];
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      scrollDown();
+    });
     super.initState();
   }
 
@@ -154,6 +157,8 @@ class _ChatPageState extends State<ChatPage> {
         children: [
           Expanded(
             child: ListView.builder(
+              shrinkWrap: true,
+              controller: _controller,
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(15),
               itemCount: _messages.length,
@@ -391,11 +396,12 @@ class _ChatPageState extends State<ChatPage> {
                                   {
                                     'usrId': '2',
                                     'status': MessageType.sent,
-                                    'message': 'Ok.',
+                                    'message': value,
                                     'time': formattedDate,
                                     'hasShareMedia': true
                                   },
                                 );
+                                scrollDown();
                               });
                             },
                             decoration: const InputDecoration(
@@ -609,6 +615,14 @@ class _ChatPageState extends State<ChatPage> {
               : Container(),
         );
       },
+    );
+  }
+
+  void scrollDown() {
+    _controller.animateTo(
+      _controller.position.maxScrollExtent,
+      curve: Curves.linear,
+      duration: const Duration(milliseconds: 450),
     );
   }
 }
