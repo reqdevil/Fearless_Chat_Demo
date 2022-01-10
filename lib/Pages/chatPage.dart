@@ -305,8 +305,9 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           Container(
-            margin: const EdgeInsets.all(15.0),
+            margin: const EdgeInsets.symmetric(horizontal: 15),
             height: 71,
+            // width: MediaQuery.of(context).size.width,
             child: Stack(
               children: [
                 Align(
@@ -328,7 +329,7 @@ class _ChatPageState extends State<ChatPage> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Container(
-                    width: _textEditorWidth,
+                    width: _textEditorWidth - 35,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(35.0),
