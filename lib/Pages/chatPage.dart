@@ -390,6 +390,9 @@ class _ChatPageState extends State<ChatPage> {
                             icon: const Icon(Icons.face), onPressed: () {}),
                         Expanded(
                           child: TextField(
+                            autofocus: false,
+                            maxLines: null,
+                            keyboardType: TextInputType.multiline,
                             onSubmitted: (value) {
                               setState(() {
                                 _messages.add(
