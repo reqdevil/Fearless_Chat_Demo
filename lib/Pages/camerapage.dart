@@ -141,7 +141,7 @@ class _CameraPageState extends State<CameraPage>
     if (kDebugMode) {
       print(info);
     }
-    toastInfo(info);
+    // toastInfo(info);
   }
 
   @override
@@ -2133,7 +2133,8 @@ class _CameraPageState extends State<CameraPage>
                                                 listShareMedia: mediaPathList
                                                     .where((element) =>
                                                         element.isSelected)
-                                                    .toList()),
+                                                    .toList(),
+                                                userId: '2'),
                                             rootNavigator: true);
                                       }
                                     },

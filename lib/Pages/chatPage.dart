@@ -1,7 +1,8 @@
 import 'dart:io';
-
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Models/message.dart';
+import 'package:fearless_chat_demo/Pages/camerapage.dart';
+import 'package:fearless_chat_demo/Utils/TransitionHelpers.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:flutter/cupertino.dart';
@@ -172,7 +173,7 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
+                              children: [
                                 Text(
                                   _messages[index]['contactName'],
                                   //  messages[index].userName,
@@ -192,28 +193,33 @@ class _ChatPageState extends State<ChatPage> {
                                       bottomRight: Radius.circular(25),
                                     ),
                                   ),
-                                  child: Text(
-                                    _messages[index]['message'],
-                                    // messages[index].lastMessage,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyText1!
-                                        .apply(
-                                          color: Colors.black87,
-                                        ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _messages[index]['message'],
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText1!
+                                            .apply(
+                                              color: Colors.black87,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 15),
+                                      Text(
+                                        _messages[index]['time'],
+                                        // messages[index].lastMsgTime,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText2!
+                                            .apply(color: Colors.grey),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(height: 15),
                               ],
-                            ),
-                            const SizedBox(width: 15),
-                            Text(
-                              _messages[index]['time'],
-                              // messages[index].lastMsgTime,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyText2!
-                                  .apply(color: Colors.grey),
                             ),
                           ],
                         )
@@ -221,16 +227,6 @@ class _ChatPageState extends State<ChatPage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text(
-                              _messages[index]['time'],
-                              // messages[index].lastMsgTime,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyText2!
-                                  .apply(color: Colors.grey),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(width: 15),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -249,15 +245,104 @@ class _ChatPageState extends State<ChatPage> {
                                       bottomLeft: Radius.circular(25),
                                     ),
                                   ),
-                                  child: Text(
-                                    _messages[index]['message'],
-                                    // messages[index].lastMessage,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyText1!
-                                        .apply(
-                                          color: Colors.white,
-                                        ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _messages[index]['message'],
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText1!
+                                            .apply(
+                                              color: Colors.white,
+                                            ),
+                                      ),
+                                      widget.listShareMedia != null &&
+                                              _messages[index]['hasShareMedia']
+                                          ? GridView.builder(
+                                              shrinkWrap: true,
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              padding: const EdgeInsets.only(
+                                                  left: 0,
+                                                  right: 0,
+                                                  top: 0,
+                                                  bottom: 0),
+                                              itemCount:
+                                                  widget.listShareMedia!.length,
+                                              gridDelegate:
+                                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount:
+                                                    MediaQuery.of(context)
+                                                                .orientation ==
+                                                            Orientation
+                                                                .landscape
+                                                        ? 3
+                                                        : 2,
+                                                crossAxisSpacing: 4,
+                                                mainAxisSpacing: 4,
+                                                childAspectRatio: (1 / 1),
+                                              ),
+                                              itemBuilder: (context, index) {
+                                                return Container(
+                                                  alignment: Alignment.center,
+                                                  margin: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 5,
+                                                      vertical: 5),
+                                                  // width: MediaQuery.of(context)
+                                                  //         .size
+                                                  //         .width /
+                                                  //     2,
+                                                  // height: MediaQuery.of(context)
+                                                  //         .size
+                                                  //         .width /
+                                                  //     2,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10.0),
+                                                    border: Border.all(
+                                                        color: Colors.white,
+                                                        width: 2),
+                                                    image: DecorationImage(
+                                                      image: FileImage(
+                                                        File(widget
+                                                            .listShareMedia!
+                                                            .reversed
+                                                            .toList()[index]
+                                                            .filePath),
+                                                      ),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                  child: widget.listShareMedia!
+                                                              .reversed
+                                                              .toList()[index]
+                                                              .fileType ==
+                                                          FileType.video
+                                                      ? VideoItem(
+                                                          url: widget
+                                                              .listShareMedia!
+                                                              .reversed
+                                                              .toList()[index]
+                                                              .filePath)
+                                                      : Container(),
+                                                );
+                                              },
+                                            )
+                                          : const SizedBox(),
+                                      Text(
+                                        _messages[index]['time'],
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText2!
+                                            .apply(color: Colors.white),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(height: 15),
@@ -294,16 +379,15 @@ class _ChatPageState extends State<ChatPage> {
                           child: TextField(
                             onSubmitted: (value) {
                               setState(() {
-                                // messages.add(Message(
-                                //     2,
-                                //     'Armağan Çelik',
-                                //     value,
-                                //     formattedDate,
-                                //     true,
-                                //     MessageType.sent,
-                                //     true,
-                                //     3,
-                                //     true));
+                                _messages.add(
+                                  {
+                                    'usrId': '2',
+                                    'status': MessageType.sent,
+                                    'message': 'Ok.',
+                                    'time': formattedDate,
+                                    'hasShareMedia': true
+                                  },
+                                );
                               });
                             },
                             decoration: const InputDecoration(
@@ -313,11 +397,20 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.photo_camera),
-                          onPressed: () {},
+                          onPressed: () async {
+                            await navigatePageBottom(
+                                context: context,
+                                page: const CameraPage(),
+                                rootNavigator: true);
+                          },
                         ),
                         IconButton(
                           icon: const Icon(Icons.attach_file),
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() {
+                              _showBottom = true;
+                            });
+                          },
                         )
                       ],
                     ),
@@ -333,11 +426,7 @@ class _ChatPageState extends State<ChatPage> {
                       Icons.keyboard_voice,
                       color: Colors.white,
                     ),
-                    onLongPress: () {
-                      setState(() {
-                        _showBottom = true;
-                      });
-                    },
+                    onLongPress: () {},
                   ),
                 )
               ],

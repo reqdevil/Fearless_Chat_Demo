@@ -102,20 +102,23 @@ List<Map<String, dynamic>> messages = [
     'contactName': 'Client',
     'message':
         'Hi mate, I\d like to hire you to create a mobile app for my business',
-    'time': '08:43 AM'
+    'time': '08:43 AM',
+    'hasShareMedia': false
   },
   {
     'usrId': '2',
     'status': MessageType.sent,
     'message': 'Hi, I hope you are doing great!',
-    'time': '08:45 AM'
+    'time': '08:45 AM',
+    'hasShareMedia': false
   },
   {
     'usrId': '2',
     'status': MessageType.sent,
     'message':
         'Please share with me the details of your project, as well as your time and budgets constraints.',
-    'time': '08:45 AM'
+    'time': '08:45 AM',
+    'hasShareMedia': false
   },
   {
     'usrId': '2',
@@ -124,12 +127,14 @@ List<Map<String, dynamic>> messages = [
         'https://iaahbr.tmgrup.com.tr/985538/0/0/0/0/0/0?u=https://iahbr.tmgrup.com.tr/album/2021/09/11/nasanin-ardindan-simdi-de-cinli-astronot-van-golunu-anka-kusuna-benzetti-1631369786545.jpg',
     'contactName': 'Client',
     'message': 'Sure, let me send you a document that explains everything.',
-    'time': '08:47 AM'
+    'time': '08:47 AM',
+    'hasShareMedia': false
   },
   {
     'usrId': '2',
     'status': MessageType.sent,
     'message': 'Ok.',
-    'time': '08:45 AM'
+    'time': '08:45 AM',
+    'hasShareMedia': true
   },
 ];
