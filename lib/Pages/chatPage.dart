@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:math' as math;
 
 class ChatPage extends StatefulWidget {
   List<TakenCameraMedia>? listShareMedia;
@@ -384,7 +385,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
           Container(
             margin: const EdgeInsets.all(15.0),
-            height: 45,
+            height: 61,
             child: Stack(
               children: [
                 Align(
@@ -418,7 +419,7 @@ class _ChatPageState extends State<ChatPage> {
                         ],
                       ),
                       child: Row(
-                        children: <Widget>[
+                        children: [
                           IconButton(
                               icon: const Icon(Icons.face), onPressed: () {}),
                           Expanded(
@@ -428,41 +429,58 @@ class _ChatPageState extends State<ChatPage> {
                               focusNode: _focusNode,
                               maxLines: null,
                               keyboardType: TextInputType.multiline,
-                              onSubmitted: (value) {
-                                setState(() {
-                                  _messages.add(
-                                    {
-                                      'usrId': '2',
-                                      'status': MessageType.sent,
-                                      'message': value,
-                                      'time': formattedDate,
-                                      'hasShareMedia': true
-                                    },
-                                  );
-                                  scrollDown();
-                                });
-                              },
+                              onSubmitted: (value) {},
                               decoration: const InputDecoration(
                                   hintText: "Type Something...",
                                   border: InputBorder.none),
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.photo_camera),
-                            onPressed: () async {
-                              await navigatePageBottom(
-                                  context: context,
-                                  page: const CameraPage(),
-                                  rootNavigator: true);
-                            },
+                          Visibility(
+                            visible: !_focusNode!.hasFocus,
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.photo_camera),
+                                  onPressed: () async {
+                                    await navigatePageBottom(
+                                        context: context,
+                                        page: const CameraPage(),
+                                        rootNavigator: true);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.attach_file),
+                                  onPressed: () {
+                                    setState(() {
+                                      _showBottom = true;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.attach_file),
-                            onPressed: () {
-                              setState(() {
-                                _showBottom = true;
-                              });
-                            },
+                          Visibility(
+                            visible: _focusNode!.hasFocus,
+                            child: Transform.rotate(
+                              angle: -math.pi / 4,
+                              child: IconButton(
+                                icon: const Icon(Icons.send_rounded),
+                                onPressed: () async {
+                                  setState(() {
+                                    _messages.add(
+                                      {
+                                        'usrId': '2',
+                                        'status': MessageType.sent,
+                                        'message': _textEditingController!.text,
+                                        'time': formattedDate,
+                                        'hasShareMedia': true
+                                      },
+                                    );
+                                    scrollDown();
+                                  });
+                                },
+                              ),
+                            ),
                           )
                         ],
                       ),
@@ -657,6 +675,10 @@ class _ChatPageState extends State<ChatPage> {
     if (_focusNode!.hasFocus) {
       setState(() {
         _textEditorWidth = 450;
+      });
+    } else {
+      setState(() {
+        _textEditorWidth = 325.0;
       });
     }
   }
