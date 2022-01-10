@@ -37,8 +37,10 @@ class _ChatPageState extends State<ChatPage> {
     formattedDate = DateFormat('dd.MM.yyyy – kk:mm').format(now);
 
     messages = [
-      Message(1, 'userName', 'message', formattedDate, MessageType.received),
-      Message(1, 'userName', 'message', formattedDate, MessageType.received)
+      Message(1, 'userName', 'message', formattedDate, false,
+          MessageType.received, true, 3, true),
+      Message(1, 'userName', 'message', formattedDate, true,
+          MessageType.received, false, 3, true)
     ];
     super.initState();
   }
@@ -53,7 +55,9 @@ class _ChatPageState extends State<ChatPage> {
         shadowColor: Colors.black,
         backgroundColor: Colors.white,
         title: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const CircleAvatar(
               radius: 20.0,
@@ -78,53 +82,63 @@ class _ChatPageState extends State<ChatPage> {
                 )
               ],
             ),
-            const SizedBox(width: 15),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                minimumSize: const Size(35, 35),
-                padding: const EdgeInsets.all(0),
-                primary: Colors.grey.withOpacity(0.3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-              onPressed: () {},
-              child: Icon(
-                Icons.phone,
-                color: Colors.grey[800],
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                minimumSize: const Size(35, 35),
-                padding: const EdgeInsets.all(0),
-                primary: Colors.grey.withOpacity(0.3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-              onPressed: () {},
-              child: Icon(
-                Icons.videocam_sharp,
-                color: Colors.grey[800],
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                minimumSize: const Size(35, 35),
-                padding: const EdgeInsets.all(0),
-                primary: Colors.grey.withOpacity(0.3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-              onPressed: () {},
-              child: Icon(
-                Icons.more_vert_rounded,
-                color: Colors.grey[800],
+            const SizedBox(width: 70),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      minimumSize: const Size(35, 35),
+                      padding: const EdgeInsets.all(0),
+                      primary: Colors.grey.withOpacity(0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: Icon(
+                      Icons.phone,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      minimumSize: const Size(35, 35),
+                      padding: const EdgeInsets.all(0),
+                      primary: Colors.grey.withOpacity(0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: Icon(
+                      Icons.videocam_sharp,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      minimumSize: const Size(35, 35),
+                      padding: const EdgeInsets.all(0),
+                      primary: Colors.grey.withOpacity(0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: Icon(
+                      Icons.more_vert_rounded,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                ],
               ),
             )
           ],
@@ -173,7 +187,7 @@ class _ChatPageState extends State<ChatPage> {
                                     ),
                                   ),
                                   child: Text(
-                                    messages[index].message,
+                                    messages[index].lastMessage,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyText1!
@@ -187,7 +201,7 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                             const SizedBox(width: 15),
                             Text(
-                              messages[index].time,
+                              messages[index].lastMsgTime,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyText2!
@@ -200,7 +214,7 @@ class _ChatPageState extends State<ChatPage> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                              messages[index].time,
+                              messages[index].lastMsgTime,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyText2!
@@ -227,7 +241,7 @@ class _ChatPageState extends State<ChatPage> {
                                     ),
                                   ),
                                   child: Text(
-                                    messages[index].message,
+                                    messages[index].lastMessage,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyText1!
@@ -270,8 +284,16 @@ class _ChatPageState extends State<ChatPage> {
                           child: TextField(
                             onSubmitted: (value) {
                               setState(() {
-                                messages.add(Message(2, 'Armağan Çelik', value,
-                                    formattedDate, MessageType.sent));
+                                messages.add(Message(
+                                    2,
+                                    'Armağan Çelik',
+                                    value,
+                                    formattedDate,
+                                    true,
+                                    MessageType.sent,
+                                    true,
+                                    3,
+                                    true));
                               });
                             },
                             decoration: const InputDecoration(

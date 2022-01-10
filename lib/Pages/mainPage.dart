@@ -33,34 +33,30 @@ class _MainPageState extends State<MainPage> {
     super.initState();
   }
 
-  // Future<void> getCameras() async {
-  //   cameras = await availableCameras();
-  // }
-
   @override
   Widget build(BuildContext context) {
     bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.grey[700], //change your color here
-        ),
-        backgroundColor: Colors.white,
-        textTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.black45),
-        title: const Text("Messengerish"),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.add_box),
-            onPressed: () {},
-          ),
-        ],
-      ),
+      // appBar: AppBar(
+      //   iconTheme: IconThemeData(
+      //     color: Colors.grey[700], //change your color here
+      //   ),
+      //   backgroundColor: Colors.white,
+      //   textTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.black45),
+      //   title: const Text("Messengerish"),
+      //   actions: <Widget>[
+      //     IconButton(
+      //       icon: const Icon(Icons.search),
+      //       onPressed: () {},
+      //     ),
+      //     IconButton(
+      //       icon: const Icon(Icons.add_box),
+      //       onPressed: () {},
+      //     ),
+      //   ],
+      // ),
       body: SafeArea(
         child: _children[selectedPageIndex],
       ),
@@ -86,7 +82,10 @@ class _MainPageState extends State<MainPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             IconButton(
-              icon: const Icon(Icons.message, color: Colors.black45),
+              icon: Icon(Icons.message,
+                  color: selectedPageIndex == 0
+                      ? Global().purple
+                      : Colors.black45),
               onPressed: () async {
                 setState(() {
                   selectedPageIndex = 0;
@@ -97,7 +96,10 @@ class _MainPageState extends State<MainPage> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.view_list, color: Colors.black45),
+              icon: Icon(Icons.view_list,
+                  color: selectedPageIndex == 1
+                      ? Global().purple
+                      : Colors.black45),
               onPressed: () {
                 setState(() {
                   selectedPageIndex = 1;
@@ -106,7 +108,10 @@ class _MainPageState extends State<MainPage> {
             ),
             const SizedBox(width: 25),
             IconButton(
-              icon: const Icon(Icons.call, color: Colors.black45),
+              icon: Icon(Icons.call,
+                  color: selectedPageIndex == 3
+                      ? Global().purple
+                      : Colors.black45),
               onPressed: () {
                 setState(() {
                   selectedPageIndex = 3;
@@ -114,7 +119,10 @@ class _MainPageState extends State<MainPage> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.person_outline, color: Colors.black45),
+              icon: Icon(Icons.person_outline,
+                  color: selectedPageIndex == 4
+                      ? Global().purple
+                      : Colors.black45),
               onPressed: () async {
                 setState(() {
                   selectedPageIndex = 4;
