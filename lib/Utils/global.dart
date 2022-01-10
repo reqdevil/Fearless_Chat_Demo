@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-class Global{
-Color purple = Colors.purple[900] as Color;
 
+class Global {
+  Color purple = Colors.purple[900] as Color;
 }
 
 enum MessageType { sent, received }
 
 List<Map<String, dynamic>> friendsList = [
   {
+    'usrId': '1',
     'imgUrl':
         'https://cdn.pixabay.com/photo/2019/11/06/17/26/gear-4606749_960_720.jpg',
     'username': 'Cybdom Tech',
@@ -19,8 +20,9 @@ List<Map<String, dynamic>> friendsList = [
     'isOnline': true
   },
   {
+    'usrId': '2',
     'imgUrl':
-        'https://cdn.pixabay.com/photo/2019/11/11/04/33/africa-4617142_960_720.jpg',
+        'https://iaahbr.tmgrup.com.tr/985538/0/0/0/0/0/0?u=https://iahbr.tmgrup.com.tr/album/2021/09/11/nasanin-ardindan-simdi-de-cinli-astronot-van-golunu-anka-kusuna-benzetti-1631369786545.jpg',
     'username': 'Flutter Dev',
     'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
     'seen': false,
@@ -30,6 +32,7 @@ List<Map<String, dynamic>> friendsList = [
     'isOnline': false
   },
   {
+    'usrId': '3',
     'imgUrl':
         'https://cdn.pixabay.com/photo/2019/11/05/08/52/adler-4603104_960_720.jpg',
     'username': 'Dart Dev',
@@ -41,6 +44,7 @@ List<Map<String, dynamic>> friendsList = [
     'isOnline': true
   },
   {
+    'usrId': '4',
     'imgUrl':
         'https://cdn.pixabay.com/photo/2015/02/04/08/03/baby-623417_960_720.jpg',
     'username': 'Designer',
@@ -52,8 +56,9 @@ List<Map<String, dynamic>> friendsList = [
     'isOnline': true
   },
   {
+    'usrId': '5',
     'imgUrl':
-        'https://cdn.pixabay.com/photo/2012/03/04/01/01/baby-22194_960_720.jpg',
+        'https://i2.milimaj.com/i/milliyet/75/1200x675/60899c1386b24406dc93a873.jpg',
     'username': 'FrontEnd Dev',
     'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
     'seen': false,
@@ -63,8 +68,9 @@ List<Map<String, dynamic>> friendsList = [
     'isOnline': true
   },
   {
+    'usrId': '6',
     'imgUrl':
-        'https://cdn.pixabay.com/photo/2015/01/08/18/29/entrepreneur-593358_960_720.jpg',
+        'https://i2.milimaj.com/i/milliyet/75/1200x675/60899c1386b24406dc93a873.jpg',
     'username': 'Full Stack Dev',
     'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
     'seen': false,
@@ -74,8 +80,9 @@ List<Map<String, dynamic>> friendsList = [
     'isOnline': true
   },
   {
+    'usrId': '7',
     'imgUrl':
-        'https://cdn.pixabay.com/photo/2015/01/08/18/29/entrepreneur-593358_960_720.jpg',
+        'https://im.haberturk.com/2021/04/28/ver1619642744/3055206_414x414.jpg',
     'username': 'Backend Dev',
     'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
     'seen': false,
@@ -88,32 +95,41 @@ List<Map<String, dynamic>> friendsList = [
 
 List<Map<String, dynamic>> messages = [
   {
-    'status' : MessageType.received,
-    'contactImgUrl' : 'https://cdn.pixabay.com/photo/2015/01/08/18/29/entrepreneur-593358_960_720.jpg',
-    'contactName' : 'Client',
-    'message' : 'Hi mate, I\d like to hire you to create a mobile app for my business' ,
-    'time' : '08:43 AM'
+    'usrId': '2',
+    'status': MessageType.received,
+    'contactImgUrl':
+        'https://iaahbr.tmgrup.com.tr/985538/0/0/0/0/0/0?u=https://iahbr.tmgrup.com.tr/album/2021/09/11/nasanin-ardindan-simdi-de-cinli-astronot-van-golunu-anka-kusuna-benzetti-1631369786545.jpg',
+    'contactName': 'Client',
+    'message':
+        'Hi mate, I\d like to hire you to create a mobile app for my business',
+    'time': '08:43 AM'
   },
   {
-    'status' : MessageType.sent,
-    'message' : 'Hi, I hope you are doing great!' ,
-    'time' : '08:45 AM'
+    'usrId': '2',
+    'status': MessageType.sent,
+    'message': 'Hi, I hope you are doing great!',
+    'time': '08:45 AM'
   },
   {
-    'status' : MessageType.sent,
-    'message' : 'Please share with me the details of your project, as well as your time and budgets constraints.' ,
-    'time' : '08:45 AM'
+    'usrId': '2',
+    'status': MessageType.sent,
+    'message':
+        'Please share with me the details of your project, as well as your time and budgets constraints.',
+    'time': '08:45 AM'
   },
   {
-    'status' : MessageType.received,
-    'contactImgUrl' : 'https://cdn.pixabay.com/photo/2015/01/08/18/29/entrepreneur-593358_960_720.jpg',
-    'contactName' : 'Client',
-    'message' : 'Sure, let me send you a document that explains everything.' ,
-    'time' : '08:47 AM'
+    'usrId': '2',
+    'status': MessageType.received,
+    'contactImgUrl':
+        'https://iaahbr.tmgrup.com.tr/985538/0/0/0/0/0/0?u=https://iahbr.tmgrup.com.tr/album/2021/09/11/nasanin-ardindan-simdi-de-cinli-astronot-van-golunu-anka-kusuna-benzetti-1631369786545.jpg',
+    'contactName': 'Client',
+    'message': 'Sure, let me send you a document that explains everything.',
+    'time': '08:47 AM'
   },
   {
-    'status' : MessageType.sent,
-    'message' : 'Ok.' ,
-    'time' : '08:45 AM'
+    'usrId': '2',
+    'status': MessageType.sent,
+    'message': 'Ok.',
+    'time': '08:45 AM'
   },
 ];

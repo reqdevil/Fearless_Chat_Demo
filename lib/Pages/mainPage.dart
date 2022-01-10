@@ -23,9 +23,8 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     _children = [
-      ChatPage(),
+      null,
       const PlaceholderWidget(color: Colors.green),
-      const CameraPage(),
       const PlaceholderWidget(color: Colors.deepOrange),
       const LoginPage()
     ];
@@ -39,27 +38,157 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   iconTheme: IconThemeData(
-      //     color: Colors.grey[700], //change your color here
-      //   ),
-      //   backgroundColor: Colors.white,
-      //   textTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.black45),
-      //   title: const Text("Messengerish"),
-      //   actions: <Widget>[
-      //     IconButton(
-      //       icon: const Icon(Icons.search),
-      //       onPressed: () {},
-      //     ),
-      //     IconButton(
-      //       icon: const Icon(Icons.add_box),
-      //       onPressed: () {},
-      //     ),
-      //   ],
-      // ),
+      appBar: selectedPageIndex == 0
+          ? AppBar(
+              iconTheme: IconThemeData(
+                color: Colors.grey[700], //change your color here
+              ),
+              backgroundColor: Colors.white,
+              textTheme:
+                  Theme.of(context).textTheme.apply(bodyColor: Colors.black45),
+              title: const Text("Messengerish"),
+              actions: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_box),
+                  onPressed: () {},
+                ),
+              ],
+            )
+          : null,
       body: SafeArea(
-        child: _children[selectedPageIndex],
-      ),
+          child: selectedPageIndex == 0
+              ? ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: friendsList.length,
+                  itemBuilder: (ctx, i) {
+                    return Column(
+                      children: <Widget>[
+                        ListTile(
+                          isThreeLine: true,
+                          onLongPress: () {},
+                          // onTap: () => Navigator.of(context).pushNamed('chat'),
+                          onTap: () async {
+                            await navigatePageBottom(
+                                context: context,
+                                page: ChatPage(userId: friendsList[i]['usrId']),
+                                rootNavigator: true);
+                          },
+                          leading: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 3,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey.withOpacity(.3),
+                                    offset: const Offset(0, 5),
+                                    blurRadius: 25)
+                              ],
+                            ),
+                            child: Stack(
+                              children: <Widget>[
+                                Positioned.fill(
+                                  child: CircleAvatar(
+                                    backgroundImage:
+                                        NetworkImage(friendsList[i]['imgUrl']),
+                                  ),
+                                ),
+                                friendsList[i]['isOnline']
+                                    ? Align(
+                                        alignment: Alignment.topRight,
+                                        child: Container(
+                                          height: 15,
+                                          width: 15,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 3,
+                                            ),
+                                            shape: BoxShape.circle,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      )
+                                    : Container(),
+                              ],
+                            ),
+                          ),
+                          title: Text(
+                            "${friendsList[i]['username']}",
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          subtitle: Text(
+                            "${friendsList[i]['lastMsg']}",
+                            style: !friendsList[i]['seen']
+                                ? Theme.of(context)
+                                    .textTheme
+                                    .subtitle1!
+                                    .apply(color: Colors.black87)
+                                : Theme.of(context)
+                                    .textTheme
+                                    .subtitle1!
+                                    .apply(color: Colors.black54),
+                          ),
+                          trailing: SizedBox(
+                            width: 60,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    friendsList[i]['seen']
+                                        ? const Icon(
+                                            Icons.check,
+                                            size: 15,
+                                          )
+                                        : const SizedBox(height: 15, width: 15),
+                                    Text("${friendsList[i]['lastMsgTime']}")
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 5.0,
+                                ),
+                                friendsList[i]['hasUnSeenMsgs']
+                                    ? Container(
+                                        alignment: Alignment.center,
+                                        height: 25,
+                                        width: 25,
+                                        decoration: BoxDecoration(
+                                          color: Global().purple,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          "${friendsList[i]['unseenCount']}",
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        ),
+                                      )
+                                    : const SizedBox(
+                                        height: 25,
+                                        width: 25,
+                                      ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Divider(
+                          height: 1,
+                        )
+                      ],
+                    );
+                  },
+                )
+              : _children[selectedPageIndex]),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: keyboardIsOpened
           ? null
@@ -109,23 +238,23 @@ class _MainPageState extends State<MainPage> {
             const SizedBox(width: 25),
             IconButton(
               icon: Icon(Icons.call,
-                  color: selectedPageIndex == 3
+                  color: selectedPageIndex == 2
                       ? Global().purple
                       : Colors.black45),
               onPressed: () {
                 setState(() {
-                  selectedPageIndex = 3;
+                  selectedPageIndex = 2;
                 });
               },
             ),
             IconButton(
               icon: Icon(Icons.person_outline,
-                  color: selectedPageIndex == 4
+                  color: selectedPageIndex == 3
                       ? Global().purple
                       : Colors.black45),
               onPressed: () async {
                 setState(() {
-                  selectedPageIndex = 4;
+                  selectedPageIndex = 3;
                 });
                 // await navigatePageBottom(
                 //     context: context,

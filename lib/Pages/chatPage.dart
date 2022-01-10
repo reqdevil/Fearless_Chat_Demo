@@ -11,8 +11,8 @@ import 'package:image_picker/image_picker.dart';
 
 class ChatPage extends StatefulWidget {
   List<TakenCameraMedia>? listShareMedia;
-  ChatPage({Key? key, List<TakenCameraMedia>? this.listShareMedia})
-      : super(key: key);
+  String? userId;
+  ChatPage({Key? key, this.listShareMedia, this.userId}) : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -26,22 +26,27 @@ List<IconData> icons = const [
   Icons.folder,
   Icons.gif
 ];
-List<Message> messages = [];
+late Map<String, dynamic> _friend;
+List<Map<String, dynamic>> _messages = [];
 late String formattedDate;
 final ImagePicker _picker = ImagePicker();
 
 class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
+    _friend = friendsList
+        .where((element) => element['usrId'] == widget.userId!)
+        .first;
     DateTime now = DateTime.now();
     formattedDate = DateFormat('dd.MM.yyyy – kk:mm').format(now);
-
-    messages = [
-      Message(1, 'userName', 'message', formattedDate, false,
-          MessageType.received, true, 3, true),
-      Message(1, 'userName', 'message', formattedDate, true,
-          MessageType.received, false, 3, true)
-    ];
+    _messages =
+        messages.where((element) => element['usrId'] == widget.userId).toList();
+    // messages = [
+    //   Message(1, 'userName', 'message', formattedDate, false,
+    //       MessageType.received, true, 3, true),
+    //   Message(1, 'userName', 'message', formattedDate, true,
+    //       MessageType.received, false, 3, true)
+    // ];
     super.initState();
   }
 
@@ -59,9 +64,9 @@ class _ChatPageState extends State<ChatPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 20.0,
-              backgroundImage: NetworkImage('https://via.placeholder.com/150'),
+              backgroundImage: NetworkImage(_friend['imgUrl']),
               backgroundColor: Colors.transparent,
             ),
             const SizedBox(width: 15),
@@ -70,19 +75,19 @@ class _ChatPageState extends State<ChatPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  "Armağan Çelik",
+                  _friend['username'],
                   style: Theme.of(context).textTheme.subtitle1,
                   overflow: TextOverflow.clip,
                 ),
                 Text(
-                  "Online",
+                  _friend['isOnline'] ? "Online" : "Offline",
                   style: Theme.of(context).textTheme.subtitle1!.apply(
                         color: Global().purple,
                       ),
                 )
               ],
             ),
-            const SizedBox(width: 70),
+            const SizedBox(width: 20),
             Align(
               alignment: Alignment.centerRight,
               child: Row(
@@ -150,16 +155,16 @@ class _ChatPageState extends State<ChatPage> {
             child: ListView.builder(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(15),
-              itemCount: messages.length,
+              itemCount: _messages.length,
               itemBuilder: (context, index) {
                 return Container(
-                  child: messages[index].messagetype == MessageType.received
+                  child: _messages[index]['status'] == MessageType.received
                       ? Row(
                           children: [
-                            const CircleAvatar(
+                            CircleAvatar(
                               radius: 20.0,
                               backgroundImage: NetworkImage(
-                                  'https://via.placeholder.com/150'),
+                                  _messages[index]['contactImgUrl']),
                               backgroundColor: Colors.transparent,
                             ),
                             const SizedBox(
@@ -169,7 +174,8 @@ class _ChatPageState extends State<ChatPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  messages[index].userName,
+                                  _messages[index]['contactName'],
+                                  //  messages[index].userName,
                                   style: Theme.of(context).textTheme.caption,
                                 ),
                                 Container(
@@ -187,7 +193,8 @@ class _ChatPageState extends State<ChatPage> {
                                     ),
                                   ),
                                   child: Text(
-                                    messages[index].lastMessage,
+                                    _messages[index]['message'],
+                                    // messages[index].lastMessage,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyText1!
@@ -201,7 +208,8 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                             const SizedBox(width: 15),
                             Text(
-                              messages[index].lastMsgTime,
+                              _messages[index]['time'],
+                              // messages[index].lastMsgTime,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyText2!
@@ -214,7 +222,8 @@ class _ChatPageState extends State<ChatPage> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                              messages[index].lastMsgTime,
+                              _messages[index]['time'],
+                              // messages[index].lastMsgTime,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyText2!
@@ -241,7 +250,8 @@ class _ChatPageState extends State<ChatPage> {
                                     ),
                                   ),
                                   child: Text(
-                                    messages[index].lastMessage,
+                                    _messages[index]['message'],
+                                    // messages[index].lastMessage,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyText1!
@@ -284,16 +294,16 @@ class _ChatPageState extends State<ChatPage> {
                           child: TextField(
                             onSubmitted: (value) {
                               setState(() {
-                                messages.add(Message(
-                                    2,
-                                    'Armağan Çelik',
-                                    value,
-                                    formattedDate,
-                                    true,
-                                    MessageType.sent,
-                                    true,
-                                    3,
-                                    true));
+                                // messages.add(Message(
+                                //     2,
+                                //     'Armağan Çelik',
+                                //     value,
+                                //     formattedDate,
+                                //     true,
+                                //     MessageType.sent,
+                                //     true,
+                                //     3,
+                                //     true));
                               });
                             },
                             decoration: const InputDecoration(
