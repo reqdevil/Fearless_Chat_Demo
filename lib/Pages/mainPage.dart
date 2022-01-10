@@ -1,4 +1,8 @@
+import 'package:fearless_chat_demo/Pages/LoginPage.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
+import 'package:fearless_chat_demo/Pages/chatPage.dart';
+import 'package:fearless_chat_demo/Utils/TransitionHelpers.dart';
+import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:flutter/material.dart';
 
 class MainPage extends StatefulWidget {
@@ -19,11 +23,11 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     _children = [
-      const PlaceholderWidget(color: Colors.white),
-      // CameraPage(),
-      // const PlaceholderWidget(color: Colors.deepOrange),
+      ChatPage(),
       const PlaceholderWidget(color: Colors.green),
-      const PlaceholderWidget(color: Colors.blue)
+      const CameraPage(),
+      const PlaceholderWidget(color: Colors.deepOrange),
+      const LoginPage()
     ];
 
     super.initState();
@@ -37,48 +41,127 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: Colors.grey[700], //change your color here
+        ),
+        backgroundColor: Colors.white,
+        textTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.black45),
+        title: const Text("Messengerish"),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_box),
+            onPressed: () {},
+          ),
+        ],
+      ),
       body: SafeArea(
         child: _children[selectedPageIndex],
       ),
-      bottomNavigationBar: Theme(
-        data: Theme.of(context).copyWith(canvasColor: Colors.redAccent),
-        child: BottomNavigationBar(
-          currentIndex: selectedPageIndex,
-          onTap: changePage,
-          type: BottomNavigationBarType.fixed,
-          fixedColor: Colors.white,
-          items: [
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              title: Text(
-                'Profile',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        elevation: 5,
+        backgroundColor: Global().purple,
+        child: const Icon(Icons.camera),
+        onPressed: () async {
+          await navigatePageBottom(
+              context: context, page: const CameraPage(), rootNavigator: true);
+        },
+      ),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 7.0,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.message, color: Colors.black45),
+              onPressed: () async {
+                setState(() {
+                  selectedPageIndex = 0;
+                });
+
+                // await navigatePageBottom(
+                //     context: context, page: ChatPage(), rootNavigator: true);
+              },
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.camera),
-              title: Text(
-                'Camera',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
+            IconButton(
+              icon: const Icon(Icons.view_list, color: Colors.black45),
+              onPressed: () {
+                setState(() {
+                  selectedPageIndex = 1;
+                });
+              },
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble),
-              title: Text(
-                'Chat',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
+            const SizedBox(width: 25),
+            IconButton(
+              icon: const Icon(Icons.call, color: Colors.black45),
+              onPressed: () {
+                setState(() {
+                  selectedPageIndex = 3;
+                });
+              },
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              title: Text(
-                'Settings',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
+            IconButton(
+              icon: const Icon(Icons.person_outline, color: Colors.black45),
+              onPressed: () async {
+                setState(() {
+                  selectedPageIndex = 4;
+                });
+                // await navigatePageBottom(
+                //     context: context,
+                //     page: const LoginPage(),
+                //     rootNavigator: true);
+              },
             ),
           ],
         ),
       ),
+      // bottomNavigationBar: Theme(
+      //   data: Theme.of(context).copyWith(canvasColor: Colors.redAccent),
+      //   child: BottomNavigationBar(
+      //     currentIndex: selectedPageIndex,
+      //     onTap: changePage,
+      //     type: BottomNavigationBarType.fixed,
+      //     fixedColor: Colors.white,
+      //     items: [
+      //       const BottomNavigationBarItem(
+      //         icon: Icon(Icons.person),
+      //         title: Text(
+      //           'Profile',
+      //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      //         ),
+      //       ),
+      //       const BottomNavigationBarItem(
+      //         icon: Icon(Icons.camera),
+      //         title: Text(
+      //           'Camera',
+      //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      //         ),
+      //       ),
+      //       const BottomNavigationBarItem(
+      //         icon: Icon(Icons.chat_bubble),
+      //         title: Text(
+      //           'Chat',
+      //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      //         ),
+      //       ),
+      //       const BottomNavigationBarItem(
+      //         icon: Icon(Icons.settings),
+      //         title: Text(
+      //           'Settings',
+      //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
 
