@@ -32,8 +32,9 @@ class _ChatPageState extends State<ChatPage> {
     formattedDate = DateFormat('dd.MM.yyyy – kk:mm').format(now);
 
     messages = [
-      Message('userName', 'message', formattedDate, MessageType.camedMessage),
-      Message('userName', 'message', formattedDate, MessageType.camedMessage)
+      Message(
+          1, 'userName', 'message', formattedDate, MessageType.camedMessage),
+      Message(1, 'userName', 'message', formattedDate, MessageType.camedMessage)
     ];
     super.initState();
   }
@@ -265,7 +266,7 @@ class _ChatPageState extends State<ChatPage> {
                           child: TextField(
                             onSubmitted: (value) {
                               setState(() {
-                                messages.add(Message('Armağan Çelik', value,
+                                messages.add(Message(2, 'Armağan Çelik', value,
                                     formattedDate, MessageType.sendedMessage));
                               });
                             },
