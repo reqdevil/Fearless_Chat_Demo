@@ -39,6 +39,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
@@ -64,15 +65,19 @@ class _MainPageState extends State<MainPage> {
         child: _children[selectedPageIndex],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        elevation: 5,
-        backgroundColor: Global().purple,
-        child: const Icon(Icons.camera),
-        onPressed: () async {
-          await navigatePageBottom(
-              context: context, page: const CameraPage(), rootNavigator: true);
-        },
-      ),
+      floatingActionButton: keyboardIsOpened
+          ? null
+          : FloatingActionButton(
+              elevation: 5,
+              backgroundColor: Global().purple,
+              child: const Icon(Icons.camera),
+              onPressed: () async {
+                await navigatePageBottom(
+                    context: context,
+                    page: const CameraPage(),
+                    rootNavigator: true);
+              },
+            ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 7.0,

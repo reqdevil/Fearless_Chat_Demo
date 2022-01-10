@@ -232,7 +232,7 @@ class _ChatPageState extends State<ChatPage> {
                                         .textTheme
                                         .bodyText1!
                                         .apply(
-                                          color: Colors.black87,
+                                          color: Colors.white,
                                         ),
                                   ),
                                 ),
