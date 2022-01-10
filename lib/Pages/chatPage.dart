@@ -31,10 +31,18 @@ List<Map<String, dynamic>> _messages = [];
 late String formattedDate;
 final ImagePicker _picker = ImagePicker();
 final ScrollController _controller = ScrollController();
+FocusNode? _focusNode;
+TextEditingController? _textEditingController;
+late double _textEditorWidth;
 
 class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
+    _textEditorWidth = 325.0;
+    _focusNode = FocusNode();
+    _textEditingController = TextEditingController();
+    _focusNode!.addListener(_onFocusChange);
+
     _friend = friendsList
         .where((element) => element['usrId'] == widget.userId!)
         .first;
@@ -52,6 +60,13 @@ class _ChatPageState extends State<ChatPage> {
       scrollDown();
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _focusNode!.removeListener(_onFocusChange);
+    _focusNode!.dispose();
+    super.dispose();
   }
 
   @override
@@ -369,83 +384,92 @@ class _ChatPageState extends State<ChatPage> {
           ),
           Container(
             margin: const EdgeInsets.all(15.0),
-            height: 61,
-            child: Row(
+            height: 45,
+            child: Stack(
               children: [
-                Expanded(
+                Align(
+                  alignment: Alignment.centerRight,
                   child: Container(
+                    padding: const EdgeInsets.all(10.0),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(35.0),
-                      boxShadow: const [
-                        BoxShadow(
-                            offset: Offset(0, 3),
-                            blurRadius: 5,
-                            color: Colors.grey)
-                      ],
-                    ),
-                    child: Row(
-                      children: <Widget>[
-                        IconButton(
-                            icon: const Icon(Icons.face), onPressed: () {}),
-                        Expanded(
-                          child: TextField(
-                            autofocus: false,
-                            maxLines: null,
-                            keyboardType: TextInputType.multiline,
-                            onSubmitted: (value) {
-                              setState(() {
-                                _messages.add(
-                                  {
-                                    'usrId': '2',
-                                    'status': MessageType.sent,
-                                    'message': value,
-                                    'time': formattedDate,
-                                    'hasShareMedia': true
-                                  },
-                                );
-                                scrollDown();
-                              });
-                            },
-                            decoration: const InputDecoration(
-                                hintText: "Type Something...",
-                                border: InputBorder.none),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.photo_camera),
-                          onPressed: () async {
-                            await navigatePageBottom(
-                                context: context,
-                                page: const CameraPage(),
-                                rootNavigator: true);
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.attach_file),
-                          onPressed: () {
-                            setState(() {
-                              _showBottom = true;
-                            });
-                          },
-                        )
-                      ],
+                        color: Global().purple, shape: BoxShape.circle),
+                    child: InkWell(
+                      child: const Icon(
+                        Icons.keyboard_voice,
+                        color: Colors.white,
+                      ),
+                      onLongPress: () {},
                     ),
                   ),
                 ),
-                const SizedBox(width: 15),
-                Container(
-                  padding: const EdgeInsets.all(15.0),
-                  decoration: BoxDecoration(
-                      color: Global().purple, shape: BoxShape.circle),
-                  child: InkWell(
-                    child: const Icon(
-                      Icons.keyboard_voice,
-                      color: Colors.white,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Expanded(
+                    child: Container(
+                      width: _textEditorWidth,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(35.0),
+                        boxShadow: const [
+                          BoxShadow(
+                              offset: Offset(0, 3),
+                              blurRadius: 5,
+                              color: Colors.grey)
+                        ],
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          IconButton(
+                              icon: const Icon(Icons.face), onPressed: () {}),
+                          Expanded(
+                            child: TextField(
+                              autofocus: false,
+                              controller: _textEditingController,
+                              focusNode: _focusNode,
+                              maxLines: null,
+                              keyboardType: TextInputType.multiline,
+                              onSubmitted: (value) {
+                                setState(() {
+                                  _messages.add(
+                                    {
+                                      'usrId': '2',
+                                      'status': MessageType.sent,
+                                      'message': value,
+                                      'time': formattedDate,
+                                      'hasShareMedia': true
+                                    },
+                                  );
+                                  scrollDown();
+                                });
+                              },
+                              decoration: const InputDecoration(
+                                  hintText: "Type Something...",
+                                  border: InputBorder.none),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.photo_camera),
+                            onPressed: () async {
+                              await navigatePageBottom(
+                                  context: context,
+                                  page: const CameraPage(),
+                                  rootNavigator: true);
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.attach_file),
+                            onPressed: () {
+                              setState(() {
+                                _showBottom = true;
+                              });
+                            },
+                          )
+                        ],
+                      ),
                     ),
-                    onLongPress: () {},
                   ),
-                )
+                ),
+                // const SizedBox(width: 15),
               ],
             ),
           ),
@@ -627,5 +651,13 @@ class _ChatPageState extends State<ChatPage> {
       curve: Curves.linear,
       duration: const Duration(milliseconds: 450),
     );
+  }
+
+  void _onFocusChange() {
+    if (_focusNode!.hasFocus) {
+      setState(() {
+        _textEditorWidth = 450;
+      });
+    }
   }
 }
