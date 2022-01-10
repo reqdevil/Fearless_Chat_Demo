@@ -82,14 +82,13 @@ class _ChatPageState extends State<ChatPage> {
         title: Row(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             CircleAvatar(
               radius: 20.0,
               backgroundImage: NetworkImage(_friend['imgUrl']),
               backgroundColor: Colors.transparent,
             ),
-            const SizedBox(width: 15),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,7 +106,6 @@ class _ChatPageState extends State<ChatPage> {
                 )
               ],
             ),
-            const SizedBox(width: 20),
             Align(
               alignment: Alignment.centerRight,
               child: Row(
