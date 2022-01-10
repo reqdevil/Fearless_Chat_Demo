@@ -4,6 +4,7 @@ import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Models/message.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ChatPage extends StatefulWidget {
   final List<TakenCameraMedia> listShareMedia;
@@ -22,25 +23,17 @@ List<IconData> icons = const [
   Icons.gif
 ];
 List<Message> messages = [];
+late String formattedDate;
 
 class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
+    DateTime now = DateTime.now();
+    formattedDate = DateFormat('dd.MM.yyyy – kk:mm').format(now);
+
     messages = [
-      Message(
-          'userName',
-          'message',
-          DateTime.now().hour.toString() +
-              ":" +
-              DateTime.now().minute.toString(),
-          MessageType.camedMessage),
-      Message(
-          'userName',
-          'message',
-          DateTime.now().hour.toString() +
-              ":" +
-              DateTime.now().minute.toString(),
-          MessageType.camedMessage)
+      Message('userName', 'message', formattedDate, MessageType.camedMessage),
+      Message('userName', 'message', formattedDate, MessageType.camedMessage)
     ];
     super.initState();
   }
@@ -272,13 +265,8 @@ class _ChatPageState extends State<ChatPage> {
                           child: TextField(
                             onSubmitted: (value) {
                               setState(() {
-                                messages.add(Message(
-                                    'Armağan Çelik',
-                                    value,
-                                    DateTime.now().hour.toString() +
-                                        ':' +
-                                        DateTime.now().minute.toString(),
-                                    MessageType.sendedMessage));
+                                messages.add(Message('Armağan Çelik', value,
+                                    formattedDate, MessageType.sendedMessage));
                               });
                             },
                             decoration: const InputDecoration(
