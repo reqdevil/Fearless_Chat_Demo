@@ -59,6 +59,9 @@ dependencies:
   cupertino_icons: ^1.0.2
 
   intl: ^0.17.0
+  # File import from galery
+  image_picker: ^0.8.4+4
+  # wechat_assets_picker: ^6.3.1
 
 dev_dependencies:
   flutter_test:
