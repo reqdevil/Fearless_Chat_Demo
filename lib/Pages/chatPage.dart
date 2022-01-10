@@ -2,13 +2,17 @@ import 'dart:io';
 
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Models/message.dart';
+import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatPage extends StatefulWidget {
-  final List<TakenCameraMedia> listShareMedia;
-  const ChatPage({Key? key, required this.listShareMedia}) : super(key: key);
+  List<TakenCameraMedia>? listShareMedia;
+  ChatPage({Key? key, List<TakenCameraMedia>? this.listShareMedia})
+      : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -24,6 +28,7 @@ List<IconData> icons = const [
 ];
 List<Message> messages = [];
 late String formattedDate;
+final ImagePicker _picker = ImagePicker();
 
 class _ChatPageState extends State<ChatPage> {
   @override
@@ -32,9 +37,8 @@ class _ChatPageState extends State<ChatPage> {
     formattedDate = DateFormat('dd.MM.yyyy – kk:mm').format(now);
 
     messages = [
-      Message(
-          1, 'userName', 'message', formattedDate, MessageType.camedMessage),
-      Message(1, 'userName', 'message', formattedDate, MessageType.camedMessage)
+      Message(1, 'userName', 'message', formattedDate, MessageType.received),
+      Message(1, 'userName', 'message', formattedDate, MessageType.received)
     ];
     super.initState();
   }
@@ -69,7 +73,7 @@ class _ChatPageState extends State<ChatPage> {
                 Text(
                   "Online",
                   style: Theme.of(context).textTheme.subtitle1!.apply(
-                        color: Colors.green,
+                        color: Global().purple,
                       ),
                 )
               ],
@@ -135,7 +139,7 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 return Container(
-                  child: messages[index].messagetype == MessageType.camedMessage
+                  child: messages[index].messagetype == MessageType.received
                       ? Row(
                           children: [
                             const CircleAvatar(
@@ -215,7 +219,7 @@ class _ChatPageState extends State<ChatPage> {
                                               .6),
                                   padding: const EdgeInsets.all(15.0),
                                   decoration: BoxDecoration(
-                                    color: Colors.green[300],
+                                    color: Global().purple,
                                     borderRadius: const BorderRadius.only(
                                       topRight: Radius.circular(25),
                                       topLeft: Radius.circular(25),
@@ -267,7 +271,7 @@ class _ChatPageState extends State<ChatPage> {
                             onSubmitted: (value) {
                               setState(() {
                                 messages.add(Message(2, 'Armağan Çelik', value,
-                                    formattedDate, MessageType.sendedMessage));
+                                    formattedDate, MessageType.sent));
                               });
                             },
                             decoration: const InputDecoration(
@@ -290,8 +294,8 @@ class _ChatPageState extends State<ChatPage> {
                 const SizedBox(width: 15),
                 Container(
                   padding: const EdgeInsets.all(15.0),
-                  decoration: const BoxDecoration(
-                      color: Colors.green, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                      color: Global().purple, shape: BoxShape.circle),
                   child: InkWell(
                     child: const Icon(
                       Icons.keyboard_voice,
@@ -362,15 +366,20 @@ class _ChatPageState extends State<ChatPage> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(15.0),
                                   color: Colors.grey[200],
-                                  border:
-                                      Border.all(color: Colors.green, width: 2),
+                                  border: Border.all(
+                                      color: Global().purple, width: 2),
                                 ),
                                 child: IconButton(
                                   icon: Icon(
                                     icons[i],
-                                    color: Colors.green,
+                                    color: Global().purple,
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    if (i == 0) {
+                                      showOptions();
+                                    } else if (i == 1) {
+                                    } else if (i == 2) {}
+                                  },
                                 ),
                               );
                             },
@@ -386,9 +395,62 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  Future showOptions() async {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            child: const Text('Photo Gallery'),
+            onPressed: () {
+              // close the options modal
+              Navigator.of(context).pop();
+              // get image from gallery
+              getImageFromGallery();
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: const Text('Camera'),
+            onPressed: () {
+              // close the options modal
+              Navigator.of(context).pop();
+              // get image from camera
+              getImageFromCamera();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  File? _image;
+  final picker = ImagePicker();
+
+//Image Picker function to get image from gallery
+  Future getImageFromGallery() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      }
+    });
+  }
+
+//Image Picker function to get image from camera
+  Future getImageFromCamera() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      }
+    });
+  }
+
   ListView getListMedia() {
     return ListView.builder(
-      itemCount: widget.listShareMedia.length,
+      itemCount: widget.listShareMedia!.length,
       itemBuilder: (context, index) {
         return Container(
           alignment: Alignment.center,
@@ -399,21 +461,22 @@ class _ChatPageState extends State<ChatPage> {
             color: Colors.black,
             borderRadius: BorderRadius.circular(10.0),
             border: Border.all(
-                color: widget.listShareMedia.reversed.toList()[index].isSelected
-                    ? Colors.amber
-                    : Colors.grey.withOpacity(0.5),
+                color:
+                    widget.listShareMedia!.reversed.toList()[index].isSelected
+                        ? Colors.amber
+                        : Colors.grey.withOpacity(0.5),
                 width: 2),
             image: DecorationImage(
               image: FileImage(
-                File(widget.listShareMedia.reversed.toList()[index].filePath),
+                File(widget.listShareMedia!.reversed.toList()[index].filePath),
               ),
               fit: BoxFit.cover,
             ),
           ),
-          child: widget.listShareMedia.reversed.toList()[index].fileType ==
+          child: widget.listShareMedia!.reversed.toList()[index].fileType ==
                   FileType.video
               ? VideoItem(
-                  url: widget.listShareMedia.reversed.toList()[index].filePath)
+                  url: widget.listShareMedia!.reversed.toList()[index].filePath)
               : Container(),
         );
       },
