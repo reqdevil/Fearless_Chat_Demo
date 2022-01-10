@@ -206,14 +206,16 @@ class _ChatPageState extends State<ChatPage> {
                                               color: Colors.black87,
                                             ),
                                       ),
-                                      const SizedBox(height: 15),
-                                      Text(
-                                        _messages[index]['time'],
-                                        // messages[index].lastMsgTime,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText2!
-                                            .apply(color: Colors.grey),
+                                      const SizedBox(height: 5),
+                                      Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: Text(
+                                          _messages[index]['time'],
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyText2!
+                                              .apply(color: Colors.grey),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -334,13 +336,19 @@ class _ChatPageState extends State<ChatPage> {
                                               },
                                             )
                                           : const SizedBox(),
-                                      Text(
-                                        _messages[index]['time'],
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText2!
-                                            .apply(color: Colors.white),
-                                        textAlign: TextAlign.center,
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: Text(
+                                          _messages[index]['time'],
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyText2!
+                                              .apply(color: Colors.white),
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
                                     ],
                                   ),
