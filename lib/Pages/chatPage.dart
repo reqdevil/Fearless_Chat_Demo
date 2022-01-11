@@ -19,7 +19,6 @@ class ChatPage extends StatefulWidget {
   _ChatPageState createState() => _ChatPageState();
 }
 
-bool _showBottom = false;
 List<IconData> icons = const [
   Icons.image,
   Icons.camera,
@@ -449,9 +448,101 @@ class _ChatPageState extends State<ChatPage> {
                               IconButton(
                                 icon: const Icon(Icons.attach_file),
                                 onPressed: () {
-                                  setState(() {
-                                    _showBottom = true;
-                                  });
+                                  showModalBottomSheet(
+                                    context: context,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    builder: (context) {
+                                      return Container(
+                                        padding: const EdgeInsets.all(25.0),
+                                        decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(10),
+                                            topLeft: Radius.circular(10),
+                                          ),
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                                offset: Offset(0, 5),
+                                                blurRadius: 15.0,
+                                                color: Colors.grey)
+                                          ],
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  elevation: 0,
+                                                  minimumSize:
+                                                      const Size(35, 35),
+                                                  padding:
+                                                      const EdgeInsets.all(0),
+                                                  primary: Colors.grey
+                                                      .withOpacity(0.3),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            25),
+                                                  ),
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Icon(
+                                                  Icons.close,
+                                                  color: Colors.grey[800],
+                                                )),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            GridView.count(
+                                              mainAxisSpacing: 21.0,
+                                              crossAxisSpacing: 21.0,
+                                              shrinkWrap: true,
+                                              crossAxisCount: 3,
+                                              children: List.generate(
+                                                icons.length,
+                                                (i) {
+                                                  return Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15.0),
+                                                      color: Colors.grey[200],
+                                                      border: Border.all(
+                                                          color:
+                                                              Global().purple,
+                                                          width: 2),
+                                                    ),
+                                                    child: IconButton(
+                                                      icon: Icon(
+                                                        icons[i],
+                                                        color: Global().purple,
+                                                      ),
+                                                      onPressed: () {
+                                                        if (i == 0) {
+                                                          Navigator.pop(
+                                                              context);
+                                                          showOptions();
+                                                        } else if (i == 1) {
+                                                        } else if (i == 2) {}
+                                                      },
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
                                 },
                               ),
                             ],
@@ -488,115 +579,55 @@ class _ChatPageState extends State<ChatPage> {
               ],
             ),
           ),
-          _showBottom
-              ? Positioned(
-                  bottom: 90,
-                  left: 25,
-                  right: 25,
-                  child: Container(
-                    padding: const EdgeInsets.all(25.0),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                            offset: Offset(0, 5),
-                            blurRadius: 15.0,
-                            color: Colors.grey)
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              minimumSize: const Size(35, 35),
-                              padding: const EdgeInsets.all(0),
-                              primary: Colors.grey.withOpacity(0.3),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _showBottom = false;
-                              });
-                            },
-                            child: Icon(
-                              Icons.close,
-                              color: Colors.grey[800],
-                            )),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        GridView.count(
-                          mainAxisSpacing: 21.0,
-                          crossAxisSpacing: 21.0,
-                          shrinkWrap: true,
-                          crossAxisCount: 3,
-                          children: List.generate(
-                            icons.length,
-                            (i) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  color: Colors.grey[200],
-                                  border: Border.all(
-                                      color: Global().purple, width: 2),
-                                ),
-                                child: IconButton(
-                                  icon: Icon(
-                                    icons[i],
-                                    color: Global().purple,
-                                  ),
-                                  onPressed: () {
-                                    if (i == 0) {
-                                      showOptions();
-                                    } else if (i == 1) {
-                                    } else if (i == 2) {}
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : Container(),
         ],
       ),
     );
   }
 
   Future showOptions() async {
-    showCupertinoModalPopup(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            child: const Text('Photo Gallery'),
-            onPressed: () {
-              // close the options modal
-              Navigator.of(context).pop();
-              // get image from gallery
-              getImageFromGallery();
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: const Text('Camera'),
-            onPressed: () {
-              // close the options modal
-              Navigator.of(context).pop();
-              // get image from camera
-              getImageFromCamera();
-            },
-          ),
-        ],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(10),
+          topLeft: Radius.circular(10),
+        ),
+        // borderRadius: BorderRadius.circular(25.0),
       ),
+      builder: (context) {
+        return Wrap(
+          children: [
+            ListTile(
+              leading: Icon(
+                Icons.image,
+                color: Global().purple,
+              ),
+              title: Text(
+                'Gallery',
+                style: TextStyle(color: Global().purple),
+              ),
+              onTap: () {
+                Navigator.of(context).pop();
+                getImageFromGallery();
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.camera_alt_outlined,
+                color: Global().purple,
+              ),
+              title: Text(
+                'Camera',
+                style: TextStyle(color: Global().purple),
+              ),
+              onTap: () {
+                Navigator.of(context).pop();
+                getImageFromCamera();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
