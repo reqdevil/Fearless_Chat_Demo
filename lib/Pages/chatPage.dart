@@ -42,7 +42,7 @@ class _ChatPageState extends State<ChatPage> {
     _textEditorWidth = 325.0;
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
-    _focusNode!.addListener(_onFocusChange);
+    _textEditingController!.addListener(_onTextChange);
 
     _friend = friendsList
         .where((element) => element['usrId'] == widget.userId!)
@@ -65,7 +65,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    _focusNode!.removeListener(_onFocusChange);
+    _textEditingController!.removeListener(_onTextChange);
+    _textEditingController!.dispose();
     _focusNode!.dispose();
     super.dispose();
   }
@@ -403,85 +404,83 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Expanded(
-                    child: Container(
-                      width: _textEditorWidth,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(35.0),
-                        boxShadow: const [
-                          BoxShadow(
-                              offset: Offset(0, 3),
-                              blurRadius: 5,
-                              color: Colors.grey)
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                              icon: const Icon(Icons.face), onPressed: () {}),
-                          Expanded(
-                            child: TextField(
-                              autofocus: false,
-                              controller: _textEditingController,
-                              focusNode: _focusNode,
-                              maxLines: null,
-                              keyboardType: TextInputType.multiline,
-                              onSubmitted: (value) {},
-                              decoration: const InputDecoration(
-                                  hintText: "Type Something...",
-                                  border: InputBorder.none),
-                            ),
+                  child: Container(
+                    width: _textEditorWidth,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(35.0),
+                      boxShadow: const [
+                        BoxShadow(
+                            offset: Offset(0, 3),
+                            blurRadius: 5,
+                            color: Colors.grey)
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                            icon: const Icon(Icons.face), onPressed: () {}),
+                        Expanded(
+                          child: TextField(
+                            autofocus: false,
+                            controller: _textEditingController,
+                            focusNode: _focusNode,
+                            maxLines: null,
+                            keyboardType: TextInputType.multiline,
+                            onSubmitted: (value) {},
+                            decoration: const InputDecoration(
+                                hintText: "Type Something...",
+                                border: InputBorder.none),
                           ),
-                          Visibility(
-                            visible: !_focusNode!.hasFocus,
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.photo_camera),
-                                  onPressed: () async {
-                                    await navigatePageBottom(
-                                        context: context,
-                                        page: const CameraPage(),
-                                        rootNavigator: true);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.attach_file),
-                                  onPressed: () {
-                                    setState(() {
-                                      _showBottom = true;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          Visibility(
-                            visible: _focusNode!.hasFocus,
-                            child: Transform.rotate(
-                              angle: -math.pi / 4,
-                              child: IconButton(
-                                icon: const Icon(Icons.send_rounded),
+                        ),
+                        Visibility(
+                          visible: _textEditingController!.text.isEmpty,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.photo_camera),
                                 onPressed: () async {
+                                  await navigatePageBottom(
+                                      context: context,
+                                      page: const CameraPage(),
+                                      rootNavigator: true);
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.attach_file),
+                                onPressed: () {
                                   setState(() {
-                                    _messages.add(
-                                      {
-                                        'usrId': '2',
-                                        'status': MessageType.sent,
-                                        'message': _textEditingController!.text,
-                                        'time': formattedDate,
-                                        'hasShareMedia': true
-                                      },
-                                    );
-                                    scrollDown();
+                                    _showBottom = true;
                                   });
                                 },
                               ),
+                            ],
+                          ),
+                        ),
+                        Visibility(
+                          visible: _textEditingController!.text.isNotEmpty,
+                          child: Transform.rotate(
+                            angle: -math.pi / 4,
+                            child: IconButton(
+                              icon: const Icon(Icons.send_rounded),
+                              onPressed: () async {
+                                setState(() {
+                                  _messages.add(
+                                    {
+                                      'usrId': '2',
+                                      'status': MessageType.sent,
+                                      'message': _textEditingController!.text,
+                                      'time': formattedDate,
+                                      'hasShareMedia': true
+                                    },
+                                  );
+                                  scrollDown();
+                                });
+                              },
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
                 ),
@@ -669,12 +668,12 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  void _onFocusChange() {
-    if (_focusNode!.hasFocus) {
+  void _onTextChange() {
+    if (_textEditingController!.text.isNotEmpty) {
       setState(() {
         _textEditorWidth = 450;
       });
-    } else {
+    } else if (_textEditingController!.text.isEmpty) {
       setState(() {
         _textEditorWidth = 325.0;
       });
