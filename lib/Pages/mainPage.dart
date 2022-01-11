@@ -16,10 +16,12 @@ class _MainPageState extends State<MainPage> {
   // late List<CameraDescription> cameras;
   int selectedPageIndex = 0;
   late List _children = [];
-
-  // List<CameraDescription> cameras = [];
-
-  // set cameras(List<CameraDescription> cameras) {}
+  bool _isVisibleSearch = false;
+  bool _isVisibleSearchClean = false;
+  final TextEditingController _searchTextEditorController =
+      TextEditingController();
+  ScrollController _friendListController = ScrollController();
+  List<Map<String, dynamic>> _searchResult = [];
   @override
   void initState() {
     _children = [
@@ -28,7 +30,17 @@ class _MainPageState extends State<MainPage> {
       const PlaceholderWidget(color: Colors.deepOrange),
       const LoginPage()
     ];
-
+    _searchTextEditorController.addListener(() {
+      if (_searchTextEditorController.text.isNotEmpty) {
+        setState(() {
+          _isVisibleSearchClean = true;
+        });
+      } else {
+        setState(() {
+          _isVisibleSearchClean = false;
+        });
+      }
+    });
     super.initState();
   }
 
@@ -46,11 +58,63 @@ class _MainPageState extends State<MainPage> {
               backgroundColor: Colors.white,
               textTheme:
                   Theme.of(context).textTheme.apply(bodyColor: Colors.black45),
-              title: const Text("Messengerish"),
+              title: Visibility(
+                visible: _isVisibleSearch,
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(35.0),
+                      border: Border.all(color: Colors.grey)),
+                  height: 40,
+                  child: Center(
+                    child: TextField(
+                        controller: _searchTextEditorController,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          hintText: 'Search...',
+                          suffixIcon: Visibility(
+                            visible: _isVisibleSearchClean,
+                            child: GestureDetector(
+                              onTap: () {
+                                _searchTextEditorController.text = "";
+                                setState(() {
+                                  _searchResult.clear();
+                                });
+                              },
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          for (var userDetail in friendsList) {
+                            print(userDetail['username']);
+                            if ((userDetail['username'] as String)
+                                .toLowerCase()
+                                .contains(value.toLowerCase())) {
+                              setState(() {
+                                _searchResult.add(userDetail);
+                                _searchResult.unique();
+                              });
+                            }
+                          }
+                        }),
+                  ),
+                ),
+              ),
               actions: <Widget>[
                 IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      _isVisibleSearch = !_isVisibleSearch;
+                    });
+                  },
                 ),
                 IconButton(
                   icon: const Icon(Icons.add_box),
@@ -60,8 +124,9 @@ class _MainPageState extends State<MainPage> {
             )
           : null,
       body: SafeArea(
-          child: selectedPageIndex == 0
+          child: selectedPageIndex == 0 && _searchResult.isEmpty
               ? ListView.builder(
+                  controller: _friendListController,
                   physics: const BouncingScrollPhysics(),
                   itemCount: friendsList.length,
                   itemBuilder: (ctx, i) {
@@ -123,7 +188,7 @@ class _MainPageState extends State<MainPage> {
                           ),
                           title: Text(
                             "${friendsList[i]['username']}",
-                            style: Theme.of(context).textTheme.subtitle1,
+                            style: Theme.of(context).textTheme.bodyText1,
                           ),
                           subtitle: Text(
                             "${friendsList[i]['lastMsg']}",
@@ -187,7 +252,138 @@ class _MainPageState extends State<MainPage> {
                     );
                   },
                 )
-              : _children[selectedPageIndex]),
+              : _searchResult.isNotEmpty
+                  ? ListView.builder(
+                      // controller: _friendListController,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: _searchResult.length,
+                      itemBuilder: (ctx, i) {
+                        return Column(
+                          children: <Widget>[
+                            ListTile(
+                              isThreeLine: true,
+                              onLongPress: () {},
+                              // onTap: () => Navigator.of(context).pushNamed('chat'),
+                              onTap: () async {
+                                await navigatePageBottom(
+                                    context: context,
+                                    page: ChatPage(
+                                        userId: _searchResult[i]['usrId']),
+                                    rootNavigator: true);
+                              },
+                              leading: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 3,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(.3),
+                                        offset: const Offset(0, 5),
+                                        blurRadius: 25)
+                                  ],
+                                ),
+                                child: Stack(
+                                  children: <Widget>[
+                                    Positioned.fill(
+                                      child: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                            _searchResult[i]['imgUrl']),
+                                      ),
+                                    ),
+                                    _searchResult[i]['isOnline']
+                                        ? Align(
+                                            alignment: Alignment.topRight,
+                                            child: Container(
+                                              height: 15,
+                                              width: 15,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 3,
+                                                ),
+                                                shape: BoxShape.circle,
+                                                color: Colors.green,
+                                              ),
+                                            ),
+                                          )
+                                        : Container(),
+                                  ],
+                                ),
+                              ),
+                              title: Text(
+                                "${_searchResult[i]['username']}",
+                                style: Theme.of(context).textTheme.bodyText1,
+                              ),
+                              subtitle: Text(
+                                "${_searchResult[i]['lastMsg']}",
+                                style: !friendsList[i]['seen']
+                                    ? Theme.of(context)
+                                        .textTheme
+                                        .subtitle1!
+                                        .apply(color: Colors.black87)
+                                    : Theme.of(context)
+                                        .textTheme
+                                        .subtitle1!
+                                        .apply(color: Colors.black54),
+                              ),
+                              trailing: SizedBox(
+                                width: 60,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: <Widget>[
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        _searchResult[i]['seen']
+                                            ? const Icon(
+                                                Icons.check,
+                                                size: 15,
+                                              )
+                                            : const SizedBox(
+                                                height: 15, width: 15),
+                                        Text(
+                                            "${_searchResult[i]['lastMsgTime']}")
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 5.0,
+                                    ),
+                                    _searchResult[i]['hasUnSeenMsgs']
+                                        ? Container(
+                                            alignment: Alignment.center,
+                                            height: 25,
+                                            width: 25,
+                                            decoration: BoxDecoration(
+                                              color: Global().mainColor,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Text(
+                                              "${_searchResult[i]['unseenCount']}",
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          )
+                                        : const SizedBox(
+                                            height: 25,
+                                            width: 25,
+                                          ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const Divider(
+                              height: 1,
+                            )
+                          ],
+                        );
+                      },
+                    )
+                  : _children[selectedPageIndex]),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: keyboardIsOpened
@@ -339,5 +535,14 @@ class _PlaceholderWidgetState extends State<PlaceholderWidget> {
     return Container(
       color: widget.color,
     );
+  }
+}
+
+extension Unique<E, Id> on List<E> {
+  List<E> unique([Id Function(E element)? id, bool inplace = true]) {
+    final ids = Set();
+    var list = inplace ? this : List<E>.from(this);
+    list.retainWhere((x) => ids.add(id != null ? id(x) : x as Id));
+    return list;
   }
 }
