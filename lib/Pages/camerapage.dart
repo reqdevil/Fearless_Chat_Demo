@@ -2127,15 +2127,23 @@ class _CameraPageState extends State<CameraPage>
                                       } else {
                                         setState(() {});
                                         Navigator.pop(context);
-                                        await navigatePageBottom(
-                                            context: context,
-                                            page: ChatPage(
-                                                listShareMedia: mediaPathList
-                                                    .where((element) =>
-                                                        element.isSelected)
-                                                    .toList(),
-                                                userId: '2'),
-                                            rootNavigator: true);
+                                        Navigator.pop(
+                                            context,
+                                            mediaPathList
+                                                .where((element) =>
+                                                    element.isSelected)
+                                                .toList(),
+                                          );
+                                        // Navigator.pop(context);
+                                        // await navigatePageBottom(
+                                        //     context: context,
+                                        //     page: ChatPage(
+                                        //         listShareMedia: mediaPathList
+                                        //             .where((element) =>
+                                        //                 element.isSelected)
+                                        //             .toList(),
+                                        //         userId: '2'),
+                                        //     rootNavigator: true);
                                       }
                                     },
                                     style: ButtonStyle(

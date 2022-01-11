@@ -25,6 +25,7 @@ List<IconData> icons = const [
   Icons.folder,
   Icons.gif
 ];
+late List<TakenCameraMedia> mediaFromCamera;
 late Map<String, dynamic> _friend;
 List<Map<String, dynamic>> _messages = [];
 late String formattedDate;
@@ -37,6 +38,7 @@ late double _textEditorWidth;
 class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
+    mediaFromCamera = [];
     _textEditorWidth = 325.0;
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
@@ -278,7 +280,7 @@ class _ChatPageState extends State<ChatPage> {
                                               color: Colors.white,
                                             ),
                                       ),
-                                      widget.listShareMedia != null &&
+                                      mediaFromCamera.isNotEmpty &&
                                               _messages[index]['hasShareMedia']
                                           ? GridView.builder(
                                               shrinkWrap: true,
@@ -289,8 +291,7 @@ class _ChatPageState extends State<ChatPage> {
                                                   right: 0,
                                                   top: 0,
                                                   bottom: 0),
-                                              itemCount:
-                                                  widget.listShareMedia!.length,
+                                              itemCount: mediaFromCamera.length,
                                               gridDelegate:
                                                   SliverGridDelegateWithFixedCrossAxisCount(
                                                 crossAxisCount:
@@ -300,8 +301,8 @@ class _ChatPageState extends State<ChatPage> {
                                                                 .landscape
                                                         ? 3
                                                         : 2,
-                                                crossAxisSpacing: 4,
-                                                mainAxisSpacing: 4,
+                                                crossAxisSpacing: 0,
+                                                mainAxisSpacing: 0,
                                                 childAspectRatio: (1 / 1),
                                               ),
                                               itemBuilder: (context, index) {
@@ -309,45 +310,31 @@ class _ChatPageState extends State<ChatPage> {
                                                   alignment: Alignment.center,
                                                   margin: const EdgeInsets
                                                           .symmetric(
-                                                      horizontal: 5,
-                                                      vertical: 5),
-                                                  // width: MediaQuery.of(context)
-                                                  //         .size
-                                                  //         .width /
-                                                  //     2,
-                                                  // height: MediaQuery.of(context)
-                                                  //         .size
-                                                  //         .width /
-                                                  //     2,
+                                                      horizontal: 2,
+                                                      vertical: 2),
                                                   decoration: BoxDecoration(
                                                     color: Colors.black,
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            10.0),
+                                                            5.0),
                                                     border: Border.all(
                                                         color: Colors.white,
-                                                        width: 2),
+                                                        width: 1),
                                                     image: DecorationImage(
                                                       image: FileImage(
-                                                        File(widget
-                                                            .listShareMedia!
-                                                            .reversed
-                                                            .toList()[index]
+                                                        File(mediaFromCamera[
+                                                                index]
                                                             .filePath),
                                                       ),
                                                       fit: BoxFit.cover,
                                                     ),
                                                   ),
-                                                  child: widget.listShareMedia!
-                                                              .reversed
-                                                              .toList()[index]
+                                                  child: mediaFromCamera[index]
                                                               .fileType ==
                                                           FileType.video
                                                       ? VideoItem(
-                                                          url: widget
-                                                              .listShareMedia!
-                                                              .reversed
-                                                              .toList()[index]
+                                                          url: mediaFromCamera[
+                                                                  index]
                                                               .filePath)
                                                       : Container(),
                                                 );
@@ -439,10 +426,36 @@ class _ChatPageState extends State<ChatPage> {
                               IconButton(
                                 icon: const Icon(Icons.photo_camera),
                                 onPressed: () async {
-                                  await navigatePageBottom(
+                                  showGeneralDialog(
                                       context: context,
-                                      page: const CameraPage(),
-                                      rootNavigator: true);
+                                      useRootNavigator: true,
+                                      // transitionDuration:
+                                      //     const Duration(milliseconds: 400),
+                                      pageBuilder: (context, animation,
+                                          secondaryAnimation) {
+                                        return StatefulBuilder(
+                                          builder: (BuildContext context,
+                                              StateSetter sfsetState) {
+                                            return const CameraPage();
+                                          },
+                                        );
+                                      }).then((value) {
+                                    setState(() {
+                                      mediaFromCamera =
+                                          value as List<TakenCameraMedia>;
+                                      _messages.add(
+                                        {
+                                          'usrId': '2',
+                                          'status': MessageType.sent,
+                                          'message':
+                                              _textEditingController!.text,
+                                          'time': formattedDate,
+                                          'hasShareMedia': true
+                                        },
+                                      );
+                                      scrollDown();
+                                    });
+                                  });
                                 },
                               ),
                               IconButton(
