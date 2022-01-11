@@ -26,6 +26,8 @@
 	<string>Fearless Chat whats to use camera.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Fearless Chat whats to use the mic.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Fearless Chat whats to reach gallery</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
