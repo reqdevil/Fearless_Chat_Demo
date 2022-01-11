@@ -80,7 +80,7 @@ Future<void> navigateRootPage({
   required bool fullscreenDialog,
 }) async {
   Navigator.of(context).push(
-    MaterialPageRoute<Null>(
+    MaterialPageRoute<void>(
       builder: (BuildContext context) {
         return page;
       },

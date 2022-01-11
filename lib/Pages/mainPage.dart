@@ -163,7 +163,7 @@ class _MainPageState extends State<MainPage> {
                                         height: 25,
                                         width: 25,
                                         decoration: BoxDecoration(
-                                          color: Global().purple,
+                                          color: Global().mainColor,
                                           shape: BoxShape.circle,
                                         ),
                                         child: Text(
@@ -194,7 +194,7 @@ class _MainPageState extends State<MainPage> {
           ? null
           : FloatingActionButton(
               elevation: 5,
-              backgroundColor: Global().purple,
+              backgroundColor: Global().mainColor,
               child: const Icon(Icons.camera),
               onPressed: () async {
                 await navigatePageBottom(
@@ -213,7 +213,7 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.message,
                   color: selectedPageIndex == 0
-                      ? Global().purple
+                      ? Global().mainColor
                       : Colors.black45),
               onPressed: () async {
                 setState(() {
@@ -227,7 +227,7 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.view_list,
                   color: selectedPageIndex == 1
-                      ? Global().purple
+                      ? Global().mainColor
                       : Colors.black45),
               onPressed: () {
                 setState(() {
@@ -239,7 +239,7 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.call,
                   color: selectedPageIndex == 2
-                      ? Global().purple
+                      ? Global().mainColor
                       : Colors.black45),
               onPressed: () {
                 setState(() {
@@ -250,7 +250,7 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.person_outline,
                   color: selectedPageIndex == 3
-                      ? Global().purple
+                      ? Global().mainColor
                       : Colors.black45),
               onPressed: () async {
                 setState(() {

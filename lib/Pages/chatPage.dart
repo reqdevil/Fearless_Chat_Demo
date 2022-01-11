@@ -4,7 +4,6 @@ import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Utils/TransitionHelpers.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -75,7 +74,7 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
-          color: Colors.grey[700], //change your color here
+          color: Global().mainColor, //change your color here
         ),
         shadowColor: Colors.black,
         backgroundColor: Colors.white,
@@ -101,7 +100,7 @@ class _ChatPageState extends State<ChatPage> {
                 Text(
                   _friend['isOnline'] ? "Online" : "Offline",
                   style: Theme.of(context).textTheme.subtitle1!.apply(
-                        color: Global().purple,
+                        color: Global().mainColor,
                       ),
                 )
               ],
@@ -259,7 +258,7 @@ class _ChatPageState extends State<ChatPage> {
                                               .6),
                                   padding: const EdgeInsets.all(15.0),
                                   decoration: BoxDecoration(
-                                    color: Global().purple,
+                                    color: Global().mainColor,
                                     borderRadius: const BorderRadius.only(
                                       topRight: Radius.circular(25),
                                       topLeft: Radius.circular(25),
@@ -383,15 +382,16 @@ class _ChatPageState extends State<ChatPage> {
           ),
           Container(
             margin: const EdgeInsets.all(15.0),
-            height: 61,
+            height: 71,
             child: Stack(
               children: [
                 Align(
                   alignment: Alignment.centerRight,
                   child: Container(
-                    padding: const EdgeInsets.all(10.0),
+                    margin: const EdgeInsets.all(0),
+                    padding: const EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
-                        color: Global().purple, shape: BoxShape.circle),
+                        color: Global().mainColor, shape: BoxShape.circle),
                     child: InkWell(
                       child: const Icon(
                         Icons.keyboard_voice,
@@ -516,14 +516,16 @@ class _ChatPageState extends State<ChatPage> {
                                                               15.0),
                                                       color: Colors.grey[200],
                                                       border: Border.all(
-                                                          color:
-                                                              Global().purple,
+                                                          color: Global()
+                                                              .mainColor,
                                                           width: 2),
                                                     ),
                                                     child: IconButton(
                                                       icon: Icon(
                                                         icons[i],
-                                                        color: Global().purple,
+                                                        color:
+                                                            Global().mainColor,
+                                                        size: 50,
                                                       ),
                                                       onPressed: () {
                                                         if (i == 0) {
@@ -592,7 +594,6 @@ class _ChatPageState extends State<ChatPage> {
           topRight: Radius.circular(10),
           topLeft: Radius.circular(10),
         ),
-        // borderRadius: BorderRadius.circular(25.0),
       ),
       builder: (context) {
         return Wrap(
@@ -600,11 +601,11 @@ class _ChatPageState extends State<ChatPage> {
             ListTile(
               leading: Icon(
                 Icons.image,
-                color: Global().purple,
+                color: Global().mainColor,
               ),
               title: Text(
                 'Gallery',
-                style: TextStyle(color: Global().purple),
+                style: TextStyle(color: Global().mainColor),
               ),
               onTap: () {
                 Navigator.of(context).pop();
@@ -614,11 +615,11 @@ class _ChatPageState extends State<ChatPage> {
             ListTile(
               leading: Icon(
                 Icons.camera_alt_outlined,
-                color: Global().purple,
+                color: Global().mainColor,
               ),
               title: Text(
                 'Camera',
-                style: TextStyle(color: Global().purple),
+                style: TextStyle(color: Global().mainColor),
               ),
               onTap: () {
                 Navigator.of(context).pop();
