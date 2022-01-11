@@ -22,6 +22,7 @@ class _MainPageState extends State<MainPage> {
       TextEditingController();
   ScrollController _friendListController = ScrollController();
   List<Map<String, dynamic>> _searchResult = [];
+  List<Map<String, dynamic>> result = [];
   @override
   void initState() {
     _children = [
@@ -92,17 +93,20 @@ class _MainPageState extends State<MainPage> {
                           ),
                         ),
                         onChanged: (value) {
-                          for (var userDetail in friendsList) {
-                            print(userDetail['username']);
-                            if ((userDetail['username'] as String)
-                                .toLowerCase()
-                                .contains(value.toLowerCase())) {
-                              setState(() {
-                                _searchResult.add(userDetail);
-                                _searchResult.unique();
-                              });
-                            }
+                          if (value == "") {
+                            setState(() {
+                              _searchResult.clear();
+                            });
+                          } else {
+                            result = friendsList
+                                .where((user) => (user['username'] as String)
+                                    .toLowerCase()
+                                    .contains(value.toLowerCase()))
+                                .toList();
                           }
+                          setState(() {
+                            _searchResult = result;
+                          });
                         }),
                   ),
                 ),
