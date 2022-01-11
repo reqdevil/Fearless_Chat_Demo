@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
-import 'package:fearless_chat_demo/Utils/TransitionHelpers.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:flutter/material.dart';
@@ -25,11 +24,10 @@ List<IconData> icons = const [
   Icons.folder,
   Icons.gif
 ];
-late List<TakenCameraMedia> mediaFromCamera;
+
 late Map<String, dynamic> _friend;
 List<Map<String, dynamic>> _messages = [];
 late String formattedDate;
-final ImagePicker _picker = ImagePicker();
 final ScrollController _controller = ScrollController();
 FocusNode? _focusNode;
 TextEditingController? _textEditingController;
@@ -38,7 +36,6 @@ late double _textEditorWidth;
 class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
-    mediaFromCamera = [];
     _textEditorWidth = 325.0;
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
@@ -51,12 +48,7 @@ class _ChatPageState extends State<ChatPage> {
     formattedDate = DateFormat('dd.MM.yyyy – kk:mm').format(now);
     _messages =
         messages.where((element) => element['usrId'] == widget.userId).toList();
-    // messages = [
-    //   Message(1, 'userName', 'message', formattedDate, false,
-    //       MessageType.received, true, 3, true),
-    //   Message(1, 'userName', 'message', formattedDate, true,
-    //       MessageType.received, false, 3, true)
-    // ];
+
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       scrollDown();
     });
@@ -271,75 +263,20 @@ class _ChatPageState extends State<ChatPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        _messages[index]['message'],
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText1!
-                                            .apply(
-                                              color: Colors.white,
-                                            ),
-                                      ),
-                                      mediaFromCamera.isNotEmpty &&
-                                              _messages[index]['hasShareMedia']
-                                          ? GridView.builder(
-                                              shrinkWrap: true,
-                                              physics:
-                                                  const NeverScrollableScrollPhysics(),
-                                              padding: const EdgeInsets.only(
-                                                  left: 0,
-                                                  right: 0,
-                                                  top: 0,
-                                                  bottom: 0),
-                                              itemCount: mediaFromCamera.length,
-                                              gridDelegate:
-                                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount:
-                                                    MediaQuery.of(context)
-                                                                .orientation ==
-                                                            Orientation
-                                                                .landscape
-                                                        ? 3
-                                                        : 2,
-                                                crossAxisSpacing: 0,
-                                                mainAxisSpacing: 0,
-                                                childAspectRatio: (1 / 1),
-                                              ),
-                                              itemBuilder: (context, index) {
-                                                return Container(
-                                                  alignment: Alignment.center,
-                                                  margin: const EdgeInsets
-                                                          .symmetric(
-                                                      horizontal: 2,
-                                                      vertical: 2),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5.0),
-                                                    border: Border.all(
-                                                        color: Colors.white,
-                                                        width: 1),
-                                                    image: DecorationImage(
-                                                      image: FileImage(
-                                                        File(mediaFromCamera[
-                                                                index]
-                                                            .filePath),
-                                                      ),
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
-                                                  child: mediaFromCamera[index]
-                                                              .fileType ==
-                                                          FileType.video
-                                                      ? VideoItem(
-                                                          url: mediaFromCamera[
-                                                                  index]
-                                                              .filePath)
-                                                      : Container(),
-                                                );
-                                              },
-                                            )
+                                      _messages[index]['message'] != ""
+                                          ? Text(_messages[index]['message'],
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyText1!
+                                                  .apply(
+                                                    color: Colors.white,
+                                                  ))
+                                          : const SizedBox(),
+                                      _messages[index]['hasShareMedia'] &&
+                                              (_messages[index]['filePaths']
+                                                      as List<String>)
+                                                  .isNotEmpty
+                                          ? getGridMedia(index, context)
                                           : const SizedBox(),
                                       const SizedBox(
                                         height: 5,
@@ -350,7 +287,7 @@ class _ChatPageState extends State<ChatPage> {
                                           _messages[index]['time'],
                                           style: Theme.of(context)
                                               .textTheme
-                                              .bodyText2!
+                                              .bodyText1!
                                               .apply(color: Colors.white),
                                           textAlign: TextAlign.center,
                                         ),
@@ -429,8 +366,8 @@ class _ChatPageState extends State<ChatPage> {
                                   showGeneralDialog(
                                       context: context,
                                       useRootNavigator: true,
-                                      // transitionDuration:
-                                      //     const Duration(milliseconds: 400),
+                                      transitionDuration:
+                                          const Duration(milliseconds: 400),
                                       pageBuilder: (context, animation,
                                           secondaryAnimation) {
                                         return StatefulBuilder(
@@ -441,8 +378,10 @@ class _ChatPageState extends State<ChatPage> {
                                         );
                                       }).then((value) {
                                     setState(() {
-                                      mediaFromCamera =
-                                          value as List<TakenCameraMedia>;
+                                      List<String> lst =
+                                          (value as List<TakenCameraMedia>)
+                                              .map((e) => e.filePath)
+                                              .toList();
                                       _messages.add(
                                         {
                                           'usrId': '2',
@@ -450,7 +389,8 @@ class _ChatPageState extends State<ChatPage> {
                                           'message':
                                               _textEditingController!.text,
                                           'time': formattedDate,
-                                          'hasShareMedia': true
+                                          'hasShareMedia': true,
+                                          'filePaths': lst
                                         },
                                       );
                                       scrollDown();
@@ -577,7 +517,8 @@ class _ChatPageState extends State<ChatPage> {
                                       'status': MessageType.sent,
                                       'message': _textEditingController!.text,
                                       'time': formattedDate,
-                                      'hasShareMedia': true
+                                      'hasShareMedia': false,
+                                      'filePaths': []
                                     },
                                   );
                                   scrollDown();
@@ -597,6 +538,47 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
     );
+  }
+
+  Widget getGridMedia(int index, BuildContext context) {
+    Widget widget = const SizedBox();
+
+    widget = GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
+      itemCount: _messages[index]['filePaths'].length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount:
+            MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 2,
+        crossAxisSpacing: 0,
+        mainAxisSpacing: 0,
+        childAspectRatio: (1 / 1),
+      ),
+      itemBuilder: (context, i) {
+        return Container(
+            alignment: Alignment.center,
+            margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+            decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(color: Colors.white, width: 1),
+                image: DecorationImage(
+                  image: FileImage(
+                    File(_messages[index]['filePaths'][i].toString()),
+                  ),
+                  fit: BoxFit.cover,
+                )),
+            child: _messages[index]['filePaths'][i]
+                        .toString()
+                        .contains('.mov') ||
+                    _messages[index]['filePaths'][i].toString().contains('.mp4')
+                ? VideoItem(url: _messages[index]['filePaths'][i].toString())
+                : const SizedBox());
+      },
+    );
+
+    return widget;
   }
 
   Future showOptions() async {
@@ -645,23 +627,42 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  File? _image;
+  List<File> _imagesFromGallery = [];
   final picker = ImagePicker();
 
 //Image Picker function to get image from gallery
   Future getImageFromGallery() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    var pickedImageList = await picker.pickMultiImage(imageQuality: 100);
 
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
+    if (pickedImageList != null) {
+      for (XFile image in pickedImageList) {
+        setState(() {
+          _imagesFromGallery.add(File(image.path));
+        });
       }
-    });
+
+      List<String> lst = _imagesFromGallery.map((e) => e.path).toList();
+      setState(() {
+        _messages.add(
+          {
+            'usrId': '2',
+            'status': MessageType.sent,
+            'message': "",
+            'time': formattedDate,
+            'hasShareMedia': true,
+            'filePaths': lst
+          },
+        );
+      });
+
+      scrollDown();
+    }
   }
 
+  File? _image;
 //Image Picker function to get image from camera
   Future getImageFromCamera() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    var pickedFile = await picker.pickImage(source: ImageSource.camera);
 
     setState(() {
       if (pickedFile != null) {
