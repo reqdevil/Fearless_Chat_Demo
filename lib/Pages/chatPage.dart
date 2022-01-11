@@ -635,13 +635,7 @@ class _ChatPageState extends State<ChatPage> {
     var pickedImageList = await picker.pickMultiImage(imageQuality: 100);
 
     if (pickedImageList != null) {
-      for (XFile image in pickedImageList) {
-        setState(() {
-          _imagesFromGallery.add(File(image.path));
-        });
-      }
-
-      List<String> lst = _imagesFromGallery.map((e) => e.path).toList();
+      List<String> lst = pickedImageList.map((e) => e.path).toList();
       setState(() {
         _messages.add(
           {
@@ -707,11 +701,13 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void scrollDown() {
-    _controller.animateTo(
-      _controller.position.maxScrollExtent,
-      curve: Curves.linear,
-      duration: const Duration(milliseconds: 450),
-    );
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _controller.animateTo(
+        _controller.position.maxScrollExtent,
+        curve: Curves.linear,
+        duration: const Duration(milliseconds: 450),
+      );
+    });
   }
 
   void _onTextChange() {
