@@ -32,6 +32,7 @@ final ScrollController _controller = ScrollController();
 FocusNode? _focusNode;
 TextEditingController? _textEditingController;
 late double _textEditorWidth;
+DateTime now = DateTime.now();
 
 class _ChatPageState extends State<ChatPage> {
   @override
@@ -44,7 +45,7 @@ class _ChatPageState extends State<ChatPage> {
     _friend = friendsList
         .where((element) => element['usrId'] == widget.userId!)
         .first;
-    DateTime now = DateTime.now();
+
     formattedDate = DateFormat('dd.MM.yyyy – kk:mm').format(now);
     _messages =
         messages.where((element) => element['usrId'] == widget.userId).toList();
@@ -355,7 +356,7 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                                 builder: (context) {
                                   return Container(
-                                    padding: const EdgeInsets.all(25.0),
+                                    padding: const EdgeInsets.all(10.0),
                                     decoration: const BoxDecoration(
                                       borderRadius: BorderRadius.only(
                                         topRight: Radius.circular(10),
@@ -370,11 +371,11 @@ class _ChatPageState extends State<ChatPage> {
                                       ],
                                     ),
                                     child: Column(
-                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.end,
                                       mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                          MainAxisAlignment.center,
                                       children: [
                                         ElevatedButton(
                                             style: ElevatedButton.styleFrom(
@@ -393,7 +394,7 @@ class _ChatPageState extends State<ChatPage> {
                                             },
                                             child: Icon(
                                               Icons.close,
-                                              color: Colors.grey[800],
+                                              color: Global().mainColor,
                                             )),
                                         const SizedBox(
                                           height: 10,
@@ -423,10 +424,56 @@ class _ChatPageState extends State<ChatPage> {
                                                     size: 50,
                                                   ),
                                                   onPressed: () {
+                                                    Navigator.of(context).pop();
                                                     if (i == 0) {
-                                                      Navigator.pop(context);
-                                                      showOptions();
+                                                      getImageFromGallery();
                                                     } else if (i == 1) {
+                                                      showGeneralDialog(
+                                                          context: context,
+                                                          useRootNavigator:
+                                                              true,
+                                                          transitionDuration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      400),
+                                                          pageBuilder: (context,
+                                                              animation,
+                                                              secondaryAnimation) {
+                                                            return StatefulBuilder(
+                                                              builder: (BuildContext
+                                                                      context,
+                                                                  StateSetter
+                                                                      sfsetState) {
+                                                                return const CameraPage();
+                                                              },
+                                                            );
+                                                          }).then((value) {
+                                                        setState(() {
+                                                          List<String> lst =
+                                                              (value as List<
+                                                                      TakenCameraMedia>)
+                                                                  .map((e) => e
+                                                                      .filePath)
+                                                                  .toList();
+                                                          _messages.add(
+                                                            {
+                                                              'usrId': '2',
+                                                              'status':
+                                                                  MessageType
+                                                                      .sent,
+                                                              'message':
+                                                                  _textEditingController!
+                                                                      .text,
+                                                              'time':
+                                                                  formattedDate,
+                                                              'hasShareMedia':
+                                                                  true,
+                                                              'filePaths': lst
+                                                            },
+                                                          );
+                                                          scrollDown();
+                                                        });
+                                                      });
                                                     } else if (i == 2) {}
                                                   },
                                                 ),
@@ -616,7 +663,8 @@ class _ChatPageState extends State<ChatPage> {
                                       'usrId': '2',
                                       'status': MessageType.sent,
                                       'message': _textEditingController!.text,
-                                      'time': formattedDate,
+                                      'time': DateFormat('dd.MM.yyyy – kk:mm')
+                                          .format(now),
                                       'hasShareMedia': false,
                                       'filePaths': []
                                     },
@@ -743,7 +791,7 @@ class _ChatPageState extends State<ChatPage> {
             'usrId': '2',
             'status': MessageType.sent,
             'message': "",
-            'time': formattedDate,
+            'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
             'hasShareMedia': true,
             'filePaths': lst
           },
