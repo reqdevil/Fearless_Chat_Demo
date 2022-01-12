@@ -236,7 +236,7 @@ class _MainPageState extends State<MainPage> {
                                         height: 25,
                                         width: 25,
                                         decoration: BoxDecoration(
-                                          color: Global().mainColor,
+                                          color: Global.mainColor,
                                           shape: BoxShape.circle,
                                         ),
                                         child: Text(
@@ -367,7 +367,7 @@ class _MainPageState extends State<MainPage> {
                                             height: 25,
                                             width: 25,
                                             decoration: BoxDecoration(
-                                              color: Global().mainColor,
+                                              color: Global.mainColor,
                                               shape: BoxShape.circle,
                                             ),
                                             child: Text(
@@ -398,7 +398,7 @@ class _MainPageState extends State<MainPage> {
           ? null
           : FloatingActionButton(
               elevation: 5,
-              backgroundColor: Global().mainColor,
+              backgroundColor: Global.mainColor,
               child: const Icon(Icons.camera),
               onPressed: () async {
                 await navigatePageBottom(
@@ -417,7 +417,7 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.message,
                   color: selectedPageIndex == 0
-                      ? Global().mainColor
+                      ? Global.mainColor
                       : Colors.black45),
               onPressed: () async {
                 setState(() {
@@ -431,7 +431,7 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.view_list,
                   color: selectedPageIndex == 1
-                      ? Global().mainColor
+                      ? Global.mainColor
                       : Colors.black45),
               onPressed: () {
                 setState(() {
@@ -443,7 +443,7 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.call,
                   color: selectedPageIndex == 2
-                      ? Global().mainColor
+                      ? Global.mainColor
                       : Colors.black45),
               onPressed: () {
                 setState(() {
@@ -454,7 +454,7 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.person_outline,
                   color: selectedPageIndex == 3
-                      ? Global().mainColor
+                      ? Global.mainColor
                       : Colors.black45),
               onPressed: () async {
                 setState(() {

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
+import 'package:fearless_chat_demo/Widgets/recordButton.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -34,9 +35,15 @@ TextEditingController? _textEditingController;
 late double _textEditorWidth;
 DateTime now = DateTime.now();
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
   @override
   void initState() {
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
     _textEditorWidth = 308;
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
@@ -69,7 +76,7 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
-          color: Global().mainColor, //change your color here
+          color: Global.mainColor, //change your color here
         ),
         shadowColor: Colors.black,
         backgroundColor: Colors.white,
@@ -100,7 +107,7 @@ class _ChatPageState extends State<ChatPage> {
                     Text(
                       _friend['isOnline'] ? "Online" : "Offline",
                       style: Theme.of(context).textTheme.subtitle1!.apply(
-                            color: Global().mainColor,
+                            color: Global.mainColor,
                           ),
                     )
                   ],
@@ -260,7 +267,7 @@ class _ChatPageState extends State<ChatPage> {
                                               .6),
                                   padding: const EdgeInsets.all(15.0),
                                   decoration: BoxDecoration(
-                                    color: Global().mainColor,
+                                    color: Global.mainColor,
                                     borderRadius: const BorderRadius.only(
                                       topRight: Radius.circular(25),
                                       topLeft: Radius.circular(25),
@@ -313,31 +320,15 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
+            margin: const EdgeInsets.only(left: 12, right: 8),
             height: 71,
             // width: MediaQuery.of(context).size.width,
             child: Stack(
               children: [
                 Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    margin: const EdgeInsets.all(0),
-                    padding: const EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
-                        color: Global().mainColor, shape: BoxShape.circle),
-                    child: InkWell(
-                      child: const Icon(
-                        Icons.keyboard_voice,
-                        color: Colors.white,
-                      ),
-                      onLongPress: () {},
-                    ),
-                  ),
-                ),
-                Align(
                   alignment: Alignment.centerLeft,
                   child: Container(
-                    width: _textEditorWidth,
+                    width: _textEditorWidth + 20,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(35.0),
@@ -353,7 +344,7 @@ class _ChatPageState extends State<ChatPage> {
                         IconButton(
                             icon: Icon(
                               Icons.add,
-                              color: Global().mainColor,
+                              color: Global.mainColor,
                             ),
                             onPressed: () {
                               showModalBottomSheet(
@@ -401,7 +392,7 @@ class _ChatPageState extends State<ChatPage> {
                                             },
                                             child: Icon(
                                               Icons.close,
-                                              color: Global().mainColor,
+                                              color: Global.mainColor,
                                             )),
                                         const SizedBox(
                                           height: 10,
@@ -421,13 +412,13 @@ class _ChatPageState extends State<ChatPage> {
                                                           15.0),
                                                   color: Colors.grey[200],
                                                   border: Border.all(
-                                                      color: Global().mainColor,
+                                                      color: Global.mainColor,
                                                       width: 2),
                                                 ),
                                                 child: IconButton(
                                                   icon: Icon(
                                                     icons[i],
-                                                    color: Global().mainColor,
+                                                    color: Global.mainColor,
                                                     size: 50,
                                                   ),
                                                   onPressed: () {
@@ -507,153 +498,6 @@ class _ChatPageState extends State<ChatPage> {
                                 border: InputBorder.none),
                           ),
                         ),
-                        // Visibility(
-                        //   visible: _textEditingController!.text.isEmpty,
-                        //   child: Row(
-                        //     children: [
-                        //       IconButton(
-                        //         icon: const Icon(Icons.photo_camera),
-                        //         onPressed: () async {
-                        //           showGeneralDialog(
-                        //               context: context,
-                        //               useRootNavigator: true,
-                        //               transitionDuration:
-                        //                   const Duration(milliseconds: 400),
-                        //               pageBuilder: (context, animation,
-                        //                   secondaryAnimation) {
-                        //                 return StatefulBuilder(
-                        //                   builder: (BuildContext context,
-                        //                       StateSetter sfsetState) {
-                        //                     return const CameraPage();
-                        //                   },
-                        //                 );
-                        //               }).then((value) {
-                        //             setState(() {
-                        //               List<String> lst =
-                        //                   (value as List<TakenCameraMedia>)
-                        //                       .map((e) => e.filePath)
-                        //                       .toList();
-                        //               _messages.add(
-                        //                 {
-                        //                   'usrId': '2',
-                        //                   'status': MessageType.sent,
-                        //                   'message':
-                        //                       _textEditingController!.text,
-                        //                   'time': formattedDate,
-                        //                   'hasShareMedia': true,
-                        //                   'filePaths': lst
-                        //                 },
-                        //               );
-                        //               scrollDown();
-                        //             });
-                        //           });
-                        //         },
-                        //       ),
-                        //       IconButton(
-                        //         icon: const Icon(Icons.attach_file),
-                        //         onPressed: () {
-                        //           showModalBottomSheet(
-                        //             context: context,
-                        //             shape: RoundedRectangleBorder(
-                        //               borderRadius: BorderRadius.circular(10.0),
-                        //             ),
-                        //             builder: (context) {
-                        //               return Container(
-                        //                 padding: const EdgeInsets.all(25.0),
-                        //                 decoration: const BoxDecoration(
-                        //                   borderRadius: BorderRadius.only(
-                        //                     topRight: Radius.circular(10),
-                        //                     topLeft: Radius.circular(10),
-                        //                   ),
-                        //                   color: Colors.white,
-                        //                   boxShadow: [
-                        //                     BoxShadow(
-                        //                         offset: Offset(0, 5),
-                        //                         blurRadius: 15.0,
-                        //                         color: Colors.grey)
-                        //                   ],
-                        //                 ),
-                        //                 child: Column(
-                        //                   mainAxisSize: MainAxisSize.max,
-                        //                   crossAxisAlignment:
-                        //                       CrossAxisAlignment.end,
-                        //                   mainAxisAlignment:
-                        //                       MainAxisAlignment.start,
-                        //                   children: [
-                        //                     ElevatedButton(
-                        //                         style: ElevatedButton.styleFrom(
-                        //                           elevation: 0,
-                        //                           minimumSize:
-                        //                               const Size(35, 35),
-                        //                           padding:
-                        //                               const EdgeInsets.all(0),
-                        //                           primary: Colors.grey
-                        //                               .withOpacity(0.3),
-                        //                           shape: RoundedRectangleBorder(
-                        //                             borderRadius:
-                        //                                 BorderRadius.circular(
-                        //                                     25),
-                        //                           ),
-                        //                         ),
-                        //                         onPressed: () {
-                        //                           Navigator.pop(context);
-                        //                         },
-                        //                         child: Icon(
-                        //                           Icons.close,
-                        //                           color: Colors.grey[800],
-                        //                         )),
-                        //                     const SizedBox(
-                        //                       height: 10,
-                        //                     ),
-                        //                     GridView.count(
-                        //                       mainAxisSpacing: 21.0,
-                        //                       crossAxisSpacing: 21.0,
-                        //                       shrinkWrap: true,
-                        //                       crossAxisCount: 3,
-                        //                       children: List.generate(
-                        //                         icons.length,
-                        //                         (i) {
-                        //                           return Container(
-                        //                             decoration: BoxDecoration(
-                        //                               borderRadius:
-                        //                                   BorderRadius.circular(
-                        //                                       15.0),
-                        //                               color: Colors.grey[200],
-                        //                               border: Border.all(
-                        //                                   color: Global()
-                        //                                       .mainColor,
-                        //                                   width: 2),
-                        //                             ),
-                        //                             child: IconButton(
-                        //                               icon: Icon(
-                        //                                 icons[i],
-                        //                                 color:
-                        //                                     Global().mainColor,
-                        //                                 size: 50,
-                        //                               ),
-                        //                               onPressed: () {
-                        //                                 if (i == 0) {
-                        //                                   Navigator.pop(
-                        //                                       context);
-                        //                                   showOptions();
-                        //                                 } else if (i == 1) {
-                        //                                 } else if (i == 2) {}
-                        //                               },
-                        //                             ),
-                        //                           );
-                        //                         },
-                        //                       ),
-                        //                     ),
-                        //                   ],
-                        //                 ),
-                        //               );
-                        //             },
-                        //           );
-                        //         },
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
                         Visibility(
                           visible: _textEditingController!.text.isNotEmpty,
                           child: Transform.rotate(
@@ -661,7 +505,7 @@ class _ChatPageState extends State<ChatPage> {
                             child: IconButton(
                               icon: Icon(
                                 Icons.send_rounded,
-                                color: Global().mainColor,
+                                color: Global.mainColor,
                               ),
                               onPressed: () async {
                                 setState(() {
@@ -684,6 +528,18 @@ class _ChatPageState extends State<ChatPage> {
                           ),
                         )
                       ],
+                    ),
+                  ),
+                ),
+                Visibility(
+                  visible: _textEditingController!.text.isEmpty,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: RecordButton(
+                        controller: controller,
+                      ),
                     ),
                   ),
                 ),
@@ -752,11 +608,11 @@ class _ChatPageState extends State<ChatPage> {
             ListTile(
               leading: Icon(
                 Icons.image,
-                color: Global().mainColor,
+                color: Global.mainColor,
               ),
               title: Text(
                 'Gallery',
-                style: TextStyle(color: Global().mainColor),
+                style: TextStyle(color: Global.mainColor),
               ),
               onTap: () {
                 Navigator.of(context).pop();
@@ -766,11 +622,11 @@ class _ChatPageState extends State<ChatPage> {
             ListTile(
               leading: Icon(
                 Icons.camera_alt_outlined,
-                color: Global().mainColor,
+                color: Global.mainColor,
               ),
               title: Text(
                 'Camera',
-                style: TextStyle(color: Global().mainColor),
+                style: TextStyle(color: Global.mainColor),
               ),
               onTap: () {
                 Navigator.of(context).pop();

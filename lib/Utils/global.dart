@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Global {
-  Color mainColor = Colors.purple[900] as Color;
+  Global._();
+
+  static init() async {
+    documentPath = (await getApplicationDocumentsDirectory()).path + "/";
+  }
+
+  static const double borderRadius = 27;
+  static const double defaultPadding = 8;
+  static String documentPath = '';
+  static GlobalKey<AnimatedListState> audioListKey =
+      GlobalKey<AnimatedListState>();
+ static Color mainColor = Colors.purple[900] as Color;
 }
 
 enum MessageType { sent, received }
@@ -104,7 +116,7 @@ List<Map<String, dynamic>> messages = [
         'Hi mate, I\d like to hire you to create a mobile app for my business',
     'time': '08:43 AM',
     'hasShareMedia': false,
-    'filePaths':[]
+    'filePaths': []
   },
   {
     'usrId': '2',
