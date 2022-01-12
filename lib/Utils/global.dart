@@ -8,12 +8,16 @@ class Global {
     documentPath = (await getApplicationDocumentsDirectory()).path + "/";
   }
 
+  static List<Map<String, dynamic>> getMessages() {
+    return messages;
+  }
+
   static const double borderRadius = 27;
   static const double defaultPadding = 8;
   static String documentPath = '';
   static GlobalKey<AnimatedListState> audioListKey =
       GlobalKey<AnimatedListState>();
- static Color mainColor = Colors.purple[900] as Color;
+  static Color mainColor = Colors.purple[900] as Color;
 }
 
 enum MessageType { sent, received }

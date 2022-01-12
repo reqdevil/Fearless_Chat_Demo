@@ -6,15 +6,13 @@ import 'package:fearless_chat_demo/Widgets/flowShader.dart';
 import 'package:fearless_chat_demo/Widgets/lottieAnimation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:intl/intl.dart';
 import 'package:record/record.dart';
 
 class RecordButton extends StatefulWidget {
-  const RecordButton(
-      {Key? key,  required this.controller})
-      : super(key: key);
+  const RecordButton({Key? key, required this.controller}) : super(key: key);
 
   final AnimationController controller;
- 
 
   @override
   State<RecordButton> createState() => _RecordButtonState();
@@ -294,6 +292,19 @@ class _RecordButtonState extends State<RecordButton> {
 
           var filePath = await Record().stop();
           AudioState.files.add(filePath!);
+          List<Map<String, dynamic>> lstMessages = Global.getMessages();
+          DateTime now = DateTime.now();
+          lstMessages.add(
+            {
+              'usrId': '2',
+              'status': MessageType.sent,
+              'message': "",
+              'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
+              'hasShareMedia': true,
+              'filePaths': [filePath]
+            },
+          );
+
           Global.audioListKey.currentState!
               .insertItem(AudioState.files.length - 1);
           debugPrint(filePath);

@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
+import 'package:fearless_chat_demo/Utils/audioList.dart';
+import 'package:fearless_chat_demo/Utils/audioState.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
+import 'package:fearless_chat_demo/Widgets/audioBubble.dart';
 import 'package:fearless_chat_demo/Widgets/recordButton.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:flutter/material.dart';
@@ -260,6 +263,12 @@ class _ChatPageState extends State<ChatPage>
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+                                
+                                // const AudioList(),
+                                // if (isVoice(index))
+                                //   AudioBubble(filepath: AudioState.files.last)
+                                // else
+                                //   const SizedBox(),
                                 Container(
                                   constraints: BoxConstraints(
                                       maxWidth:
@@ -550,6 +559,33 @@ class _ChatPageState extends State<ChatPage>
         ],
       ),
     );
+  }
+
+  bool isNotVoice(int index) {
+    var messages = Global.getMessages();
+    var count = (messages[index]['filePaths'] as List<String>)
+        .map((e) => e.contains('m4a'))
+        .toList()
+        .length;
+    return messages[index]['hasShareMedia'] &&
+        (messages[index]['filePaths'] as List<String>).isNotEmpty &&
+        count == 0;
+  }
+
+  bool isVoice(int index) {
+    var messages = Global.getMessages();
+    bool existed = false;
+    if ((messages[index]['filePaths'] as List<String>).isNotEmpty) {
+      (messages[index]['filePaths'] as List<String>).forEach((item) {
+        if (item.contains('.m4a')) {
+          existed = true;
+          print(item);
+        }
+      });
+    }
+
+    bool result = messages[index]['hasShareMedia'] && existed == true;
+    return result;
   }
 
   Widget getGridMedia(int index, BuildContext context) {
