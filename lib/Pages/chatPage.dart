@@ -36,7 +36,7 @@ late double _textEditorWidth;
 class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
-    _textEditorWidth = 325.0;
+    _textEditorWidth = 308;
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
     _textEditingController!.addListener(_onTextChange);
@@ -305,7 +305,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 15),
+            margin: const EdgeInsets.symmetric(horizontal: 20),
             height: 71,
             // width: MediaQuery.of(context).size.width,
             child: Stack(
@@ -329,7 +329,7 @@ class _ChatPageState extends State<ChatPage> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Container(
-                    width: _textEditorWidth - 35,
+                    width: _textEditorWidth,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(35.0),
@@ -509,7 +509,10 @@ class _ChatPageState extends State<ChatPage> {
                           child: Transform.rotate(
                             angle: -math.pi / 4,
                             child: IconButton(
-                              icon: const Icon(Icons.send_rounded),
+                              icon: Icon(
+                                Icons.send_rounded,
+                                color: Global().mainColor,
+                              ),
                               onPressed: () async {
                                 setState(() {
                                   _messages.add(
@@ -523,6 +526,7 @@ class _ChatPageState extends State<ChatPage> {
                                     },
                                   );
                                   scrollDown();
+                                  _textEditingController!.clear();
                                 });
                               },
                             ),
@@ -702,11 +706,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void scrollDown() {
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 250), () {
       _controller.animateTo(
         _controller.position.maxScrollExtent,
         curve: Curves.linear,
-        duration: const Duration(milliseconds: 450),
+        duration: const Duration(milliseconds: 250),
       );
     });
   }
@@ -714,11 +718,12 @@ class _ChatPageState extends State<ChatPage> {
   void _onTextChange() {
     if (_textEditingController!.text.isNotEmpty) {
       setState(() {
-        _textEditorWidth = 450;
+        _textEditorWidth = MediaQuery.of(context).size.width;
       });
     } else if (_textEditingController!.text.isEmpty) {
       setState(() {
-        _textEditorWidth = 325.0;
+        _textEditorWidth = MediaQuery.of(context).size.width -
+            MediaQuery.of(context).size.width / 4;
       });
     }
   }
