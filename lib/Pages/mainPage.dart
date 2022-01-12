@@ -141,6 +141,10 @@ class _MainPageState extends State<MainPage> {
                           onLongPress: () {},
                           // onTap: () => Navigator.of(context).pushNamed('chat'),
                           onTap: () async {
+                            setState(() {
+                              _isVisibleSearch = false;
+                            });
+
                             await navigatePageBottom(
                                 context: context,
                                 page: ChatPage(userId: friendsList[i]['usrId']),
@@ -541,5 +545,3 @@ class _PlaceholderWidgetState extends State<PlaceholderWidget> {
     );
   }
 }
-
-

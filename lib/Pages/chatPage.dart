@@ -78,26 +78,33 @@ class _ChatPageState extends State<ChatPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            CircleAvatar(
-              radius: 20.0,
-              backgroundImage: NetworkImage(_friend['imgUrl']),
-              backgroundColor: Colors.transparent,
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  _friend['username'],
-                  style: Theme.of(context).textTheme.subtitle1,
-                  overflow: TextOverflow.clip,
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 0.0, right: 5),
+                  child: CircleAvatar(
+                    radius: 20.0,
+                    backgroundImage: NetworkImage(_friend['imgUrl']),
+                    backgroundColor: Colors.transparent,
+                  ),
                 ),
-                Text(
-                  _friend['isOnline'] ? "Online" : "Offline",
-                  style: Theme.of(context).textTheme.subtitle1!.apply(
-                        color: Global().mainColor,
-                      ),
-                )
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      _friend['username'],
+                      style: Theme.of(context).textTheme.subtitle1,
+                      overflow: TextOverflow.clip,
+                    ),
+                    Text(
+                      _friend['isOnline'] ? "Online" : "Offline",
+                      style: Theme.of(context).textTheme.subtitle1!.apply(
+                            color: Global().mainColor,
+                          ),
+                    )
+                  ],
+                ),
               ],
             ),
             Align(

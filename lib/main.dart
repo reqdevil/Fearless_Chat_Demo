@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'Pages/mainPage.dart';
 
 void main() async {
@@ -20,7 +21,9 @@ class FearlessChatApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MainPage(),
+      home: const AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle(statusBarColor: Colors.white),
+          child: MainPage()),
     );
   }
 }
