@@ -809,12 +809,12 @@ class _ChatPageState extends State<ChatPage>
     if (_textEditingController!.text.isNotEmpty) {
       setState(() {
         _textEditorWidth = MediaQuery.of(context).size.width - 20;
-        double leftPadding = 0.0;
+        leftPadding = 0.0;
       });
     } else if (_textEditingController!.text.isEmpty) {
       setState(() {
         _textEditorWidth = 308;
-        double leftPadding = 0.0;
+        leftPadding = 0.0;
         // _textEditorWidth = MediaQuery.of(context).size.width -
         //     MediaQuery.of(context).size.width / 4;
       });
