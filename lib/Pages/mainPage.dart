@@ -3,7 +3,9 @@ import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Pages/chatPage.dart';
 import 'package:fearless_chat_demo/Utils/TransitionHelpers.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -25,6 +27,7 @@ class _MainPageState extends State<MainPage> {
   List<Map<String, dynamic>> result = [];
   @override
   void initState() {
+    requestPermissions();
     _children = [
       null,
       const PlaceholderWidget(color: Colors.green),
@@ -509,6 +512,24 @@ class _MainPageState extends State<MainPage> {
       //   ),
       // ),
     );
+  }
+
+  requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.storage,
+      Permission.camera,
+      Permission.microphone,
+      Permission.mediaLibrary,
+      Permission.speech,
+      // Permission.manageExternalStorage,
+      Permission.photos
+    ].request();
+
+    final info = statuses[Permission.storage].toString();
+    if (kDebugMode) {
+      print(info);
+    }
+    // toastInfo(info);
   }
 
   void changePage(int value) {

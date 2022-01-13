@@ -550,7 +550,15 @@ class _ChatPageState extends State<ChatPage>
                     child: RecordButton(
                       endOfRecord: (messages) {
                         setState(() {
-                          _messages = messages;
+                          _messages = Global.getMessages()
+                              .where((element) =>
+                                  element['usrId'] == widget.userId)
+                              .toList();
+
+                          // _messages = messages
+                          //     .where((element) =>
+                          //         element['usrId'] == widget.userId)
+                          //     .toList();
                         });
                         scrollDown();
                       },
@@ -569,11 +577,11 @@ class _ChatPageState extends State<ChatPage>
 
   Widget getVoiceMedia(int index, BuildContext context) {
     Widget widget = const SizedBox();
-    var messages = Global.getMessages();
-    if (index > messages.length) {
+    // var messages = Global.getMessages();
+    if (index > _messages.length) {
       return widget;
     }
-    var t = List<String>.from(messages[index]['filePaths']);
+    var t = List<String>.from(_messages[index]['filePaths']);
     if (t.isNotEmpty) {
       (t.forEach((item) {
         if (item.contains('.m4a')) {
@@ -591,36 +599,14 @@ class _ChatPageState extends State<ChatPage>
     return widget;
   }
 
-  // String? voice(int index) {
-  //   String? voicePath = null;
-
-  //   var messages = Global.getMessages();
-  //   if (index > messages.length - 1) {
-  //     return null;
-  //   }
-  //   // bool existed = false;
-  //   var t = List<String>.from(messages[index]['filePaths']);
-  //   if (t.isNotEmpty) {
-  //     (t.forEach((item) {
-  //       if (item.contains('.m4a')) {
-  //         // existed = true;
-  //         voicePath = item;
-  //       }
-  //     }));
-  //   }
-
-  //   // bool result = messages[index]['hasShareMedia'] && existed == true;
-  //   return voicePath;
-  // }
-
   Widget getGridMedia(int index, BuildContext context) {
     List<String> mediaPathList = [];
     Widget widget = const SizedBox();
-    var messages = Global.getMessages();
-    if (index > messages.length) {
+    // var messages = Global.getMessages();
+    if (index > _messages.length) {
       return widget;
     }
-    var t = List<String>.from(messages[index]['filePaths']);
+    var t = List<String>.from(_messages[index]['filePaths']);
     if (t.isNotEmpty) {
       (t.forEach((item) {
         if (item.contains('.mp4') ||

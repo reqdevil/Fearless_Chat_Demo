@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
-import 'package:fearless_chat_demo/Pages/chatPage.dart';
-import 'package:fearless_chat_demo/Utils/TransitionHelpers.dart';
 import 'package:fearless_chat_demo/Utils/fixExifRotation.dart';
 import 'package:fearless_chat_demo/Widgets/circularprogressindicator.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
@@ -103,7 +101,7 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void initState() {
-    requestPermission();
+    // requestPermission();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {});
     _animationElementsController = AnimationController(
       vsync: this,
