@@ -43,7 +43,7 @@ class _RecordButtonState extends State<RecordButton> {
 
   bool isLocked = false;
   bool showLottie = false;
-
+  bool isVisibleSlide = false;
   @override
   void initState() {
     super.initState();
@@ -95,8 +95,8 @@ class _RecordButtonState extends State<RecordButton> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        lockSlider(),
-        cancelSlider(),
+        Visibility(visible: isVisibleSlide, child: lockSlider()),
+        Visibility(visible: isVisibleSlide, child: cancelSlider()),
         audioButton(),
         if (isLocked) timerLocked(),
       ],
@@ -193,8 +193,8 @@ class _RecordButtonState extends State<RecordButton> {
       right: 0,
       child: Container(
         height: size,
-        // width: timerWidth,
-        width: MediaQuery.of(context).size.width - 15,
+        width: timerWidth,
+        // width: MediaQuery.of(context).size.width - 15,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Global.borderRadius),
           color: Global.mainColor,
@@ -281,6 +281,9 @@ class _RecordButtonState extends State<RecordButton> {
         ),
       ),
       onLongPressDown: (_) {
+        setState(() {
+          isVisibleSlide = true;
+        });
         widget.hasRecord(true);
         debugPrint("onLongPressDown");
         widget.controller.forward();
@@ -352,6 +355,9 @@ class _RecordButtonState extends State<RecordButton> {
       onLongPressCancel: () {
         debugPrint("onLongPressCancel");
         widget.controller.reverse();
+        setState(() {
+          isVisibleSlide = false;
+        });
       },
       onLongPress: () async {
         debugPrint("onLongPress");

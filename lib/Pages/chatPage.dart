@@ -178,410 +178,425 @@ class _ChatPageState extends State<ChatPage>
           ],
         ),
       ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
-        },
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                controller: _controller,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.all(15),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    child: _messages[index]['status'] == MessageType.received
-                        ? Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 20.0,
-                                backgroundImage: NetworkImage(
-                                    _messages[index]['contactImgUrl']),
-                                backgroundColor: Colors.transparent,
-                              ),
-                              const SizedBox(
-                                width: 15,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _messages[index]['contactName'],
-                                    //  messages[index].userName,
-                                    style: Theme.of(context).textTheme.caption,
-                                  ),
-                                  Container(
-                                    constraints: BoxConstraints(
-                                        maxWidth:
-                                            MediaQuery.of(context).size.width *
-                                                .6),
-                                    padding: const EdgeInsets.all(15.0),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                      borderRadius: const BorderRadius.only(
-                                        topRight: Radius.circular(25),
-                                        bottomLeft: Radius.circular(25),
-                                        bottomRight: Radius.circular(25),
-                                      ),
+      body: SafeArea(
+        bottom: true,
+        minimum: const EdgeInsets.only(bottom: 8),
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+          },
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  controller: _controller,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(15),
+                  itemCount: _messages.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      child: _messages[index]['status'] == MessageType.received
+                          ? Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 20.0,
+                                  backgroundImage: NetworkImage(
+                                      _messages[index]['contactImgUrl']),
+                                  backgroundColor: Colors.transparent,
+                                ),
+                                const SizedBox(
+                                  width: 15,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _messages[index]['contactName'],
+                                      //  messages[index].userName,
+                                      style:
+                                          Theme.of(context).textTheme.caption,
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _messages[index]['message'],
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyText1!
-                                              .apply(
-                                                color: Colors.black87,
-                                              ),
+                                    Container(
+                                      constraints: BoxConstraints(
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              .6),
+                                      padding: const EdgeInsets.all(15.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: const BorderRadius.only(
+                                          topRight: Radius.circular(25),
+                                          bottomLeft: Radius.circular(25),
+                                          bottomRight: Radius.circular(25),
                                         ),
-                                        const SizedBox(height: 5),
-                                        Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: Text(
-                                            _messages[index]['time'],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            _messages[index]['message'],
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .bodyText2!
-                                                .apply(color: Colors.grey),
+                                                .bodyText1!
+                                                .apply(
+                                                  color: Colors.black87,
+                                                ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 15),
-                                ],
-                              ),
-                            ],
-                          )
-                        : Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    constraints: BoxConstraints(
-                                        maxWidth:
-                                            MediaQuery.of(context).size.width *
-                                                .6),
-                                    padding: const EdgeInsets.all(15.0),
-                                    decoration: BoxDecoration(
-                                      color: Global.mainColor,
-                                      borderRadius: const BorderRadius.only(
-                                        topRight: Radius.circular(25),
-                                        topLeft: Radius.circular(25),
-                                        bottomLeft: Radius.circular(25),
+                                          const SizedBox(height: 5),
+                                          Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: Text(
+                                              _messages[index]['time'],
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyText2!
+                                                  .apply(color: Colors.grey),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        _messages[index]['message'] != ""
-                                            ? Text(_messages[index]['message'],
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyText1!
-                                                    .apply(
-                                                      color: Colors.white,
-                                                    ))
-                                            : const SizedBox(),
-                                        getVoiceMedia(index, context),
-                                        getGridMedia(index, context),
-                                        // : const SizedBox(),
-                                        const SizedBox(
-                                          height: 5,
+                                    const SizedBox(height: 15),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      constraints: BoxConstraints(
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              .6),
+                                      padding: const EdgeInsets.all(15.0),
+                                      decoration: BoxDecoration(
+                                        color: Global.mainColor,
+                                        borderRadius: const BorderRadius.only(
+                                          topRight: Radius.circular(25),
+                                          topLeft: Radius.circular(25),
+                                          bottomLeft: Radius.circular(25),
                                         ),
-                                        Row(
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _messages[index]['message'] != ""
+                                              ? Text(
+                                                  _messages[index]['message'],
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyText1!
+                                                      .apply(
+                                                        color: Colors.white,
+                                                      ))
+                                              : const SizedBox(),
+                                          getVoiceMedia(index, context),
+                                          getGridMedia(index, context),
+                                          // : const SizedBox(),
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              if (_messages[index]['message']
+                                                      .toString()
+                                                      .contains('.pdf') ||
+                                                  _messages[index]['message']
+                                                      .toString()
+                                                      .contains('.doc') ||
+                                                  _messages[index]['message']
+                                                      .toString()
+                                                      .contains('.ppt') ||
+                                                  _messages[index]['message']
+                                                      .toString()
+                                                      .contains('.pptx') ||
+                                                  _messages[index]['message']
+                                                      .toString()
+                                                      .contains('.txt') ||
+                                                  _messages[index]['message']
+                                                      .toString()
+                                                      .contains('.xls') ||
+                                                  _messages[index]['message']
+                                                      .toString()
+                                                      .contains('.xlsx'))
+                                                Align(
+                                                  alignment:
+                                                      Alignment.bottomLeft,
+                                                  child: Icon(
+                                                    Icons.file_present_outlined,
+                                                    color: Colors.white,
+                                                  ),
+                                                )
+                                              else
+                                                SizedBox(),
+                                              Align(
+                                                alignment:
+                                                    Alignment.bottomRight,
+                                                child: Text(
+                                                  _messages[index]['time'],
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyText1!
+                                                      .apply(
+                                                          color: Colors.white),
+                                                  textAlign: TextAlign.right,
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 15),
+                                  ],
+                                ),
+                              ],
+                            ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 8, bottom: 0, right: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        width: getWidthChatBox(context),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                              BorderRadius.circular(Global.borderRadius),
+                          boxShadow: const [
+                            BoxShadow(
+                                offset: Offset(0, 3),
+                                blurRadius: 5,
+                                color: Colors.grey)
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(
+                                icon: Icon(
+                                  Icons.add,
+                                  color: Global.mainColor,
+                                ),
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          Global.borderRadius),
+                                    ),
+                                    builder: (context) {
+                                      return Container(
+                                        padding: const EdgeInsets.all(
+                                            Global.borderRadius),
+                                        decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(
+                                                Global.borderRadius),
+                                            topLeft: Radius.circular(
+                                                Global.borderRadius),
+                                          ),
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                                offset: Offset(0, 5),
+                                                blurRadius: 15.0,
+                                                color: Colors.grey)
+                                          ],
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.end,
                                           mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                              MainAxisAlignment.start,
                                           children: [
-                                            if (_messages[index]['message']
-                                                    .toString()
-                                                    .contains('.pdf') ||
-                                                _messages[index]['message']
-                                                    .toString()
-                                                    .contains('.doc') ||
-                                                _messages[index]['message']
-                                                    .toString()
-                                                    .contains('.ppt') ||
-                                                _messages[index]['message']
-                                                    .toString()
-                                                    .contains('.pptx') ||
-                                                _messages[index]['message']
-                                                    .toString()
-                                                    .contains('.txt') ||
-                                                _messages[index]['message']
-                                                    .toString()
-                                                    .contains('.xls') ||
-                                                _messages[index]['message']
-                                                    .toString()
-                                                    .contains('.xlsx'))
-                                              Align(
-                                                alignment: Alignment.bottomLeft,
-                                                child: Icon(
-                                                  Icons.file_present_outlined,
-                                                  color: Colors.white,
+                                            ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  elevation: 0,
+                                                  minimumSize:
+                                                      const Size(35, 35),
+                                                  padding:
+                                                      const EdgeInsets.all(0),
+                                                  primary: Colors.grey
+                                                      .withOpacity(0.3),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            25),
+                                                  ),
                                                 ),
-                                              )
-                                            else
-                                              SizedBox(),
-                                            Align(
-                                              alignment: Alignment.bottomRight,
-                                              child: Text(
-                                                _messages[index]['time'],
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyText1!
-                                                    .apply(color: Colors.white),
-                                                textAlign: TextAlign.right,
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Icon(
+                                                  Icons.close,
+                                                  color: Global.mainColor,
+                                                )),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            GridView.count(
+                                              physics:
+                                                  NeverScrollableScrollPhysics(),
+                                              mainAxisSpacing: 21.0,
+                                              crossAxisSpacing: 21.0,
+                                              shrinkWrap: true,
+                                              crossAxisCount: 3,
+                                              children: List.generate(
+                                                icons.length,
+                                                (i) {
+                                                  return Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15.0),
+                                                      color: Colors.grey[200],
+                                                      border: Border.all(
+                                                          color:
+                                                              Global.mainColor,
+                                                          width: 2),
+                                                    ),
+                                                    child: IconButton(
+                                                      icon: Icon(
+                                                        icons[i],
+                                                        color: Global.mainColor,
+                                                        size: 50,
+                                                      ),
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                        if (i == 0) {
+                                                          getImageFromGallery();
+                                                        } else if (i == 1) {
+                                                          showOptionsShareMedia(
+                                                              context);
+                                                        } else if (i == 2) {
+                                                          getMultipleFile();
+                                                        }
+                                                      },
+                                                    ),
+                                                  );
+                                                },
                                               ),
                                             ),
                                           ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 15),
-                                ],
-                              ),
-                            ],
-                          ),
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                  left: 8, bottom: Global.defaultPadding, right: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      width: getWidthChatBox(context),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                            BorderRadius.circular(Global.borderRadius),
-                        boxShadow: const [
-                          BoxShadow(
-                              offset: Offset(0, 3),
-                              blurRadius: 5,
-                              color: Colors.grey)
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                              icon: Icon(
-                                Icons.add,
-                                color: Global.mainColor,
-                              ),
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        Global.borderRadius),
-                                  ),
-                                  builder: (context) {
-                                    return Container(
-                                      padding: const EdgeInsets.all(
-                                          Global.borderRadius),
-                                      decoration: const BoxDecoration(
-                                        borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(
-                                              Global.borderRadius),
-                                          topLeft: Radius.circular(
-                                              Global.borderRadius),
                                         ),
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                              offset: Offset(0, 5),
-                                              blurRadius: 15.0,
-                                              color: Colors.grey)
-                                        ],
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                elevation: 0,
-                                                minimumSize: const Size(35, 35),
-                                                padding:
-                                                    const EdgeInsets.all(0),
-                                                primary: Colors.grey
-                                                    .withOpacity(0.3),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(25),
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: Icon(
-                                                Icons.close,
-                                                color: Global.mainColor,
-                                              )),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          GridView.count(
-                                            physics:
-                                                NeverScrollableScrollPhysics(),
-                                            mainAxisSpacing: 21.0,
-                                            crossAxisSpacing: 21.0,
-                                            shrinkWrap: true,
-                                            crossAxisCount: 3,
-                                            children: List.generate(
-                                              icons.length,
-                                              (i) {
-                                                return Container(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15.0),
-                                                    color: Colors.grey[200],
-                                                    border: Border.all(
-                                                        color: Global.mainColor,
-                                                        width: 2),
-                                                  ),
-                                                  child: IconButton(
-                                                    icon: Icon(
-                                                      icons[i],
-                                                      color: Global.mainColor,
-                                                      size: 50,
-                                                    ),
-                                                    onPressed: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      if (i == 0) {
-                                                        getImageFromGallery();
-                                                      } else if (i == 1) {
-                                                        showOptionsShareMedia(
-                                                            context);
-                                                      } else if (i == 2) {
-                                                        getMultipleFile();
-                                                      }
-                                                    },
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              }),
-                          Visibility(
-                            visible: isVisibleChatBox,
-                            child: Expanded(
-                              child: TextField(
-                                autofocus: false,
-                                controller: _textEditingController,
-                                focusNode: _focusNode,
-                                maxLines: null,
-                                keyboardType: TextInputType.multiline,
-                                onSubmitted: (value) {},
-                                decoration: const InputDecoration(
-                                    hintText: "Type Something...",
-                                    border: InputBorder.none),
-                              ),
-                            ),
-                          ),
-                          Visibility(
-                            visible: _textEditingController!.text.isNotEmpty,
-                            child: Transform.rotate(
-                              angle: -math.pi / 4,
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.send_rounded,
-                                  color: Global.mainColor,
+                                      );
+                                    },
+                                  );
+                                }),
+                            Visibility(
+                              visible: isVisibleChatBox,
+                              child: Expanded(
+                                child: TextField(
+                                  autofocus: false,
+                                  controller: _textEditingController,
+                                  focusNode: _focusNode,
+                                  maxLines: null,
+                                  keyboardType: TextInputType.multiline,
+                                  onSubmitted: (value) {},
+                                  decoration: const InputDecoration(
+                                      hintText: "Type Something...",
+                                      border: InputBorder.none),
                                 ),
-                                onPressed: () async {
-                                  setState(() {
-                                    Global.messages.add(
-                                      {
-                                        'usrId': widget.userId,
-                                        'status': MessageType.sent,
-                                        'message': _textEditingController!.text,
-                                        'time': DateFormat('dd.MM.yyyy – kk:mm')
-                                            .format(DateTime.now()),
-                                        'hasShareMedia': false,
-                                        'filePaths': []
-                                      },
-                                    );
-                                    _messages = Global.getMessages()
-                                        .where((element) =>
-                                            element['usrId'] == widget.userId)
-                                        .toList();
-                                    scrollDown();
-                                    _textEditingController!.clear();
-                                  });
-                                },
                               ),
                             ),
-                          )
-                        ],
+                            Visibility(
+                              visible: _textEditingController!.text.isNotEmpty,
+                              child: Transform.rotate(
+                                angle: -math.pi / 4,
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.send_rounded,
+                                    color: Global.mainColor,
+                                  ),
+                                  onPressed: () async {
+                                    setState(() {
+                                      Global.messages.add(
+                                        {
+                                          'usrId': widget.userId,
+                                          'status': MessageType.sent,
+                                          'message':
+                                              _textEditingController!.text,
+                                          'time':
+                                              DateFormat('dd.MM.yyyy – kk:mm')
+                                                  .format(DateTime.now()),
+                                          'hasShareMedia': false,
+                                          'filePaths': []
+                                        },
+                                      );
+                                      _messages = Global.getMessages()
+                                          .where((element) =>
+                                              element['usrId'] == widget.userId)
+                                          .toList();
+                                      scrollDown();
+                                      _textEditingController!.clear();
+                                    });
+                                  },
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  // const SizedBox(width: 2),
-                  Visibility(
-                    visible: _textEditingController!.text.isEmpty,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: RecordButton(
-                        hasRecord: (value) {
-                          setState(() {
-                            if (value) {
-                              isVisibleChatBox = false;
-                            } else {
-                              isVisibleChatBox = true;
-                            }
-                          });
-                        },
-                        endOfRecord: (messages) {
-                          setState(() {
-                            _messages = Global.getMessages()
-                                .where((element) =>
-                                    element['usrId'] == widget.userId)
-                                .toList();
-                          });
-                          scrollDown();
-                        },
-                        controller: controller,
+                    // const SizedBox(width: 2),
+                    Visibility(
+                      visible: _textEditingController!.text.isEmpty,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: RecordButton(
+                          hasRecord: (value) {
+                            setState(() {
+                              if (value) {
+                                isVisibleChatBox = false;
+                              } else {
+                                isVisibleChatBox = true;
+                              }
+                            });
+                          },
+                          endOfRecord: (messages) {
+                            setState(() {
+                              _messages = Global.getMessages()
+                                  .where((element) =>
+                                      element['usrId'] == widget.userId)
+                                  .toList();
+                            });
+                            scrollDown();
+                          },
+                          controller: controller,
+                        ),
                       ),
                     ),
-                  ),
-                  // const SizedBox(width: 1),
-                  // const SizedBox(width: 15),
-                ],
+                    // const SizedBox(width: 1),
+                    // const SizedBox(width: 15),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
