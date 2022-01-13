@@ -225,6 +225,7 @@ class _RecordButtonState extends State<RecordButton> {
                 },
               );
               widget.endOfRecord(lstMessages);
+              widget.hasRecord(false);
               // Global.audioListKey.currentState!
               //     .insertItem(AudioState.files.length - 1);
               debugPrint(filePath);
@@ -345,6 +346,7 @@ class _RecordButtonState extends State<RecordButton> {
             },
           );
           widget.endOfRecord(lstMessages);
+          widget.hasRecord(false);
         }
       },
       onLongPressCancel: () {
@@ -380,10 +382,21 @@ class _RecordButtonState extends State<RecordButton> {
   }
 
   bool checkIsLocked(Offset offset) {
-    return (offset.dy < -35);
+    bool isLocked = (offset.dy < -35);
+    if (isLocked) {
+      widget.hasRecord(true);
+    } else {
+      widget.hasRecord(false);
+    }
+    return isLocked;
   }
 
   bool isCancelled(Offset offset, BuildContext context) {
-    return (offset.dx < -(MediaQuery.of(context).size.width) * 0.2);
+    bool isCancelled = (offset.dx < -(MediaQuery.of(context).size.width) * 0.2);
+    if (isCancelled) {
+    } else {
+      widget.hasRecord(true);
+    }
+    return isCancelled;
   }
 }
