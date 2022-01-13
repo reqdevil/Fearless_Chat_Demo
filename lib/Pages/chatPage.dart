@@ -286,10 +286,8 @@ class _ChatPageState extends State<ChatPage>
                                                     color: Colors.white,
                                                   ))
                                           : const SizedBox(),
-                                      getVoiceMedia(
-                                          index, context),
-                                      getGridMedia(
-                                          index, context),
+                                      getVoiceMedia(index, context),
+                                      getGridMedia(index, context),
                                       // : const SizedBox(),
                                       const SizedBox(
                                         height: 5,
@@ -318,7 +316,7 @@ class _ChatPageState extends State<ChatPage>
             ),
           ),
           Container(
-            padding: EdgeInsets.all(Global.defaultPadding),
+            padding: EdgeInsets.only(left: 12, right: 8),
             // margin: const EdgeInsets.only(left: 10, right: 5),
             height: 71,
             // width: MediaQuery.of(context).size.width,
@@ -472,8 +470,7 @@ class _ChatPageState extends State<ChatPage>
                                                           },
                                                         );
                                                         _messages = Global
-                                                                .getMessages(
-                                                                   )
+                                                                .getMessages()
                                                             .where((element) =>
                                                                 element[
                                                                     'usrId'] ==

@@ -4,7 +4,6 @@ import 'package:just_audio/just_audio.dart';
 
 class AudioBubble extends StatefulWidget {
   const AudioBubble({Key? key, required this.filepath}) : super(key: key);
-
   final String filepath;
 
   @override
