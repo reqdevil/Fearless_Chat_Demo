@@ -200,7 +200,8 @@ class _RecordButtonState extends State<RecordButton> {
 
               var filePath = await Record().stop();
               AudioState.files.add(filePath!);
-              List<Map<String, dynamic>> lstMessages = Global.getMessages();
+              List<Map<String, dynamic>> lstMessages =
+                  Global.getMessages();
               DateTime now = DateTime.now();
               lstMessages.add(
                 {
@@ -318,7 +319,8 @@ class _RecordButtonState extends State<RecordButton> {
           // Global.audioListKey.currentState!
           //     .insertItem(AudioState.files.length - 1);
           debugPrint(filePath);
-          List<Map<String, dynamic>> lstMessages = Global.getMessages();
+          List<Map<String, dynamic>> lstMessages =
+              Global.getMessages();
           DateTime now = DateTime.now();
           lstMessages.add(
             {

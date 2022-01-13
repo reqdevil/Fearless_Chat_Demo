@@ -12,20 +12,15 @@ import 'dart:math' as math;
 
 class ChatPage extends StatefulWidget {
   List<TakenCameraMedia>? listShareMedia;
-  String? userId;
-  ChatPage({Key? key, this.listShareMedia, this.userId}) : super(key: key);
+  final String userId;
+  ChatPage({Key? key, this.listShareMedia, required this.userId})
+      : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
 }
 
-List<IconData> icons = const [
-  Icons.image,
-  Icons.camera,
-  Icons.upload,
-  Icons.folder,
-  Icons.gif
-];
+List<IconData> icons = [];
 
 late Map<String, dynamic> _friend;
 List<Map<String, dynamic>> _messages = [];
@@ -40,6 +35,13 @@ class _ChatPageState extends State<ChatPage>
   late AnimationController controller;
   @override
   void initState() {
+    icons = const [
+      Icons.image,
+      Icons.camera,
+      // Icons.upload,
+      Icons.file_present,
+      Icons.gif
+    ];
     controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -48,14 +50,11 @@ class _ChatPageState extends State<ChatPage>
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
     _textEditingController!.addListener(_onTextChange);
-
-    _friend = friendsList
-        .where((element) => element['usrId'] == widget.userId!)
-        .first;
-
     _messages = Global.getMessages()
         .where((element) => element['usrId'] == widget.userId)
         .toList();
+    _friend =
+        friendsList.where((element) => element['usrId'] == widget.userId).first;
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       scrollDown();
@@ -287,8 +286,10 @@ class _ChatPageState extends State<ChatPage>
                                                     color: Colors.white,
                                                   ))
                                           : const SizedBox(),
-                                      getVoiceMedia(index, context),
-                                      getGridMedia(index, context),
+                                      getVoiceMedia(
+                                          index, context),
+                                      getGridMedia(
+                                          index, context),
                                       // : const SizedBox(),
                                       const SizedBox(
                                         height: 5,
@@ -471,7 +472,8 @@ class _ChatPageState extends State<ChatPage>
                                                           },
                                                         );
                                                         _messages = Global
-                                                                .getMessages()
+                                                                .getMessages(
+                                                                   )
                                                             .where((element) =>
                                                                 element[
                                                                     'usrId'] ==
@@ -586,27 +588,27 @@ class _ChatPageState extends State<ChatPage>
     return widget;
   }
 
-  String? voice(int index) {
-    String? voicePath = null;
+  // String? voice(int index) {
+  //   String? voicePath = null;
 
-    var messages = Global.getMessages();
-    if (index > messages.length - 1) {
-      return null;
-    }
-    // bool existed = false;
-    var t = List<String>.from(messages[index]['filePaths']);
-    if (t.isNotEmpty) {
-      (t.forEach((item) {
-        if (item.contains('.m4a')) {
-          // existed = true;
-          voicePath = item;
-        }
-      }));
-    }
+  //   var messages = Global.getMessages();
+  //   if (index > messages.length - 1) {
+  //     return null;
+  //   }
+  //   // bool existed = false;
+  //   var t = List<String>.from(messages[index]['filePaths']);
+  //   if (t.isNotEmpty) {
+  //     (t.forEach((item) {
+  //       if (item.contains('.m4a')) {
+  //         // existed = true;
+  //         voicePath = item;
+  //       }
+  //     }));
+  //   }
 
-    // bool result = messages[index]['hasShareMedia'] && existed == true;
-    return voicePath;
-  }
+  //   // bool result = messages[index]['hasShareMedia'] && existed == true;
+  //   return voicePath;
+  // }
 
   Widget getGridMedia(int index, BuildContext context) {
     List<String> mediaPathList = [];
