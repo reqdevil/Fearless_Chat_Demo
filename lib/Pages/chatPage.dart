@@ -841,7 +841,6 @@ class _ChatPageState extends State<ChatPage>
             allowedExtensions: [
               'pdf',
               'doc',
-              ,
               'txt',
               'ppt',
               'pptx',
