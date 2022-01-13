@@ -29,6 +29,7 @@ final ScrollController _controller = ScrollController();
 FocusNode? _focusNode;
 TextEditingController? _textEditingController;
 late double _textEditorWidth;
+bool isVisibleChatBox = true;
 
 class _ChatPageState extends State<ChatPage>
     with SingleTickerProviderStateMixin {
@@ -316,16 +317,17 @@ class _ChatPageState extends State<ChatPage>
             ),
           ),
           Container(
-            padding: EdgeInsets.only(left: 12, right: 8),
-            // margin: const EdgeInsets.only(left: 10, right: 5),
+            padding: EdgeInsets.only(left: 0, right: 0, top: 5),
+            margin: const EdgeInsets.only(left: 0, right: 0),
             height: 71,
-            // width: MediaQuery.of(context).size.width,
+            // width: MediaQuery.of(context).size.width - 40,
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                const SizedBox(width: 1),
                 Container(
-                  width: _textEditorWidth + 20,
+                  width: isVisibleChatBox ? _textEditorWidth : 0,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(Global.borderRadius),
@@ -493,17 +495,20 @@ class _ChatPageState extends State<ChatPage>
                               },
                             );
                           }),
-                      Expanded(
-                        child: TextField(
-                          autofocus: false,
-                          controller: _textEditingController,
-                          focusNode: _focusNode,
-                          maxLines: null,
-                          keyboardType: TextInputType.multiline,
-                          onSubmitted: (value) {},
-                          decoration: const InputDecoration(
-                              hintText: "Type Something...",
-                              border: InputBorder.none),
+                      Visibility(
+                        visible: isVisibleChatBox,
+                        child: Expanded(
+                          child: TextField(
+                            autofocus: false,
+                            controller: _textEditingController,
+                            focusNode: _focusNode,
+                            maxLines: null,
+                            keyboardType: TextInputType.multiline,
+                            onSubmitted: (value) {},
+                            decoration: const InputDecoration(
+                                hintText: "Type Something...",
+                                border: InputBorder.none),
+                          ),
                         ),
                       ),
                       Visibility(
@@ -542,12 +547,21 @@ class _ChatPageState extends State<ChatPage>
                     ],
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 2),
                 Visibility(
                   visible: _textEditingController!.text.isEmpty,
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: RecordButton(
+                      hasRecord: (value) {
+                        setState(() {
+                          if (value) {
+                            isVisibleChatBox = false;
+                          } else {
+                            isVisibleChatBox = true;
+                          }
+                        });
+                      },
                       endOfRecord: (messages) {
                         setState(() {
                           _messages = Global.getMessages()
@@ -566,6 +580,7 @@ class _ChatPageState extends State<ChatPage>
                     ),
                   ),
                 ),
+                // const SizedBox(width: 1),
                 // const SizedBox(width: 15),
               ],
             ),

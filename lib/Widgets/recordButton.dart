@@ -11,8 +11,13 @@ import 'package:record/record.dart';
 
 class RecordButton extends StatefulWidget {
   Function(List<Map<String, dynamic>>) endOfRecord;
+  Function(bool) hasRecord;
   // Function(List<Map<String, dynamic>>) onLongPressEnd;
-  RecordButton({Key? key, required this.controller, required this.endOfRecord})
+  RecordButton(
+      {Key? key,
+      required this.controller,
+      required this.endOfRecord,
+      required this.hasRecord})
       : super(key: key);
 
   final AnimationController controller;
@@ -22,7 +27,7 @@ class RecordButton extends StatefulWidget {
 }
 
 class _RecordButtonState extends State<RecordButton> {
-  static const double size = 55;
+  static const double size = 50;
 
   final double lockerHeight = 200;
   double timerWidth = 0;
@@ -275,12 +280,13 @@ class _RecordButtonState extends State<RecordButton> {
         ),
       ),
       onLongPressDown: (_) {
+        widget.hasRecord(true);
         debugPrint("onLongPressDown");
         widget.controller.forward();
       },
       onLongPressEnd: (details) async {
         debugPrint("onLongPressEnd");
-
+        widget.hasRecord(false);
         if (isCancelled(details.localPosition, context)) {
           Vibrate.feedback(FeedbackType.heavy);
 
