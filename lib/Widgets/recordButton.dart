@@ -10,7 +10,10 @@ import 'package:intl/intl.dart';
 import 'package:record/record.dart';
 
 class RecordButton extends StatefulWidget {
-  const RecordButton({Key? key, required this.controller}) : super(key: key);
+  Function(List<Map<String, dynamic>>) endOfRecord;
+  // Function(List<Map<String, dynamic>>) onLongPressEnd;
+  RecordButton({Key? key, required this.controller, required this.endOfRecord})
+      : super(key: key);
 
   final AnimationController controller;
 
@@ -216,6 +219,7 @@ class _RecordButtonState extends State<RecordButton> {
                   'filePaths': [filePath]
                 },
               );
+              widget.endOfRecord(lstMessages);
               // Global.audioListKey.currentState!
               //     .insertItem(AudioState.files.length - 1);
               debugPrint(filePath);
@@ -334,6 +338,7 @@ class _RecordButtonState extends State<RecordButton> {
               'filePaths': [filePath]
             },
           );
+          widget.endOfRecord(lstMessages);
         }
       },
       onLongPressCancel: () {

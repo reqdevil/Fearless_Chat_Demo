@@ -548,6 +548,12 @@ class _ChatPageState extends State<ChatPage>
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: RecordButton(
+                      endOfRecord: (messages) {
+                        setState(() {
+                          _messages = messages;
+                        });
+                        scrollDown();
+                      },
                       controller: controller,
                     ),
                   ),
