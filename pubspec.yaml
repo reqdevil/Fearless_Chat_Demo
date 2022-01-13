@@ -114,6 +114,8 @@ flutter:
     - assets/ic_shutter_1.png
     - assets/ic_switch_camera_3.png
     - assets/ic_no_image.png
+    - assets/dustbin.json
+    - assets/dustbin_grey.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

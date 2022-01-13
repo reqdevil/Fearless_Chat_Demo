@@ -28,18 +28,19 @@ class _AudioBubbleState extends State<AudioBubble> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          SizedBox(width: MediaQuery.of(context).size.width * 0.4),
+          SizedBox(width: MediaQuery.of(context).size.width * 0.01),
           Expanded(
             child: Container(
               height: 45,
-              padding: const EdgeInsets.only(left: 12, right: 18),
+              padding: const EdgeInsets.only(left: 0, right: 5, top: 1),
+              margin: const EdgeInsets.only(left: 0, right: 0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Global.borderRadius - 10),
-                color: Global.mainColor,
+                borderRadius: BorderRadius.circular(Global.borderRadius - 15),
+                color: Colors.purple[600],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -73,7 +74,10 @@ class _AudioBubbleState extends State<AudioBubble> {
                           } else if (processingState !=
                               ProcessingState.completed) {
                             return GestureDetector(
-                              child: const Icon(Icons.pause),
+                              child: const Icon(
+                                Icons.pause,
+                                color: Colors.white,
+                              ),
                               onTap: player.pause,
                             );
                           } else {
@@ -97,7 +101,7 @@ class _AudioBubbleState extends State<AudioBubble> {
                             if (snapshot.hasData) {
                               return Column(
                                 children: [
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 15),
                                   LinearProgressIndicator(
                                     value: snapshot.data!.inMilliseconds /
                                         (duration?.inMilliseconds ?? 1),
@@ -114,14 +118,14 @@ class _AudioBubbleState extends State<AudioBubble> {
                                                 : snapshot.data!),
                                         style: const TextStyle(
                                           fontSize: 10,
-                                          color: Colors.grey,
+                                          color: Colors.white,
                                         ),
                                       ),
                                       const Text(
                                         "M4A",
                                         style: TextStyle(
                                           fontSize: 10,
-                                          color: Colors.grey,
+                                          color: Colors.white,
                                         ),
                                       ),
                                     ],

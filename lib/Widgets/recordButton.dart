@@ -109,7 +109,11 @@ class _RecordButtonState extends State<RecordButton> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Icon(Icons.lock, size: 20),
+            const Icon(
+              Icons.lock,
+              size: 20,
+              color: Colors.white,
+            ),
             const SizedBox(height: 8),
             FlowShader(
               direction: Axis.vertical,
@@ -132,23 +136,29 @@ class _RecordButtonState extends State<RecordButton> {
       right: -timerAnimation.value,
       child: Container(
         height: size,
-        width: timerWidth,
+        // width: timerWidth,
+        width: MediaQuery.of(context).size.width - 20,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Global.borderRadius),
           color: Global.mainColor,
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             mainAxisSize: MainAxisSize.max,
             children: [
-              showLottie ? const LottieAnimation() : Text(recordDuration),
+              showLottie
+                  ? const LottieAnimation()
+                  : Text(recordDuration, style: TextStyle(color: Colors.white)),
               const SizedBox(width: size),
               FlowShader(
                 child: Row(
                   children: const [
-                    Icon(Icons.keyboard_arrow_left),
+                    Icon(
+                      Icons.keyboard_arrow_left,
+                      color: Colors.white,
+                    ),
                     Text(
                       "Slide to cancel",
                       style: TextStyle(color: Colors.white),
@@ -171,15 +181,16 @@ class _RecordButtonState extends State<RecordButton> {
       right: 0,
       child: Container(
         height: size,
-        width: timerWidth,
+        // width: timerWidth,
+        width: MediaQuery.of(context).size.width - 15,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Global.borderRadius),
-          color: Colors.white,
+          color: Global.mainColor,
         ),
         child: Padding(
           padding: const EdgeInsets.only(left: 15, right: 25),
           child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
+            behavior: HitTestBehavior.deferToChild,
             onTap: () async {
               Vibrate.feedback(FeedbackType.success);
               timer?.cancel();
@@ -189,9 +200,20 @@ class _RecordButtonState extends State<RecordButton> {
 
               var filePath = await Record().stop();
               AudioState.files.add(filePath!);
-              // (widget.messages.last['filePath'] as List<String>).add(filePath);
-              Global.audioListKey.currentState!
-                  .insertItem(AudioState.files.length - 1);
+              List<Map<String, dynamic>> lstMessages = Global.getMessages();
+              DateTime now = DateTime.now();
+              lstMessages.add(
+                {
+                  'usrId': Global.selectedUserId,
+                  'status': MessageType.sent,
+                  'message': "",
+                  'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
+                  'hasShareMedia': true,
+                  'filePaths': [filePath]
+                },
+              );
+              // Global.audioListKey.currentState!
+              //     .insertItem(AudioState.files.length - 1);
               debugPrint(filePath);
               setState(() {
                 isLocked = false;
@@ -206,7 +228,8 @@ class _RecordButtonState extends State<RecordButton> {
                   style: TextStyle(color: Colors.white),
                 ),
                 FlowShader(
-                  child: const Text("Tap lock to stop"),
+                  child: const Text("Tap lock to stop",
+                      style: TextStyle(color: Colors.white)),
                   duration: const Duration(seconds: 3),
                   flowColors: const [Colors.white, Colors.grey],
                 ),
@@ -292,11 +315,14 @@ class _RecordButtonState extends State<RecordButton> {
 
           var filePath = await Record().stop();
           AudioState.files.add(filePath!);
+          // Global.audioListKey.currentState!
+          //     .insertItem(AudioState.files.length - 1);
+          debugPrint(filePath);
           List<Map<String, dynamic>> lstMessages = Global.getMessages();
           DateTime now = DateTime.now();
           lstMessages.add(
             {
-              'usrId': '2',
+              'usrId': Global.selectedUserId,
               'status': MessageType.sent,
               'message': "",
               'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
@@ -304,10 +330,6 @@ class _RecordButtonState extends State<RecordButton> {
               'filePaths': [filePath]
             },
           );
-
-          Global.audioListKey.currentState!
-              .insertItem(AudioState.files.length - 1);
-          debugPrint(filePath);
         }
       },
       onLongPressCancel: () {
@@ -347,6 +369,6 @@ class _RecordButtonState extends State<RecordButton> {
   }
 
   bool isCancelled(Offset offset, BuildContext context) {
-    return (offset.dx < -(MediaQuery.of(context).size.width * 0.2));
+    return (offset.dx < -(MediaQuery.of(context).size.width) * 0.2);
   }
 }

@@ -144,8 +144,8 @@ class _MainPageState extends State<MainPage> {
                             setState(() {
                               _isVisibleSearch = false;
                             });
-
-                            await navigatePageBottom(
+                            Global.selectedUserId = friendsList[i]['usrId'];
+                            await navigatePageTop(
                                 context: context,
                                 page: ChatPage(userId: friendsList[i]['usrId']),
                                 rootNavigator: true);

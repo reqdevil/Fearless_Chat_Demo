@@ -28,8 +28,7 @@ class _AudioListState extends State<AudioList> {
         return FadeTransition(
           opacity: animation,
           child: AudioBubble(
-            filepath: AudioState.files[index],
-            
+            filepath: AudioState.files[index],            
             key: ValueKey(AudioState.files[index]),
           ),
         );
