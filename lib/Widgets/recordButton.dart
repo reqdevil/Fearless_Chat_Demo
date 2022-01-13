@@ -150,7 +150,11 @@ class _RecordButtonState extends State<RecordButton> {
             children: [
               showLottie
                   ? const LottieAnimation()
-                  : Text(recordDuration, style: TextStyle(color: Colors.white)),
+                  : Padding(
+                      padding: const EdgeInsets.only(left: 18.0),
+                      child: Text(recordDuration,
+                          style: TextStyle(color: Colors.white)),
+                    ),
               const SizedBox(width: size),
               FlowShader(
                 child: Row(
