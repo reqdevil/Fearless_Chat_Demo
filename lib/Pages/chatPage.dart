@@ -34,6 +34,7 @@ bool isVisibleChatBox = true;
 class _ChatPageState extends State<ChatPage>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
+  double leftPadding = 0.0;
   @override
   void initState() {
     icons = const [
@@ -175,424 +176,427 @@ class _ChatPageState extends State<ChatPage>
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              controller: _controller,
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.all(15),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  child: _messages[index]['status'] == MessageType.received
-                      ? Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 20.0,
-                              backgroundImage: NetworkImage(
-                                  _messages[index]['contactImgUrl']),
-                              backgroundColor: Colors.transparent,
-                            ),
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _messages[index]['contactName'],
-                                  //  messages[index].userName,
-                                  style: Theme.of(context).textTheme.caption,
-                                ),
-                                Container(
-                                  constraints: BoxConstraints(
-                                      maxWidth:
-                                          MediaQuery.of(context).size.width *
-                                              .6),
-                                  padding: const EdgeInsets.all(15.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(25),
-                                      bottomLeft: Radius.circular(25),
-                                      bottomRight: Radius.circular(25),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                controller: _controller,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(15),
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    child: _messages[index]['status'] == MessageType.received
+                        ? Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20.0,
+                                backgroundImage: NetworkImage(
+                                    _messages[index]['contactImgUrl']),
+                                backgroundColor: Colors.transparent,
+                              ),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _messages[index]['contactName'],
+                                    //  messages[index].userName,
+                                    style: Theme.of(context).textTheme.caption,
+                                  ),
+                                  Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                .6),
+                                    padding: const EdgeInsets.all(15.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[300],
+                                      borderRadius: const BorderRadius.only(
+                                        topRight: Radius.circular(25),
+                                        bottomLeft: Radius.circular(25),
+                                        bottomRight: Radius.circular(25),
+                                      ),
                                     ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        _messages[index]['message'],
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText1!
-                                            .apply(
-                                              color: Colors.black87,
-                                            ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: Text(
-                                          _messages[index]['time'],
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyText2!
-                                              .apply(color: Colors.grey),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 15),
-                              ],
-                            ),
-                          ],
-                        )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  constraints: BoxConstraints(
-                                      maxWidth:
-                                          MediaQuery.of(context).size.width *
-                                              .6),
-                                  padding: const EdgeInsets.all(15.0),
-                                  decoration: BoxDecoration(
-                                    color: Global.mainColor,
-                                    borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(25),
-                                      topLeft: Radius.circular(25),
-                                      bottomLeft: Radius.circular(25),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _messages[index]['message'] != ""
-                                          ? Text(_messages[index]['message'],
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyText1!
-                                                  .apply(
-                                                    color: Colors.white,
-                                                  ))
-                                          : const SizedBox(),
-                                      getVoiceMedia(index, context),
-                                      getGridMedia(index, context),
-                                      // : const SizedBox(),
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                      Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: Text(
-                                          _messages[index]['time'],
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _messages[index]['message'],
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodyText1!
-                                              .apply(color: Colors.white),
-                                          textAlign: TextAlign.center,
+                                              .apply(
+                                                color: Colors.black87,
+                                              ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 15),
-                              ],
-                            ),
-                          ],
-                        ),
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.only(left: 0, right: 0, top: 5),
-            margin: const EdgeInsets.only(left: 0, right: 0),
-            height: 71,
-            // width: MediaQuery.of(context).size.width - 40,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(width: 1),
-                Container(
-                  width: isVisibleChatBox ? _textEditorWidth : 0,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(Global.borderRadius),
-                    boxShadow: const [
-                      BoxShadow(
-                          offset: Offset(0, 3),
-                          blurRadius: 5,
-                          color: Colors.grey)
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      IconButton(
-                          icon: Icon(
-                            Icons.add,
-                            color: Global.mainColor,
-                          ),
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(Global.borderRadius),
-                              ),
-                              builder: (context) {
-                                return Container(
-                                  padding:
-                                      const EdgeInsets.all(Global.borderRadius),
-                                  decoration: const BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                      topRight:
-                                          Radius.circular(Global.borderRadius),
-                                      topLeft:
-                                          Radius.circular(Global.borderRadius),
-                                    ),
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                          offset: Offset(0, 5),
-                                          blurRadius: 15.0,
-                                          color: Colors.grey)
-                                    ],
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            elevation: 0,
-                                            minimumSize: const Size(35, 35),
-                                            padding: const EdgeInsets.all(0),
-                                            primary:
-                                                Colors.grey.withOpacity(0.3),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(25),
-                                            ),
+                                        const SizedBox(height: 5),
+                                        Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Text(
+                                            _messages[index]['time'],
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyText2!
+                                                .apply(color: Colors.grey),
                                           ),
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Icon(
-                                            Icons.close,
-                                            color: Global.mainColor,
-                                          )),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      GridView.count(
-                                        mainAxisSpacing: 21.0,
-                                        crossAxisSpacing: 21.0,
-                                        shrinkWrap: true,
-                                        crossAxisCount: 3,
-                                        children: List.generate(
-                                          icons.length,
-                                          (i) {
-                                            return Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(15.0),
-                                                color: Colors.grey[200],
-                                                border: Border.all(
-                                                    color: Global.mainColor,
-                                                    width: 2),
-                                              ),
-                                              child: IconButton(
-                                                icon: Icon(
-                                                  icons[i],
-                                                  color: Global.mainColor,
-                                                  size: 50,
-                                                ),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                  if (i == 0) {
-                                                    getImageFromGallery();
-                                                  } else if (i == 1) {
-                                                    showGeneralDialog(
-                                                        context: context,
-                                                        useRootNavigator: true,
-                                                        transitionDuration:
-                                                            const Duration(
-                                                                milliseconds:
-                                                                    400),
-                                                        pageBuilder: (context,
-                                                            animation,
-                                                            secondaryAnimation) {
-                                                          return StatefulBuilder(
-                                                            builder: (BuildContext
-                                                                    context,
-                                                                StateSetter
-                                                                    sfsetState) {
-                                                              return const CameraPage();
-                                                            },
-                                                          );
-                                                        }).then((value) {
-                                                      setState(() {
-                                                        List<String> lst =
-                                                            (value as List<
-                                                                    TakenCameraMedia>)
-                                                                .map((e) =>
-                                                                    e.filePath)
-                                                                .toList();
-                                                        Global.messages.add(
-                                                          {
-                                                            'usrId':
-                                                                widget.userId,
-                                                            'status':
-                                                                MessageType
-                                                                    .sent,
-                                                            'message':
-                                                                _textEditingController!
-                                                                    .text,
-                                                            'time': DateFormat(
-                                                                    'dd.MM.yyyy – kk:mm')
-                                                                .format(DateTime
-                                                                    .now()),
-                                                            'hasShareMedia':
-                                                                true,
-                                                            'filePaths': lst
-                                                          },
-                                                        );
-                                                        _messages = Global
-                                                                .getMessages()
-                                                            .where((element) =>
-                                                                element[
-                                                                    'usrId'] ==
-                                                                widget.userId)
-                                                            .toList();
-
-                                                        scrollDown();
-                                                      });
-                                                    });
-                                                  } else if (i == 2) {}
-                                                },
-                                              ),
-                                            );
-                                          },
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                );
-                              },
-                            );
-                          }),
-                      Visibility(
-                        visible: isVisibleChatBox,
-                        child: Expanded(
-                          child: TextField(
-                            autofocus: false,
-                            controller: _textEditingController,
-                            focusNode: _focusNode,
-                            maxLines: null,
-                            keyboardType: TextInputType.multiline,
-                            onSubmitted: (value) {},
-                            decoration: const InputDecoration(
-                                hintText: "Type Something...",
-                                border: InputBorder.none),
+                                  const SizedBox(height: 15),
+                                ],
+                              ),
+                            ],
+                          )
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                .6),
+                                    padding: const EdgeInsets.all(15.0),
+                                    decoration: BoxDecoration(
+                                      color: Global.mainColor,
+                                      borderRadius: const BorderRadius.only(
+                                        topRight: Radius.circular(25),
+                                        topLeft: Radius.circular(25),
+                                        bottomLeft: Radius.circular(25),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _messages[index]['message'] != ""
+                                            ? Text(_messages[index]['message'],
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyText1!
+                                                    .apply(
+                                                      color: Colors.white,
+                                                    ))
+                                            : const SizedBox(),
+                                        getVoiceMedia(index, context),
+                                        getGridMedia(index, context),
+                                        // : const SizedBox(),
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Text(
+                                            _messages[index]['time'],
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyText1!
+                                                .apply(color: Colors.white),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 15),
+                                ],
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
-                      Visibility(
-                        visible: _textEditingController!.text.isNotEmpty,
-                        child: Transform.rotate(
-                          angle: -math.pi / 4,
-                          child: IconButton(
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                  left: leftPadding,
+                  bottom: Global.defaultPadding,
+                  right: Global.defaultPadding),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 1),
+                  Container(
+                    width: isVisibleChatBox ? _textEditorWidth : 0,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(Global.borderRadius),
+                      boxShadow: const [
+                        BoxShadow(
+                            offset: Offset(0, 3),
+                            blurRadius: 5,
+                            color: Colors.grey)
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
                             icon: Icon(
-                              Icons.send_rounded,
+                              Icons.add,
                               color: Global.mainColor,
                             ),
-                            onPressed: () async {
-                              setState(() {
-                                Global.messages.add(
-                                  {
-                                    'usrId': widget.userId,
-                                    'status': MessageType.sent,
-                                    'message': _textEditingController!.text,
-                                    'time': DateFormat('dd.MM.yyyy – kk:mm')
-                                        .format(DateTime.now()),
-                                    'hasShareMedia': false,
-                                    'filePaths': []
-                                  },
-                                );
-                                _messages = Global.getMessages()
-                                    .where((element) =>
-                                        element['usrId'] == widget.userId)
-                                    .toList();
-                                scrollDown();
-                                _textEditingController!.clear();
-                              });
-                            },
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      Global.borderRadius),
+                                ),
+                                builder: (context) {
+                                  return Container(
+                                    padding: const EdgeInsets.all(
+                                        Global.borderRadius),
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(
+                                            Global.borderRadius),
+                                        topLeft: Radius.circular(
+                                            Global.borderRadius),
+                                      ),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            offset: Offset(0, 5),
+                                            blurRadius: 15.0,
+                                            color: Colors.grey)
+                                      ],
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              elevation: 0,
+                                              minimumSize: const Size(35, 35),
+                                              padding: const EdgeInsets.all(0),
+                                              primary:
+                                                  Colors.grey.withOpacity(0.3),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(25),
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Icon(
+                                              Icons.close,
+                                              color: Global.mainColor,
+                                            )),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        GridView.count(
+                                          mainAxisSpacing: 21.0,
+                                          crossAxisSpacing: 21.0,
+                                          shrinkWrap: true,
+                                          crossAxisCount: 3,
+                                          children: List.generate(
+                                            icons.length,
+                                            (i) {
+                                              return Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          15.0),
+                                                  color: Colors.grey[200],
+                                                  border: Border.all(
+                                                      color: Global.mainColor,
+                                                      width: 2),
+                                                ),
+                                                child: IconButton(
+                                                  icon: Icon(
+                                                    icons[i],
+                                                    color: Global.mainColor,
+                                                    size: 50,
+                                                  ),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                    if (i == 0) {
+                                                      getImageFromGallery();
+                                                    } else if (i == 1) {
+                                                      showGeneralDialog(
+                                                          context: context,
+                                                          useRootNavigator:
+                                                              true,
+                                                          transitionDuration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      400),
+                                                          pageBuilder: (context,
+                                                              animation,
+                                                              secondaryAnimation) {
+                                                            return StatefulBuilder(
+                                                              builder: (BuildContext
+                                                                      context,
+                                                                  StateSetter
+                                                                      sfsetState) {
+                                                                return const CameraPage();
+                                                              },
+                                                            );
+                                                          }).then((value) {
+                                                        setState(() {
+                                                          List<String> lst =
+                                                              (value as List<
+                                                                      TakenCameraMedia>)
+                                                                  .map((e) => e
+                                                                      .filePath)
+                                                                  .toList();
+                                                          Global.messages.add(
+                                                            {
+                                                              'usrId':
+                                                                  widget.userId,
+                                                              'status':
+                                                                  MessageType
+                                                                      .sent,
+                                                              'message':
+                                                                  _textEditingController!
+                                                                      .text,
+                                                              'time': DateFormat(
+                                                                      'dd.MM.yyyy – kk:mm')
+                                                                  .format(DateTime
+                                                                      .now()),
+                                                              'hasShareMedia':
+                                                                  true,
+                                                              'filePaths': lst
+                                                            },
+                                                          );
+                                                          _messages = Global
+                                                                  .getMessages()
+                                                              .where((element) =>
+                                                                  element[
+                                                                      'usrId'] ==
+                                                                  widget.userId)
+                                                              .toList();
+
+                                                          scrollDown();
+                                                        });
+                                                      });
+                                                    } else if (i == 2) {}
+                                                  },
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            }),
+                        Visibility(
+                          visible: isVisibleChatBox,
+                          child: Expanded(
+                            child: TextField(
+                              autofocus: false,
+                              controller: _textEditingController,
+                              focusNode: _focusNode,
+                              maxLines: null,
+                              keyboardType: TextInputType.multiline,
+                              onSubmitted: (value) {},
+                              decoration: const InputDecoration(
+                                  hintText: "Type Something...",
+                                  border: InputBorder.none),
+                            ),
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 2),
-                Visibility(
-                  visible: _textEditingController!.text.isEmpty,
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: RecordButton(
-                      hasRecord: (value) {
-                        setState(() {
-                          if (value) {
-                            isVisibleChatBox = false;
-                          } else {
-                            isVisibleChatBox = true;
-                          }
-                        });
-                      },
-                      endOfRecord: (messages) {
-                        setState(() {
-                          _messages = Global.getMessages()
-                              .where((element) =>
-                                  element['usrId'] == widget.userId)
-                              .toList();
-
-                          // _messages = messages
-                          //     .where((element) =>
-                          //         element['usrId'] == widget.userId)
-                          //     .toList();
-                        });
-                        scrollDown();
-                      },
-                      controller: controller,
+                        Visibility(
+                          visible: _textEditingController!.text.isNotEmpty,
+                          child: Transform.rotate(
+                            angle: -math.pi / 4,
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.send_rounded,
+                                color: Global.mainColor,
+                              ),
+                              onPressed: () async {
+                                setState(() {
+                                  Global.messages.add(
+                                    {
+                                      'usrId': widget.userId,
+                                      'status': MessageType.sent,
+                                      'message': _textEditingController!.text,
+                                      'time': DateFormat('dd.MM.yyyy – kk:mm')
+                                          .format(DateTime.now()),
+                                      'hasShareMedia': false,
+                                      'filePaths': []
+                                    },
+                                  );
+                                  _messages = Global.getMessages()
+                                      .where((element) =>
+                                          element['usrId'] == widget.userId)
+                                      .toList();
+                                  scrollDown();
+                                  _textEditingController!.clear();
+                                });
+                              },
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                ),
-                // const SizedBox(width: 1),
-                // const SizedBox(width: 15),
-              ],
+                  const SizedBox(width: 2),
+                  Visibility(
+                    visible: _textEditingController!.text.isEmpty,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: RecordButton(
+                        hasRecord: (value) {
+                          setState(() {
+                            if (value) {
+                              isVisibleChatBox = false;
+                            } else {
+                              isVisibleChatBox = true;
+                            }
+                          });
+                        },
+                        endOfRecord: (messages) {
+                          setState(() {
+                            _messages = Global.getMessages()
+                                .where((element) =>
+                                    element['usrId'] == widget.userId)
+                                .toList();
+                          });
+                          scrollDown();
+                        },
+                        controller: controller,
+                      ),
+                    ),
+                  ),
+                  // const SizedBox(width: 1),
+                  // const SizedBox(width: 15),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget getVoiceMedia(int index, BuildContext context) {
     Widget widget = const SizedBox();
-    // var messages = Global.getMessages();
     if (index > _messages.length) {
       return widget;
     }
@@ -617,7 +621,6 @@ class _ChatPageState extends State<ChatPage>
   Widget getGridMedia(int index, BuildContext context) {
     List<String> mediaPathList = [];
     Widget widget = const SizedBox();
-    // var messages = Global.getMessages();
     if (index > _messages.length) {
       return widget;
     }
@@ -805,12 +808,15 @@ class _ChatPageState extends State<ChatPage>
   void _onTextChange() {
     if (_textEditingController!.text.isNotEmpty) {
       setState(() {
-        _textEditorWidth = MediaQuery.of(context).size.width - 40;
+        _textEditorWidth = MediaQuery.of(context).size.width - 20;
+        double leftPadding = 0.0;
       });
     } else if (_textEditingController!.text.isEmpty) {
       setState(() {
-        _textEditorWidth = MediaQuery.of(context).size.width -
-            MediaQuery.of(context).size.width / 4;
+        _textEditorWidth = 308;
+        double leftPadding = 0.0;
+        // _textEditorWidth = MediaQuery.of(context).size.width -
+        //     MediaQuery.of(context).size.width / 4;
       });
     }
   }
