@@ -311,6 +311,7 @@ class _RecordButtonState extends State<RecordButton> {
             File(filePath!).delete();
             debugPrint("Deleted $filePath");
             showLottie = false;
+            isVisibleSlide = false;
           });
         } else if (checkIsLocked(details.localPosition)) {
           widget.controller.reverse();
@@ -320,6 +321,7 @@ class _RecordButtonState extends State<RecordButton> {
           debugPrint(details.localPosition.dy.toString());
           setState(() {
             isLocked = true;
+            isVisibleSlide = false;
           });
         } else {
           widget.controller.reverse();
@@ -350,6 +352,9 @@ class _RecordButtonState extends State<RecordButton> {
           );
           widget.endOfRecord(lstMessages);
           widget.hasRecord(false);
+          setState(() {
+            isVisibleSlide = false;
+          });
         }
       },
       onLongPressCancel: () {
