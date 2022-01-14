@@ -31,7 +31,7 @@ class Global {
       'time': '08:43 AM',
       'hasShareMedia': false,
       'filePaths': [],
-      'location':[]
+      'location': []
     },
     {
       'usrId': '2',
@@ -40,7 +40,7 @@ class Global {
       'time': '08:45 AM',
       'hasShareMedia': false,
       'filePaths': [],
-      'location':[]
+      'location': []
     },
     {
       'usrId': '2',
@@ -50,7 +50,7 @@ class Global {
       'time': '08:45 AM',
       'hasShareMedia': false,
       'filePaths': [],
-      'location':[]
+      'location': []
     },
     {
       'usrId': '2',
@@ -62,7 +62,7 @@ class Global {
       'time': '08:47 AM',
       'hasShareMedia': false,
       'filePaths': [],
-      'location':[]
+      'location': []
     },
     {
       'usrId': '2',
@@ -71,21 +71,20 @@ class Global {
       'time': '08:45 AM',
       'hasShareMedia': false,
       'filePaths': [],
-      'location':[]
+      'location': []
     },
   ];
 }
 
 enum MessageType { sent, received }
 
-
 List<Map<String, dynamic>> friendsList = [
   {
     'usrId': '1',
     'imgUrl':
-        'https://cdn.pixabay.com/photo/2019/11/06/17/26/gear-4606749_960_720.jpg',
-    'username': 'Cybdom Tech',
-    'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
+        'https://media-exp1.licdn.com/dms/image/C5603AQEb1R5k0_7pdA/profile-displayphoto-shrink_800_800/0/1558898361166?e=1647475200&v=beta&t=334NX6VqYm7COEGU00dP9rnYJ9jeTvXgeeo96zyU-KU',
+    'username': 'Murat Aslan',
+    'lastMsg': 'Hey, checkout this out ;)',
     'seen': true,
     'hasUnSeenMsgs': false,
     'unseenCount': 0,
@@ -95,9 +94,9 @@ List<Map<String, dynamic>> friendsList = [
   {
     'usrId': '2',
     'imgUrl':
-        'https://iaahbr.tmgrup.com.tr/985538/0/0/0/0/0/0?u=https://iahbr.tmgrup.com.tr/album/2021/09/11/nasanin-ardindan-simdi-de-cinli-astronot-van-golunu-anka-kusuna-benzetti-1631369786545.jpg',
-    'username': 'Flutter Dev',
-    'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
+        'https://media-exp1.licdn.com/dms/image/C4D03AQFQjlvpRnIFPQ/profile-displayphoto-shrink_200_200/0/1588587309006?e=1647475200&v=beta&t=VwsvIa02DY4-KT21w12-Qe04EiVs2lxBNX-1WeFvdyY',
+    'username': 'ArmağanX',
+    'lastMsg': 'Hey bro ;)',
     'seen': false,
     'hasUnSeenMsgs': false,
     'unseenCount': 0,
@@ -107,9 +106,9 @@ List<Map<String, dynamic>> friendsList = [
   {
     'usrId': '3',
     'imgUrl':
-        'https://cdn.pixabay.com/photo/2019/11/05/08/52/adler-4603104_960_720.jpg',
-    'username': 'Dart Dev',
-    'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
+        'https://media-exp1.licdn.com/dms/image/C4D03AQGFku00U3dUDQ/profile-displayphoto-shrink_800_800/0/1642167635891?e=1647475200&v=beta&t=dCeaFg6zME10kUu67BML34Rzu8D9Zh40p-NQxa2REFI',
+    'username': 'Berk Er',
+    'lastMsg': 'Hey, checkout my website: my blog ;)',
     'seen': false,
     'hasUnSeenMsgs': true,
     'unseenCount': 3,
@@ -119,9 +118,9 @@ List<Map<String, dynamic>> friendsList = [
   {
     'usrId': '4',
     'imgUrl':
-        'https://cdn.pixabay.com/photo/2015/02/04/08/03/baby-623417_960_720.jpg',
+        'https://www.indyturk.com/sites/default/files/styles/1368x911/public/article/main_image/2020/12/11/531136-1057777991.jpg?itok=SZR2vQVu',
     'username': 'Designer',
-    'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
+    'lastMsg': 'No android specific permissions needed for ;)',
     'seen': true,
     'hasUnSeenMsgs': true,
     'unseenCount': 2,
@@ -133,7 +132,7 @@ List<Map<String, dynamic>> friendsList = [
     'imgUrl':
         'https://i2.milimaj.com/i/milliyet/75/1200x675/60899c1386b24406dc93a873.jpg',
     'username': 'FrontEnd Dev',
-    'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
+    'lastMsg': 'Reloaded 8 of 1812 libraries in 947ms. ;)',
     'seen': false,
     'hasUnSeenMsgs': true,
     'unseenCount': 4,
@@ -145,7 +144,7 @@ List<Map<String, dynamic>> friendsList = [
     'imgUrl':
         'https://i2.milimaj.com/i/milliyet/75/1200x675/60899c1386b24406dc93a873.jpg',
     'username': 'Full Stack Dev',
-    'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
+    'lastMsg': 'Reloaded 8 of 1812 libraries in 826ms.;)',
     'seen': false,
     'hasUnSeenMsgs': false,
     'unseenCount': 0,
@@ -157,7 +156,7 @@ List<Map<String, dynamic>> friendsList = [
     'imgUrl':
         'https://im.haberturk.com/2021/04/28/ver1619642744/3055206_414x414.jpg',
     'username': 'Backend Dev',
-    'lastMsg': 'Hey, checkout my website: cybdom.tech ;)',
+    'lastMsg': 'Hey, checkout Fearless_Chat_Demo...     ;)',
     'seen': false,
     'hasUnSeenMsgs': true,
     'unseenCount': 3,
