@@ -363,189 +363,192 @@ class _ChatPageState extends State<ChatPage>
             ),
             Padding(
               padding: EdgeInsets.only(
-                  left: leftPadding,
-                  bottom: Global.defaultPadding,
-                  right: Global.defaultPadding),
+                  left: 8, bottom: Global.defaultPadding, right: 8),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(width: 1),
-                  Container(
-                    width: isVisibleChatBox ? _textEditorWidth : 0,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(Global.borderRadius),
-                      boxShadow: const [
-                        BoxShadow(
-                            offset: Offset(0, 3),
-                            blurRadius: 5,
-                            color: Colors.grey)
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                            icon: Icon(
-                              Icons.add,
-                              color: Global.mainColor,
-                            ),
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      Global.borderRadius),
-                                ),
-                                builder: (context) {
-                                  return Container(
-                                    padding: const EdgeInsets.all(
-                                        Global.borderRadius),
-                                    decoration: const BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(
-                                            Global.borderRadius),
-                                        topLeft: Radius.circular(
-                                            Global.borderRadius),
-                                      ),
-                                      color: Colors.white,
-                                      boxShadow: [
-                                        BoxShadow(
-                                            offset: Offset(0, 5),
-                                            blurRadius: 15.0,
-                                            color: Colors.grey)
-                                      ],
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              elevation: 0,
-                                              minimumSize: const Size(35, 35),
-                                              padding: const EdgeInsets.all(0),
-                                              primary:
-                                                  Colors.grey.withOpacity(0.3),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(25),
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Icon(
-                                              Icons.close,
-                                              color: Global.mainColor,
-                                            )),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        GridView.count(
-                                          physics:
-                                              NeverScrollableScrollPhysics(),
-                                          mainAxisSpacing: 21.0,
-                                          crossAxisSpacing: 21.0,
-                                          shrinkWrap: true,
-                                          crossAxisCount: 3,
-                                          children: List.generate(
-                                            icons.length,
-                                            (i) {
-                                              return Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          15.0),
-                                                  color: Colors.grey[200],
-                                                  border: Border.all(
-                                                      color: Global.mainColor,
-                                                      width: 2),
-                                                ),
-                                                child: IconButton(
-                                                  icon: Icon(
-                                                    icons[i],
-                                                    color: Global.mainColor,
-                                                    size: 50,
-                                                  ),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                    if (i == 0) {
-                                                      getImageFromGallery();
-                                                    } else if (i == 1) {
-                                                      showOptionsShareMedia(
-                                                          context);
-                                                    } else if (i == 2) {
-                                                      getMultipleFile();
-                                                    }
-                                                  },
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
-                            }),
-                        Visibility(
-                          visible: isVisibleChatBox,
-                          child: Expanded(
-                            child: TextField(
-                              autofocus: false,
-                              controller: _textEditingController,
-                              focusNode: _focusNode,
-                              maxLines: null,
-                              keyboardType: TextInputType.multiline,
-                              onSubmitted: (value) {},
-                              decoration: const InputDecoration(
-                                  hintText: "Type Something...",
-                                  border: InputBorder.none),
-                            ),
-                          ),
-                        ),
-                        Visibility(
-                          visible: _textEditingController!.text.isNotEmpty,
-                          child: Transform.rotate(
-                            angle: -math.pi / 4,
-                            child: IconButton(
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      width: getWidthChatBox(context),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                            BorderRadius.circular(Global.borderRadius),
+                        boxShadow: const [
+                          BoxShadow(
+                              offset: Offset(0, 3),
+                              blurRadius: 5,
+                              color: Colors.grey)
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
                               icon: Icon(
-                                Icons.send_rounded,
+                                Icons.add,
                                 color: Global.mainColor,
                               ),
-                              onPressed: () async {
-                                setState(() {
-                                  Global.messages.add(
-                                    {
-                                      'usrId': widget.userId,
-                                      'status': MessageType.sent,
-                                      'message': _textEditingController!.text,
-                                      'time': DateFormat('dd.MM.yyyy – kk:mm')
-                                          .format(DateTime.now()),
-                                      'hasShareMedia': false,
-                                      'filePaths': []
-                                    },
-                                  );
-                                  _messages = Global.getMessages()
-                                      .where((element) =>
-                                          element['usrId'] == widget.userId)
-                                      .toList();
-                                  scrollDown();
-                                  _textEditingController!.clear();
-                                });
-                              },
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        Global.borderRadius),
+                                  ),
+                                  builder: (context) {
+                                    return Container(
+                                      padding: const EdgeInsets.all(
+                                          Global.borderRadius),
+                                      decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(
+                                              Global.borderRadius),
+                                          topLeft: Radius.circular(
+                                              Global.borderRadius),
+                                        ),
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              offset: Offset(0, 5),
+                                              blurRadius: 15.0,
+                                              color: Colors.grey)
+                                        ],
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                elevation: 0,
+                                                minimumSize: const Size(35, 35),
+                                                padding:
+                                                    const EdgeInsets.all(0),
+                                                primary: Colors.grey
+                                                    .withOpacity(0.3),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(25),
+                                                ),
+                                              ),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Icon(
+                                                Icons.close,
+                                                color: Global.mainColor,
+                                              )),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          GridView.count(
+                                            physics:
+                                                NeverScrollableScrollPhysics(),
+                                            mainAxisSpacing: 21.0,
+                                            crossAxisSpacing: 21.0,
+                                            shrinkWrap: true,
+                                            crossAxisCount: 3,
+                                            children: List.generate(
+                                              icons.length,
+                                              (i) {
+                                                return Container(
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15.0),
+                                                    color: Colors.grey[200],
+                                                    border: Border.all(
+                                                        color: Global.mainColor,
+                                                        width: 2),
+                                                  ),
+                                                  child: IconButton(
+                                                    icon: Icon(
+                                                      icons[i],
+                                                      color: Global.mainColor,
+                                                      size: 50,
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      if (i == 0) {
+                                                        getImageFromGallery();
+                                                      } else if (i == 1) {
+                                                        showOptionsShareMedia(
+                                                            context);
+                                                      } else if (i == 2) {
+                                                        getMultipleFile();
+                                                      }
+                                                    },
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              }),
+                          Visibility(
+                            visible: isVisibleChatBox,
+                            child: Expanded(
+                              child: TextField(
+                                autofocus: false,
+                                controller: _textEditingController,
+                                focusNode: _focusNode,
+                                maxLines: null,
+                                keyboardType: TextInputType.multiline,
+                                onSubmitted: (value) {},
+                                decoration: const InputDecoration(
+                                    hintText: "Type Something...",
+                                    border: InputBorder.none),
+                              ),
                             ),
                           ),
-                        )
-                      ],
+                          Visibility(
+                            visible: _textEditingController!.text.isNotEmpty,
+                            child: Transform.rotate(
+                              angle: -math.pi / 4,
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.send_rounded,
+                                  color: Global.mainColor,
+                                ),
+                                onPressed: () async {
+                                  setState(() {
+                                    Global.messages.add(
+                                      {
+                                        'usrId': widget.userId,
+                                        'status': MessageType.sent,
+                                        'message': _textEditingController!.text,
+                                        'time': DateFormat('dd.MM.yyyy – kk:mm')
+                                            .format(DateTime.now()),
+                                        'hasShareMedia': false,
+                                        'filePaths': []
+                                      },
+                                    );
+                                    _messages = Global.getMessages()
+                                        .where((element) =>
+                                            element['usrId'] == widget.userId)
+                                        .toList();
+                                    scrollDown();
+                                    _textEditingController!.clear();
+                                  });
+                                },
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 2),
+                  // const SizedBox(width: 2),
                   Visibility(
                     visible: _textEditingController!.text.isEmpty,
                     child: Align(
@@ -582,6 +585,34 @@ class _ChatPageState extends State<ChatPage>
         ),
       ),
     );
+  }
+
+  double getWidthChatBox(BuildContext context) {
+    double width = 0.0;
+
+    if (isVisibleChatBox &&
+        MediaQuery.of(context).orientation == Orientation.portrait &&
+        _textEditingController!.text.isEmpty) {
+      width = MediaQuery.of(context).size.width -
+          MediaQuery.of(context).size.width / 6;
+    } else if (isVisibleChatBox &&
+        MediaQuery.of(context).orientation == Orientation.landscape &&
+        _textEditingController!.text.isEmpty) {
+      width = MediaQuery.of(context).size.width -
+          MediaQuery.of(context).size.width / 9;
+    } else if (isVisibleChatBox &&
+        MediaQuery.of(context).orientation == Orientation.portrait &&
+        _textEditingController!.text.isNotEmpty) {
+      width = MediaQuery.of(context).size.width * 0.95;
+    } else if (isVisibleChatBox &&
+        MediaQuery.of(context).orientation == Orientation.landscape &&
+        _textEditingController!.text.isNotEmpty) {
+      width = MediaQuery.of(context).size.width -
+          MediaQuery.of(context).size.width * .03;
+    } else if (!isVisibleChatBox) {
+      width = 0.0;
+    }
+    return width;
   }
 
   void showOptionsShareMedia(BuildContext context) {
