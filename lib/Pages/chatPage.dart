@@ -16,6 +16,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:math' as math;
 import 'package:location/location.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 
 class ChatPage extends StatefulWidget {
   List<TakenCameraMedia>? listShareMedia;
@@ -738,73 +739,69 @@ class _ChatPageState extends State<ChatPage>
     if (locationString.isNotEmpty) {
       double latitude = double.parse(locationString[0]);
       double longitude = double.parse(locationString[1]);
-      widget = GestureDetector(
-        onTap: () {},
-        child: Container(
-          height: 150,
-          child: new FlutterMap(
-            options: new MapOptions(
-              allowPanningOnScrollingParent: false,
-              slideOnBoundaries: true,
-              // enableScrollWheel: false,
-              // adaptiveBoundaries: false,
-              // allowPanning: false,
-              // slideOnBoundaries: false,
-              center: new LatLng(latitude, longitude),
-              enableScrollWheel: false,
-              zoom: 16,
-              // minZoom: 33.0,
-              // zoom: 34.0,
-              // maxZoom: 35.0,
-              swPanBoundary: LatLng(latitude, longitude),
-              nePanBoundary: LatLng(latitude, longitude),
-              // maxZoom: 14.0,
-              // minZoom: 13,
+      widget = Container(
+        height: 150,
+        child: new FlutterMap(
+          options: new MapOptions(
+            allowPanningOnScrollingParent: false,
+            slideOnBoundaries: true,
+
+            center: new LatLng(latitude, longitude),
+            enableScrollWheel: false,
+            zoom: 16,
+
+            swPanBoundary: LatLng(latitude, longitude),
+            nePanBoundary: LatLng(latitude, longitude), allowPanning: false,
+            onTap: (tapPosition, point) {
+              MapsLauncher.launchCoordinates(
+                  latitude, longitude, 'Maps opening');
+            },
+            // maxZoom: 14.0,
+            // minZoom: 13,
+          ),
+          layers: [
+            TileLayerOptions(
+              // tileProvider: AssetTileProvider(),
+              // backgroundColor: Colors.transparent,
+              overrideTilesWhenUrlChanges: false,
+              urlTemplate:
+                  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?source=${DateTime.now().millisecondsSinceEpoch}",
+              subdomains: ['a', 'b', 'c'],
+              // attributionBuilder: (_) {
+              //   return Text("© OpenStreetMap contributors");
+              // },
             ),
-            layers: [
-              TileLayerOptions(
-                // tileProvider: AssetTileProvider(),
-                // backgroundColor: Colors.transparent,
-                overrideTilesWhenUrlChanges: false,
-                urlTemplate:
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?source=${DateTime.now().millisecondsSinceEpoch}",
-                subdomains: ['a', 'b', 'c'],
-                // attributionBuilder: (_) {
-                //   return Text("© OpenStreetMap contributors");
-                // },
-              ),
-              new MarkerLayerOptions(
-                rotate: false,
-                markers: [
-                  new Marker(
-                    width: 80.0,
-                    height: 80.0,
-                    point: new LatLng(latitude, longitude),
-                    builder: (ctx) => new Container(
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            height: 30,
-                            width: 30,
-                            decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(30)),
-                                color: Colors.white70),
-                          ),
-                          new Icon(
-                            Icons.location_pin,
-                            color: Colors.red,
-                            size: 30,
-                          ),
-                        ],
-                      ),
+            new MarkerLayerOptions(
+              rotate: false,
+              markers: [
+                new Marker(
+                  width: 80.0,
+                  height: 80.0,
+                  point: new LatLng(latitude, longitude),
+                  builder: (ctx) => new Container(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(30)),
+                              color: Colors.white70),
+                        ),
+                        new Icon(
+                          Icons.location_pin,
+                          color: Colors.red,
+                          size: 30,
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       );
     } else {
