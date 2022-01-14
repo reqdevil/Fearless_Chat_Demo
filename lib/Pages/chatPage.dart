@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
@@ -8,9 +9,13 @@ import 'package:fearless_chat_demo/Widgets/recordButton.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:file_picker/file_picker.dart' as filePicker;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:math' as math;
+import 'package:location/location.dart';
+import 'package:latlong2/latlong.dart';
 
 class ChatPage extends StatefulWidget {
   List<TakenCameraMedia>? listShareMedia;
@@ -32,10 +37,12 @@ FocusNode? _focusNode;
 TextEditingController? _textEditingController;
 late double _textEditorWidth;
 bool isVisibleChatBox = true;
+List<String> _locationString = [];
 
 class _ChatPageState extends State<ChatPage>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
+
   double leftPadding = 0.0;
   @override
   void initState() {
@@ -44,6 +51,7 @@ class _ChatPageState extends State<ChatPage>
       Icons.camera,
       // Icons.upload,
       Icons.file_present,
+      Icons.location_on
       // Icons.gif
     ];
     controller = AnimationController(
@@ -303,6 +311,8 @@ class _ChatPageState extends State<ChatPage>
                                               : const SizedBox(),
                                           getVoiceMedia(index, context),
                                           getGridMedia(index, context),
+                                          getMap(List<String>.from(
+                                              _messages[index]['location'])),
                                           // : const SizedBox(),
                                           const SizedBox(
                                             height: 5,
@@ -484,7 +494,7 @@ class _ChatPageState extends State<ChatPage>
                                                         color: Global.mainColor,
                                                         size: 50,
                                                       ),
-                                                      onPressed: () {
+                                                      onPressed: () async {
                                                         Navigator.of(context)
                                                             .pop();
                                                         if (i == 0) {
@@ -494,6 +504,41 @@ class _ChatPageState extends State<ChatPage>
                                                               context);
                                                         } else if (i == 2) {
                                                           getMultipleFile();
+                                                        } else if (i == 3) {
+                                                          List<String>
+                                                              location =
+                                                              await shareLocation();
+
+                                                          setState(() {
+                                                            Global.messages.add(
+                                                              {
+                                                                'usrId': widget
+                                                                    .userId,
+                                                                'status':
+                                                                    MessageType
+                                                                        .sent,
+                                                                'message': "",
+                                                                'time': DateFormat(
+                                                                        'dd.MM.yyyy – kk:mm')
+                                                                    .format(DateTime
+                                                                        .now()),
+                                                                'hasShareMedia':
+                                                                    false,
+                                                                'filePaths': [],
+                                                                'location':
+                                                                    location
+                                                              },
+                                                            );
+                                                            _messages = Global
+                                                                    .getMessages()
+                                                                .where((element) =>
+                                                                    element[
+                                                                        'usrId'] ==
+                                                                    widget
+                                                                        .userId)
+                                                                .toList();
+                                                            scrollDown();
+                                                          });
                                                         }
                                                       },
                                                     ),
@@ -683,6 +728,68 @@ class _ChatPageState extends State<ChatPage>
           );
         }
       }));
+    }
+    return widget;
+  }
+
+  Widget getMap(List<String> locationString) {
+    Widget widget;
+
+    if (locationString.isNotEmpty) {
+      double latitude = double.parse(locationString[0]);
+      double longitude = double.parse(locationString[1]);
+      widget = Container(
+        height: 120,
+        child: new FlutterMap(
+          options: new MapOptions(
+            allowPanningOnScrollingParent: false,
+            slideOnBoundaries: true,
+            // enableScrollWheel: false,
+            // adaptiveBoundaries: false,
+            // allowPanning: false,
+            // slideOnBoundaries: false,
+            center: new LatLng(latitude, longitude),
+            enableScrollWheel: false,
+            // zoom: 13.0,
+            minZoom: 33.0,
+            zoom: 34.0,
+            maxZoom: 35.0,
+            swPanBoundary: LatLng(latitude, longitude),
+            nePanBoundary: LatLng(latitude, longitude),
+            // maxZoom: 14.0,
+            // minZoom: 13,
+          ),
+          layers: [
+            TileLayerOptions(
+              // tileProvider: AssetTileProvider(),
+              // backgroundColor: Colors.transparent,
+              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              subdomains: ['a', 'b', 'c'],
+              // attributionBuilder: (_) {
+              //   return Text("© OpenStreetMap contributors");
+              // },
+            ),
+            new MarkerLayerOptions(
+              rotate: false,
+              markers: [
+                new Marker(
+                  width: 80.0,
+                  height: 80.0,
+                  point: new LatLng(latitude, longitude),
+                  builder: (ctx) => new Container(
+                    child: new Icon(
+                      Icons.location_pin,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
+      widget = SizedBox();
     }
     return widget;
   }
@@ -881,6 +988,33 @@ class _ChatPageState extends State<ChatPage>
     return ((bytes / pow(1024, i)).toStringAsFixed(decimals)) +
         ' ' +
         suffixes[i];
+  }
+
+  final Location location = Location();
+  bool _loading = false;
+  LocationData? _location;
+  String? _error;
+
+  Future<List<String>> shareLocation() async {
+    setState(() {
+      _error = null;
+      _loading = true;
+    });
+    try {
+      final LocationData _locationResult = await location.getLocation();
+      setState(() {
+        _location = _locationResult;
+        _loading = false;
+        _locationString.add(_locationResult.latitude.toString());
+        _locationString.add(_locationResult.longitude.toString());
+      });
+    } on PlatformException catch (err) {
+      setState(() {
+        _error = err.code;
+        _loading = false;
+      });
+    }
+    return _locationString;
   }
 
   ListView getListMedia() {

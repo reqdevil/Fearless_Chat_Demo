@@ -30,7 +30,8 @@ class Global {
           'Hi mate, I\d like to hire you to create a mobile app for my business',
       'time': '08:43 AM',
       'hasShareMedia': false,
-      'filePaths': []
+      'filePaths': [],
+      'location':[]
     },
     {
       'usrId': '2',
@@ -38,7 +39,8 @@ class Global {
       'message': 'Hi, I hope you are doing great!',
       'time': '08:45 AM',
       'hasShareMedia': false,
-      'filePaths': []
+      'filePaths': [],
+      'location':[]
     },
     {
       'usrId': '2',
@@ -47,7 +49,8 @@ class Global {
           'Please share with me the details of your project, as well as your time and budgets constraints.',
       'time': '08:45 AM',
       'hasShareMedia': false,
-      'filePaths': []
+      'filePaths': [],
+      'location':[]
     },
     {
       'usrId': '2',
@@ -58,7 +61,8 @@ class Global {
       'message': 'Sure, let me send you a document that explains everything.',
       'time': '08:47 AM',
       'hasShareMedia': false,
-      'filePaths': []
+      'filePaths': [],
+      'location':[]
     },
     {
       'usrId': '2',
@@ -66,7 +70,8 @@ class Global {
       'message': 'Ok.',
       'time': '08:45 AM',
       'hasShareMedia': false,
-      'filePaths': []
+      'filePaths': [],
+      'location':[]
     },
   ];
 }

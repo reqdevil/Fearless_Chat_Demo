@@ -521,7 +521,7 @@ class _MainPageState extends State<MainPage> {
       Permission.microphone,
       Permission.mediaLibrary,
       Permission.speech,
-      // Permission.manageExternalStorage,
+      Permission.location,
       Permission.photos
     ].request();
 
