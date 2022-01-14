@@ -102,6 +102,8 @@ class _AudioBubbleState extends State<AudioBubble> {
                                 children: [
                                   const SizedBox(height: 15),
                                   LinearProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
                                     backgroundColor: Global.mainColor,
                                     color: Global.mainColor,
                                     value: snapshot.data!.inMilliseconds /
