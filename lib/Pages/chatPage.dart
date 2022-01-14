@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:fearless_chat_demo/Widgets/audioBubble.dart';
 import 'package:fearless_chat_demo/Widgets/recordButton.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
+import 'package:file_picker/file_picker.dart' as filePicker;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -298,17 +300,55 @@ class _ChatPageState extends State<ChatPage>
                                         const SizedBox(
                                           height: 5,
                                         ),
-                                        Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: Text(
-                                            _messages[index]['time'],
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1!
-                                                .apply(color: Colors.white),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            if (_messages[index]['message']
+                                                    .toString()
+                                                    .contains('.pdf') ||
+                                                _messages[index]['message']
+                                                    .toString()
+                                                    .contains('.doc') ||
+                                                _messages[index]['message']
+                                                    .toString()
+                                                    .contains('.ppt') ||
+                                                _messages[index]['message']
+                                                    .toString()
+                                                    .contains('.pptx') ||
+                                                _messages[index]['message']
+                                                    .toString()
+                                                    .contains('.txt') ||
+                                                _messages[index]['message']
+                                                    .toString()
+                                                    .contains('.xls') ||
+                                                _messages[index]['message']
+                                                    .toString()
+                                                    .contains('.xlsx'))
+                                              Align(
+                                                alignment: Alignment.bottomLeft,
+                                                child: Icon(
+                                                  Icons.file_present_outlined,
+                                                  color: Colors.white,
+                                                ),
+                                              )
+                                            else
+                                              SizedBox(),
+                                            Align(
+                                              alignment: Alignment.bottomRight,
+                                              child: Text(
+                                                _messages[index]['time'],
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyText1!
+                                                    .apply(color: Colors.white),
+                                                textAlign: TextAlign.right,
+                                              ),
+                                            ),
+                                          ],
+                                        )
                                       ],
                                     ),
                                   ),
@@ -434,64 +474,11 @@ class _ChatPageState extends State<ChatPage>
                                                     if (i == 0) {
                                                       getImageFromGallery();
                                                     } else if (i == 1) {
-                                                      showGeneralDialog(
-                                                          context: context,
-                                                          useRootNavigator:
-                                                              true,
-                                                          transitionDuration:
-                                                              const Duration(
-                                                                  milliseconds:
-                                                                      400),
-                                                          pageBuilder: (context,
-                                                              animation,
-                                                              secondaryAnimation) {
-                                                            return StatefulBuilder(
-                                                              builder: (BuildContext
-                                                                      context,
-                                                                  StateSetter
-                                                                      sfsetState) {
-                                                                return const CameraPage();
-                                                              },
-                                                            );
-                                                          }).then((value) {
-                                                        setState(() {
-                                                          List<String> lst =
-                                                              (value as List<
-                                                                      TakenCameraMedia>)
-                                                                  .map((e) => e
-                                                                      .filePath)
-                                                                  .toList();
-                                                          Global.messages.add(
-                                                            {
-                                                              'usrId':
-                                                                  widget.userId,
-                                                              'status':
-                                                                  MessageType
-                                                                      .sent,
-                                                              'message':
-                                                                  _textEditingController!
-                                                                      .text,
-                                                              'time': DateFormat(
-                                                                      'dd.MM.yyyy – kk:mm')
-                                                                  .format(DateTime
-                                                                      .now()),
-                                                              'hasShareMedia':
-                                                                  true,
-                                                              'filePaths': lst
-                                                            },
-                                                          );
-                                                          _messages = Global
-                                                                  .getMessages()
-                                                              .where((element) =>
-                                                                  element[
-                                                                      'usrId'] ==
-                                                                  widget.userId)
-                                                              .toList();
-
-                                                          scrollDown();
-                                                        });
-                                                      });
-                                                    } else if (i == 2) {}
+                                                      showOptionsShareMedia(
+                                                          context);
+                                                    } else if (i == 2) {
+                                                      getMultipleFile();
+                                                    }
                                                   },
                                                 ),
                                               );
@@ -593,6 +580,40 @@ class _ChatPageState extends State<ChatPage>
         ),
       ),
     );
+  }
+
+  void showOptionsShareMedia(BuildContext context) {
+    showGeneralDialog(
+        context: context,
+        useRootNavigator: true,
+        transitionDuration: const Duration(milliseconds: 400),
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return StatefulBuilder(
+            builder: (BuildContext context, StateSetter sfsetState) {
+              return const CameraPage();
+            },
+          );
+        }).then((value) {
+      setState(() {
+        List<String> lst =
+            (value as List<TakenCameraMedia>).map((e) => e.filePath).toList();
+        Global.messages.add(
+          {
+            'usrId': widget.userId,
+            'status': MessageType.sent,
+            'message': _textEditingController!.text,
+            'time': DateFormat('dd.MM.yyyy – kk:mm').format(DateTime.now()),
+            'hasShareMedia': true,
+            'filePaths': lst
+          },
+        );
+        _messages = Global.getMessages()
+            .where((element) => element['usrId'] == widget.userId)
+            .toList();
+
+        scrollDown();
+      });
+    });
   }
 
   Widget getVoiceMedia(int index, BuildContext context) {
@@ -710,6 +731,7 @@ class _ChatPageState extends State<ChatPage>
               ),
               onTap: () {
                 Navigator.of(context).pop();
+
                 getImageFromCamera();
               },
             ),
@@ -758,6 +780,60 @@ class _ChatPageState extends State<ChatPage>
         _image = File(pickedFile.path);
       }
     });
+  }
+
+  Future getVideosFromGallery() async {
+    var pickedVideoList = await picker.pickVideo(source: ImageSource.gallery);
+  }
+
+  Future getMultipleFile() async {
+    filePicker.FilePickerResult? result = await filePicker.FilePicker.platform
+        .pickFiles(
+            type: filePicker.FileType.custom,
+            allowedExtensions: [
+              'pdf',
+              'doc',
+              ,
+              'txt',
+              'ppt',
+              'pptx',
+              'xls',
+              'xlsx'
+            ],
+            withData: true);
+    List<filePicker.PlatformFile> fileList = result!.files;
+    for (var file in fileList) {
+      String fileSize = await getFileSize(file.path, 1);
+      setState(() {
+        Global.messages.add(
+          {
+            'usrId': widget.userId,
+            'status': MessageType.sent,
+            'message': file.name + '\n' + fileSize,
+            'time': DateFormat('dd.MM.yyyy – kk:mm').format(DateTime.now()),
+            'hasShareMedia': true,
+            'filePaths': [file.path]
+          },
+        );
+        _messages = Global.getMessages()
+            .where((element) => element['usrId'] == widget.userId)
+            .toList();
+      });
+
+      scrollDown();
+    }
+  }
+
+  getFileSize(String? filepath, int decimals) async {
+    if (filepath != null) {}
+    File file = File(filepath!);
+    int bytes = await file.length();
+    if (bytes <= 0) return "0 B";
+    const suffixes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    var i = (log(bytes) / log(1024)).floor();
+    return ((bytes / pow(1024, i)).toStringAsFixed(decimals)) +
+        ' ' +
+        suffixes[i];
   }
 
   ListView getListMedia() {

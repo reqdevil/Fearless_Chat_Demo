@@ -73,6 +73,7 @@ class Global {
 
 enum MessageType { sent, received }
 
+
 List<Map<String, dynamic>> friendsList = [
   {
     'usrId': '1',

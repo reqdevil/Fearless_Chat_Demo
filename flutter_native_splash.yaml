@@ -2,5 +2,5 @@ flutter_native_splash:
   image: assets/logotrans.png
   color: "#4a148c"
   color_dark: "#4a148c"
-  ios_content_mode: scaleAspectFill
+  # ios_content_mode: scaleAspectFill
   andriod_gravity: fill
