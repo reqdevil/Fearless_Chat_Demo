@@ -51,13 +51,13 @@
 		<string>Fearless Chat wants to use gallery</string>
 		<key>UIStatusBarHidden</key>
 		<false/>
-		<key>NSLocationAlwaysUsageDescription</key>	
-	        <string>I need it </string>	
-	    <key>NSLocationWhenInUseUsageDescription</key>	
-	        <string>Because</string>
-	    <key>UIBackgroundModes</key>
-	    <array>
-	    	<string>location</string>
-	    </array>
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>I need it</string>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Because</string>
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>location</string>
+		</array>
 	</dict>
 </plist>

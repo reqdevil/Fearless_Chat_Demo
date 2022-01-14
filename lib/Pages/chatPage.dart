@@ -654,7 +654,7 @@ class _ChatPageState extends State<ChatPage>
         MediaQuery.of(context).orientation == Orientation.portrait &&
         _textEditingController!.text.isEmpty) {
       width = MediaQuery.of(context).size.width -
-          MediaQuery.of(context).size.width / 6;
+          MediaQuery.of(context).size.width / 5.5;
     } else if (isVisibleChatBox &&
         MediaQuery.of(context).orientation == Orientation.landscape &&
         _textEditingController!.text.isEmpty) {
@@ -738,54 +738,73 @@ class _ChatPageState extends State<ChatPage>
     if (locationString.isNotEmpty) {
       double latitude = double.parse(locationString[0]);
       double longitude = double.parse(locationString[1]);
-      widget = Container(
-        height: 120,
-        child: new FlutterMap(
-          options: new MapOptions(
-            allowPanningOnScrollingParent: false,
-            slideOnBoundaries: true,
-            // enableScrollWheel: false,
-            // adaptiveBoundaries: false,
-            // allowPanning: false,
-            // slideOnBoundaries: false,
-            center: new LatLng(latitude, longitude),
-            enableScrollWheel: false,
-            // zoom: 13.0,
-            minZoom: 33.0,
-            zoom: 34.0,
-            maxZoom: 35.0,
-            swPanBoundary: LatLng(latitude, longitude),
-            nePanBoundary: LatLng(latitude, longitude),
-            // maxZoom: 14.0,
-            // minZoom: 13,
-          ),
-          layers: [
-            TileLayerOptions(
-              // tileProvider: AssetTileProvider(),
-              // backgroundColor: Colors.transparent,
-              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              subdomains: ['a', 'b', 'c'],
-              // attributionBuilder: (_) {
-              //   return Text("© OpenStreetMap contributors");
-              // },
+      widget = GestureDetector(
+        onTap: () {},
+        child: Container(
+          height: 150,
+          child: new FlutterMap(
+            options: new MapOptions(
+              allowPanningOnScrollingParent: false,
+              slideOnBoundaries: true,
+              // enableScrollWheel: false,
+              // adaptiveBoundaries: false,
+              // allowPanning: false,
+              // slideOnBoundaries: false,
+              center: new LatLng(latitude, longitude),
+              enableScrollWheel: false,
+              zoom: 16,
+              // minZoom: 33.0,
+              // zoom: 34.0,
+              // maxZoom: 35.0,
+              swPanBoundary: LatLng(latitude, longitude),
+              nePanBoundary: LatLng(latitude, longitude),
+              // maxZoom: 14.0,
+              // minZoom: 13,
             ),
-            new MarkerLayerOptions(
-              rotate: false,
-              markers: [
-                new Marker(
-                  width: 80.0,
-                  height: 80.0,
-                  point: new LatLng(latitude, longitude),
-                  builder: (ctx) => new Container(
-                    child: new Icon(
-                      Icons.location_pin,
-                      color: Colors.red,
+            layers: [
+              TileLayerOptions(
+                // tileProvider: AssetTileProvider(),
+                // backgroundColor: Colors.transparent,
+                overrideTilesWhenUrlChanges: false,
+                urlTemplate:
+                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?source=${DateTime.now().millisecondsSinceEpoch}",
+                subdomains: ['a', 'b', 'c'],
+                // attributionBuilder: (_) {
+                //   return Text("© OpenStreetMap contributors");
+                // },
+              ),
+              new MarkerLayerOptions(
+                rotate: false,
+                markers: [
+                  new Marker(
+                    width: 80.0,
+                    height: 80.0,
+                    point: new LatLng(latitude, longitude),
+                    builder: (ctx) => new Container(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            height: 30,
+                            width: 30,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30)),
+                                color: Colors.white70),
+                          ),
+                          new Icon(
+                            Icons.location_pin,
+                            color: Colors.red,
+                            size: 30,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       );
     } else {
