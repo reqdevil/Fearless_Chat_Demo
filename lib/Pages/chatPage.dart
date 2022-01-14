@@ -44,7 +44,7 @@ class _ChatPageState extends State<ChatPage>
       Icons.camera,
       // Icons.upload,
       Icons.file_present,
-      Icons.gif
+      // Icons.gif
     ];
     controller = AnimationController(
       vsync: this,
@@ -421,7 +421,7 @@ class _ChatPageState extends State<ChatPage>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.end,
                                       mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                          MainAxisAlignment.start,
                                       children: [
                                         ElevatedButton(
                                             style: ElevatedButton.styleFrom(
@@ -446,6 +446,8 @@ class _ChatPageState extends State<ChatPage>
                                           height: 10,
                                         ),
                                         GridView.count(
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
                                           mainAxisSpacing: 21.0,
                                           crossAxisSpacing: 21.0,
                                           shrinkWrap: true,
