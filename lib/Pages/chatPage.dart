@@ -779,11 +779,11 @@ class _ChatPageState extends State<ChatPage>
                                           );
                                         },
                                         title: Text(map.mapName),
-                                        leading: Image.asset(
-                                          map.icon,
-                                          height: 30.0,
-                                          width: 30.0,
-                                        ),
+                                        // leading: Image.asset(
+                                        //   map.icon,
+                                        //   height: 30.0,
+                                        //   width: 30.0,
+                                        // ),
                                       ),
                                   ],
                                 ),
