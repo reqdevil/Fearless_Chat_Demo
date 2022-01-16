@@ -755,16 +755,22 @@ class _ChatPageState extends State<ChatPage>
             nePanBoundary: LatLng(latitude, longitude), allowPanning: false,
             onTap: (tapPosition, point) async {
               final availableMaps = await M.MapLauncher.installedMaps;
-              if (availableMaps.isNotEmpty)
+              if (availableMaps.isNotEmpty) if (availableMaps.length > 1)
                 showModalBottomSheet(
                   context: context,
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(25.0))),
                   builder: (BuildContext context) {
                     return SafeArea(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           Expanded(
                             child: SingleChildScrollView(
                               child: Container(
+                                height: MediaQuery.of(context).size.height / 8,
                                 child: Wrap(
                                   children: <Widget>[
                                     for (var map in availableMaps)
@@ -794,6 +800,13 @@ class _ChatPageState extends State<ChatPage>
                       ),
                     );
                   },
+                );
+              else
+                await M.MapLauncher.showMarker(
+                  mapType: availableMaps.first.mapType,
+                  coords: M.Coords(latitude, longitude),
+                  title: "I am here.",
+                  description: "",
                 );
             },
             // maxZoom: 14.0,
@@ -828,7 +841,7 @@ class _ChatPageState extends State<ChatPage>
                           decoration: BoxDecoration(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(30)),
-                              color: Colors.white70),
+                              color: Colors.white70.withOpacity(0.5)),
                         ),
                         new Icon(
                           Icons.location_pin,
