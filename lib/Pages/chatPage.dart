@@ -16,7 +16,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:math' as math;
 import 'package:location/location.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:maps_launcher/maps_launcher.dart';
+import 'package:map_launcher/map_launcher.dart' as M;
+import 'package:map_launcher/map_launcher.dart';
 
 class ChatPage extends StatefulWidget {
   List<TakenCameraMedia>? listShareMedia;
@@ -752,9 +753,48 @@ class _ChatPageState extends State<ChatPage>
 
             swPanBoundary: LatLng(latitude, longitude),
             nePanBoundary: LatLng(latitude, longitude), allowPanning: false,
-            onTap: (tapPosition, point) {
-              MapsLauncher.launchCoordinates(
-                  latitude, longitude, 'Maps opening');
+            onTap: (tapPosition, point) async {
+              final availableMaps = await M.MapLauncher.installedMaps;
+              if (availableMaps.isNotEmpty)
+                showModalBottomSheet(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SafeArea(
+                      child: Column(
+                        children: <Widget>[
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Container(
+                                child: Wrap(
+                                  children: <Widget>[
+                                    for (var map in availableMaps)
+                                      ListTile(
+                                        onTap: () async {
+                                          await M.MapLauncher.showMarker(
+                                            mapType: map.mapType,
+                                            coords:
+                                                M.Coords(latitude, longitude),
+                                            title: "I am here.",
+                                            description: "",
+                                          );
+                                        },
+                                        title: Text(map.mapName),
+                                        leading: Image.asset(
+                                          map.icon,
+                                          height: 30.0,
+                                          width: 30.0,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
             },
             // maxZoom: 14.0,
             // minZoom: 13,
