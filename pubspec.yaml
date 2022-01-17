@@ -70,6 +70,7 @@ dependencies:
   location: ^4.3.0
   flutter_map: ^0.14.0
   map_launcher: ^2.1.2
+  flutter_svg: ^1.0.1
   
   # wechat_assets_picker: ^6.3.1
   
