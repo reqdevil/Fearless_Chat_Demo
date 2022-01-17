@@ -424,198 +424,76 @@ class _ChatPageState extends State<ChatPage>
                                                 children: [
                                                   for (var key in icons.keys)
                                                     ListTile(
-                                                        title: Text(
-                                                          icons[key].toString(),
-                                                          style: TextStyle(
-                                                              color: Global
-                                                                  .mainColor),
-                                                        ),
-                                                        leading: Icon(
-                                                          key,
-                                                          color:
-                                                              Global.mainColor,
-                                                        ),
-                                                        onTap: () async {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                          if (icons[key]
-                                                                  .toString() ==
-                                                              'Gallery') {
-                                                            getImageFromGallery();
-                                                          } else if (icons[key]
-                                                                  .toString() ==
-                                                              'Camera') {
-                                                            showOptionsShareMedia(
-                                                                context);
-                                                          } else if (icons[key]
-                                                                  .toString() ==
-                                                              'Document') {
-                                                            getMultipleFile();
-                                                          } else if (icons[key]
-                                                                  .toString() ==
-                                                              'Location') {
-                                                            List<String>
-                                                                location =
-                                                                await shareLocation();
+                                                      title: Text(
+                                                        icons[key].toString(),
+                                                        style: TextStyle(
+                                                            color: Global
+                                                                .mainColor),
+                                                      ),
+                                                      leading: Icon(
+                                                        key,
+                                                        color: Global.mainColor,
+                                                      ),
+                                                      onTap: () async {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                        if (icons[key]
+                                                                .toString() ==
+                                                            'Gallery') {
+                                                          getImageFromGallery();
+                                                        } else if (icons[key]
+                                                                .toString() ==
+                                                            'Camera') {
+                                                          showOptionsShareMedia(
+                                                              context);
+                                                        } else if (icons[key]
+                                                                .toString() ==
+                                                            'Document') {
+                                                          getMultipleFile();
+                                                        } else if (icons[key]
+                                                                .toString() ==
+                                                            'Location') {
+                                                          List<String>
+                                                              location =
+                                                              await shareLocation();
 
-                                                            setState(
-                                                              () {
-                                                                Global.messages
-                                                                    .add(
-                                                                  {
-                                                                    'usrId': widget
-                                                                        .userId,
-                                                                    'status':
-                                                                        MessageType
-                                                                            .sent,
-                                                                    'message':
-                                                                        "",
-                                                                    'time': DateFormat(
-                                                                            'dd.MM.yyyy – kk:mm')
-                                                                        .format(
-                                                                            DateTime.now()),
-                                                                    'hasShareMedia':
-                                                                        false,
-                                                                    'filePaths':
-                                                                        [],
-                                                                    'location':
-                                                                        location
-                                                                  },
-                                                                );
-                                                                _messages = Global
-                                                                        .getMessages()
-                                                                    .where((element) =>
-                                                                        element[
-                                                                            'usrId'] ==
-                                                                        widget
-                                                                            .userId)
-                                                                    .toList();
-                                                                scrollDown();
-                                                              },
-                                                            );
-                                                          }
-                                                        })
-                                                  // ElevatedButton(
-                                                  //     style: ElevatedButton
-                                                  //         .styleFrom(
-                                                  //       elevation: 0,
-                                                  //       minimumSize:
-                                                  //           const Size(35, 35),
-                                                  //       padding:
-                                                  //           const EdgeInsets
-                                                  //               .all(0),
-                                                  //       primary: Colors.grey
-                                                  //           .withOpacity(0.3),
-                                                  //       shape:
-                                                  //           RoundedRectangleBorder(
-                                                  //         borderRadius:
-                                                  //             BorderRadius
-                                                  //                 .circular(25),
-                                                  //       ),
-                                                  //     ),
-                                                  //     onPressed: () {
-                                                  //       Navigator.pop(context);
-                                                  //     },
-                                                  //     child: Icon(
-                                                  //       Icons.close,
-                                                  //       color: Global.mainColor,
-                                                  //     )),
-                                                  // const SizedBox(
-                                                  //   height: 10,
-                                                  // ),
-                                                  // GridView.count(
-                                                  //   physics:
-                                                  //       NeverScrollableScrollPhysics(),
-                                                  //   mainAxisSpacing: 21.0,
-                                                  //   crossAxisSpacing: 21.0,
-                                                  //   shrinkWrap: true,
-                                                  //   crossAxisCount: 3,
-                                                  //   children: List.generate(
-                                                  //     icons.length,
-                                                  //     (i) {
-                                                  //       return Container(
-                                                  //         decoration:
-                                                  //             BoxDecoration(
-                                                  //           borderRadius:
-                                                  //               BorderRadius
-                                                  //                   .circular(
-                                                  //                       15.0),
-                                                  //           color: Colors
-                                                  //               .grey[200],
-                                                  //           border: Border.all(
-                                                  //               color: Global
-                                                  //                   .mainColor,
-                                                  //               width: 2),
-                                                  //         ),
-                                                  //         child: IconButton(
-                                                  //           icon: Icon(
-                                                  //             icons[i],
-                                                  //             color: Global
-                                                  //                 .mainColor,
-                                                  //             size: 50,
-                                                  //           ),
-                                                  //           onPressed:
-                                                  //               () async {
-                                                  //             Navigator.of(
-                                                  //                     context)
-                                                  //                 .pop();
-                                                  //             if (i == 0) {
-                                                  //               getImageFromGallery();
-                                                  //             } else if (i ==
-                                                  //                 1) {
-                                                  //               showOptionsShareMedia(
-                                                  //                   context);
-                                                  //             } else if (i ==
-                                                  //                 2) {
-                                                  //               getMultipleFile();
-                                                  //             } else if (i ==
-                                                  //                 3) {
-                                                  //               List<String>
-                                                  //                   location =
-                                                  //                   await shareLocation();
-
-                                                  //               setState(() {
-                                                  //                 Global
-                                                  //                     .messages
-                                                  //                     .add(
-                                                  //                   {
-                                                  //                     'usrId':
-                                                  //                         widget
-                                                  //                             .userId,
-                                                  //                     'status':
-                                                  //                         MessageType
-                                                  //                             .sent,
-                                                  //                     'message':
-                                                  //                         "",
-                                                  //                     'time': DateFormat(
-                                                  //                             'dd.MM.yyyy – kk:mm')
-                                                  //                         .format(
-                                                  //                             DateTime.now()),
-                                                  //                     'hasShareMedia':
-                                                  //                         false,
-                                                  //                     'filePaths':
-                                                  //                         [],
-                                                  //                     'location':
-                                                  //                         location
-                                                  //                   },
-                                                  //                 );
-                                                  //                 _messages = Global
-                                                  //                         .getMessages()
-                                                  //                     .where((element) =>
-                                                  //                         element[
-                                                  //                             'usrId'] ==
-                                                  //                         widget
-                                                  //                             .userId)
-                                                  //                     .toList();
-                                                  //                 scrollDown();
-                                                  //               });
-                                                  //             }
-                                                  //           },
-                                                  //         ),
-                                                  //       );
-                                                  //     },
-                                                  //   ),
-                                                  // ),
+                                                          setState(
+                                                            () {
+                                                              Global.messages
+                                                                  .add(
+                                                                {
+                                                                  'usrId': widget
+                                                                      .userId,
+                                                                  'status':
+                                                                      MessageType
+                                                                          .sent,
+                                                                  'message': "",
+                                                                  'time': DateFormat(
+                                                                          'dd.MM.yyyy – kk:mm')
+                                                                      .format(DateTime
+                                                                          .now()),
+                                                                  'hasShareMedia':
+                                                                      false,
+                                                                  'filePaths':
+                                                                      [],
+                                                                  'location':
+                                                                      location
+                                                                },
+                                                              );
+                                                              _messages = Global
+                                                                      .getMessages()
+                                                                  .where((element) =>
+                                                                      element[
+                                                                          'usrId'] ==
+                                                                      widget
+                                                                          .userId)
+                                                                  .toList();
+                                                              scrollDown();
+                                                            },
+                                                          );
+                                                        }
+                                                      },
+                                                    )
                                                 ],
                                               ),
                                             ),
@@ -651,28 +529,30 @@ class _ChatPageState extends State<ChatPage>
                                     color: Global.mainColor,
                                   ),
                                   onPressed: () async {
-                                    setState(() {
-                                      Global.messages.add(
-                                        {
-                                          'usrId': widget.userId,
-                                          'status': MessageType.sent,
-                                          'message':
-                                              _textEditingController!.text,
-                                          'time':
-                                              DateFormat('dd.MM.yyyy – kk:mm')
-                                                  .format(DateTime.now()),
-                                          'hasShareMedia': false,
-                                          'filePaths': [],
-                                          'location': []
-                                        },
-                                      );
-                                      _messages = Global.getMessages()
-                                          .where((element) =>
-                                              element['usrId'] == widget.userId)
-                                          .toList();
-                                      scrollDown();
-                                      _textEditingController!.clear();
-                                    });
+                                    if (_textEditingController!.text.isNotEmpty)
+                                      setState(() {
+                                        Global.messages.add(
+                                          {
+                                            'usrId': widget.userId,
+                                            'status': MessageType.sent,
+                                            'message':
+                                                _textEditingController!.text,
+                                            'time':
+                                                DateFormat('dd.MM.yyyy – kk:mm')
+                                                    .format(DateTime.now()),
+                                            'hasShareMedia': false,
+                                            'filePaths': [],
+                                            'location': []
+                                          },
+                                        );
+                                        _messages = Global.getMessages()
+                                            .where((element) =>
+                                                element['usrId'] ==
+                                                widget.userId)
+                                            .toList();
+                                        scrollDown();
+                                        _textEditingController!.clear();
+                                      });
                                   },
                                 ),
                               ),
