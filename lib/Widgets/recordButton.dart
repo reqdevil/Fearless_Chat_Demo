@@ -221,7 +221,8 @@ class _RecordButtonState extends State<RecordButton> {
                   'message': "",
                   'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
                   'hasShareMedia': true,
-                  'filePaths': [filePath]
+                  'filePaths': [filePath],
+                  'location': []
                 },
               );
               widget.endOfRecord(lstMessages);
@@ -347,7 +348,8 @@ class _RecordButtonState extends State<RecordButton> {
               'message': "",
               'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
               'hasShareMedia': true,
-              'filePaths': [filePath]
+              'filePaths': [filePath],
+              'location': []
             },
           );
           widget.endOfRecord(lstMessages);
