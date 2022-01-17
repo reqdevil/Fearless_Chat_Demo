@@ -722,6 +722,7 @@ class _ChatPageState extends State<ChatPage>
                               for (var map in availableMaps)
                                 ListTile(
                                   onTap: () async {
+                                    Navigator.pop(context);
                                     await M.MapLauncher.showMarker(
                                       mapType: map.mapType,
                                       coords: M.Coords(latitude, longitude),

@@ -234,7 +234,7 @@ class _MainPageState extends State<MainPage> {
                                     rootNavigator: true);
                               },
                               onLongPress: () {
-                                openFriendOptions(context, index);
+                                openFriendOptions(context, _friendList[index]);
                               },
                             );
                           },
@@ -254,7 +254,7 @@ class _MainPageState extends State<MainPage> {
                               ListTile(
                                 isThreeLine: true,
                                 onLongPress: () {
-                                  openFriendOptions(context, i);
+                                  openFriendOptions(context, _friendList[i]);
                                 },
                                 // onTap: () => Navigator.of(context).pushNamed('chat'),
                                 onTap: () async {
@@ -458,7 +458,8 @@ class _MainPageState extends State<MainPage> {
                                         rootNavigator: true);
                                   },
                                   onLongPress: () {
-                                    openFriendOptions(context, index);
+                                    openFriendOptions(
+                                        context, _friendList[index]);
                                   },
                                 );
                               },
@@ -478,7 +479,8 @@ class _MainPageState extends State<MainPage> {
                                   ListTile(
                                     isThreeLine: true,
                                     onLongPress: () {
-                                      openFriendOptions(context, i);
+                                      openFriendOptions(
+                                          context, _friendList[i]);
                                     },
                                     // onTap: () => Navigator.of(context).pushNamed('chat'),
                                     onTap: () async {
@@ -686,7 +688,7 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  void openFriendOptions(BuildContext context, int index) {
+  void openFriendOptions(BuildContext context, Friend friend) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -698,7 +700,7 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               child: Wrap(
                 children: [
-                  _friendList[index].isFavorite
+                  friend.isFavorite
                       ? ListTile(
                           leading: Icon(Icons.remove_circle_outline_rounded,
                               color: Colors.red),
@@ -708,7 +710,8 @@ class _MainPageState extends State<MainPage> {
                           ),
                           onTap: () {
                             setState(() {
-                              _friendFavoriteList.remove(_friendList[index]);
+                              _friendFavoriteList.remove(friend);
+                              int index = _friendList.indexOf(friend);
                               _friendList[index].isFavorite = false;
                               if (_friendFavoriteList.isEmpty)
                                 _isVisibileFavoriteFriendList = false;
@@ -726,7 +729,8 @@ class _MainPageState extends State<MainPage> {
                           ),
                           onTap: () {
                             setState(() {
-                              _friendFavoriteList.add(_friendList[index]);
+                              _friendFavoriteList.add(friend);
+                              int index = _friendList.indexOf(friend);
                               _friendList[index].isFavorite = true;
                               if (_friendFavoriteList.length > 0)
                                 _isVisibileFavoriteFriendList = true;
