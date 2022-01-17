@@ -45,9 +45,9 @@ late bool _isSelectedImage;
 bool _isCameraInitialized = false;
 late Stream<int>? timerStream;
 late StreamSubscription<int> timerSubscription;
-String hoursStr = "";
-String minutesStr = "";
-String secondsStr = "";
+String hoursStr = "00";
+String minutesStr = "00";
+String secondsStr = "00";
 late CameraType cameraType;
 TapDownDetails? exposedAreaDetails;
 bool _isFingerTapped = false;
@@ -244,34 +244,41 @@ class _CameraPageState extends State<CameraPage>
                         ),
                         Align(
                           alignment: Alignment.topCenter,
-                          child: Padding(
-                            padding: const EdgeInsets.all(18.0),
-                            child: _isVideoRecording && _isVideoRecorderSelected
-                                ? Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: const BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(5.0),
-                                        ),
-                                        color: Colors.red),
-                                    child: Text(
-                                      "$hoursStr:$minutesStr:$secondsStr",
-                                      style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white),
-                                    ),
-                                  )
-                                : !_isVideoRecording && _isVideoRecorderSelected
-                                    ? const Text(
+                          child: _isVideoRecording && _isVideoRecorderSelected
+                              ? Container(
+                                  margin: EdgeInsets.all(15),
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(5.0),
+                                      ),
+                                      color: Colors.red),
+                                  child: Text(
+                                    "$hoursStr:$minutesStr:$secondsStr",
+                                    style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  ),
+                                )
+                              : !_isVideoRecording && _isVideoRecorderSelected
+                                  ? Container(
+                                      margin: EdgeInsets.all(15),
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(5.0),
+                                          ),
+                                          color: Colors.transparent),
+                                      child: const Text(
                                         "00:00:00",
                                         style: TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white),
-                                      )
-                                    : Container(),
-                          ),
+                                      ),
+                                    )
+                                  : SizedBox(),
                         ),
                         Align(
                           alignment: Alignment.topLeft,
