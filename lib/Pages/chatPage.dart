@@ -420,85 +420,80 @@ class _ChatPageState extends State<ChatPage>
                                             top: Radius.circular(10.0))),
                                     builder: (context) {
                                       return SafeArea(
-                                        child: Expanded(
-                                          child: SingleChildScrollView(
-                                            child: Container(
-                                              child: Wrap(
-                                                children: [
-                                                  for (var key in icons.keys)
-                                                    ListTile(
-                                                      title: Text(
-                                                        icons[key].toString(),
-                                                        style: TextStyle(
-                                                            color: Global
-                                                                .mainColor),
-                                                      ),
-                                                      leading: Icon(
-                                                        key,
-                                                        color: Global.mainColor,
-                                                      ),
-                                                      onTap: () async {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                        if (icons[key]
-                                                                .toString() ==
-                                                            'Gallery') {
-                                                          getImageFromGallery();
-                                                        } else if (icons[key]
-                                                                .toString() ==
-                                                            'Camera') {
-                                                          showOptionsShareMedia(
-                                                              context);
-                                                        } else if (icons[key]
-                                                                .toString() ==
-                                                            'Document') {
-                                                          getMultipleFile();
-                                                        } else if (icons[key]
-                                                                .toString() ==
-                                                            'Location') {
-                                                          List<String>
-                                                              location =
-                                                              await shareLocation();
+                                        child: SingleChildScrollView(
+                                          child: Container(
+                                            child: Wrap(
+                                              children: [
+                                                for (var key in icons.keys)
+                                                  ListTile(
+                                                    title: Text(
+                                                      icons[key].toString(),
+                                                      style: TextStyle(
+                                                          color:
+                                                              Global.mainColor),
+                                                    ),
+                                                    leading: Icon(
+                                                      key,
+                                                      color: Global.mainColor,
+                                                    ),
+                                                    onTap: () async {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      if (icons[key]
+                                                              .toString() ==
+                                                          'Gallery') {
+                                                        getImageFromGallery();
+                                                      } else if (icons[key]
+                                                              .toString() ==
+                                                          'Camera') {
+                                                        showOptionsShareMedia(
+                                                            context);
+                                                      } else if (icons[key]
+                                                              .toString() ==
+                                                          'Document') {
+                                                        getMultipleFile();
+                                                      } else if (icons[key]
+                                                              .toString() ==
+                                                          'Location') {
+                                                        List<String> location =
+                                                            await shareLocation();
 
-                                                          setState(
-                                                            () {
-                                                              Global.messages
-                                                                  .add(
-                                                                {
-                                                                  'usrId': widget
-                                                                      .userId,
-                                                                  'status':
-                                                                      MessageType
-                                                                          .sent,
-                                                                  'message': "",
-                                                                  'time': DateFormat(
-                                                                          'dd.MM.yyyy – kk:mm')
-                                                                      .format(DateTime
-                                                                          .now()),
-                                                                  'hasShareMedia':
-                                                                      false,
-                                                                  'filePaths':
-                                                                      [],
-                                                                  'location':
-                                                                      location
-                                                                },
-                                                              );
-                                                              _messages = Global
-                                                                      .getMessages()
-                                                                  .where((element) =>
-                                                                      element
-                                                                          .usrId ==
-                                                                      widget
-                                                                          .userId)
-                                                                  .toList();
-                                                              scrollDown();
-                                                            },
-                                                          );
-                                                        }
-                                                      },
-                                                    )
-                                                ],
-                                              ),
+                                                        setState(
+                                                          () {
+                                                            Global.messages.add(
+                                                              {
+                                                                'usrId': widget
+                                                                    .userId,
+                                                                'status':
+                                                                    MessageType
+                                                                        .sent,
+                                                                'message': "",
+                                                                'time': DateFormat(
+                                                                        'dd.MM.yyyy – kk:mm')
+                                                                    .format(DateTime
+                                                                        .now()),
+                                                                'hasShareMedia':
+                                                                    false,
+                                                                'filePaths': [],
+                                                                'location':
+                                                                    location
+                                                              },
+                                                            );
+                                                            _messages = Global
+                                                                    .getMessages()
+                                                                .where((element) =>
+                                                                    element
+                                                                        .usrId ==
+                                                                    widget
+                                                                        .userId)
+                                                                .toList();
+                                                            scrollDown();
+                                                          },
+                                                        );
+                                                      }
+                                                    },
+                                                  )
+                                              ],
                                             ),
                                           ),
                                         ),

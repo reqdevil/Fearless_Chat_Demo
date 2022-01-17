@@ -28,6 +28,7 @@ class _MainPageState extends State<MainPage> {
   // List favoriteFriends =
   //     friendsList.where((element) => element['isFavorite'] as bool).toList();
   int selectedPageIndex = 0;
+  late bool _isVisibileFavoriteFriendList;
   late List _children = [];
   bool _isVisibleSearch = false;
   bool _isVisibleSearchClean = false;
@@ -52,6 +53,13 @@ class _MainPageState extends State<MainPage> {
       }
       _friendList.add(f);
     }
+    setState(() {
+      if (_friendFavoriteList.isNotEmpty)
+        _isVisibileFavoriteFriendList = true;
+      else
+        _isVisibileFavoriteFriendList = false;
+    });
+
     _searchTextEditorController.addListener(() {
       if (_searchTextEditorController.text.isNotEmpty) {
         setState(() {
@@ -72,6 +80,7 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       appBar: selectedPageIndex == 0
           ? AppBar(
               iconTheme: IconThemeData(
@@ -152,229 +161,29 @@ class _MainPageState extends State<MainPage> {
           child: selectedPageIndex == 0 && _searchResult.isEmpty
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Expanded(
-                      flex: 1,
-                      child: ListView.builder(
-                        padding: EdgeInsets.only(
-                            left: 15, right: 20, top: 10, bottom: 5),
-                        shrinkWrap: true,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: _friendFavoriteList.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Stack(children: [
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                          _friendFavoriteList[index].imgUrl),
-                                    ),
-                                  ),
-                                  _friendFavoriteList[index].isOnline
-                                      ? Positioned.fill(
-                                          child: Align(
-                                            alignment: Alignment.topRight,
-                                            child: Container(
-                                              height: 15,
-                                              width: 15,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: Colors.white,
-                                                  width: 3,
-                                                ),
-                                                shape: BoxShape.circle,
-                                                color: Colors.green,
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      : Container(),
-                                ]),
-                                Text(
-                                  _friendFavoriteList[index].username,
-                                  style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87),
-                                  textAlign: TextAlign.center,
-                                )
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      flex: 5,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        controller: _friendListController,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: friendsList.length,
-                        itemBuilder: (ctx, i) {
-                          return Column(
-                            children: <Widget>[
-                              ListTile(
-                                isThreeLine: true,
-                                onLongPress: () {},
-                                // onTap: () => Navigator.of(context).pushNamed('chat'),
-                                onTap: () async {
-                                  setState(() {
-                                    _isVisibleSearch = false;
-                                  });
-                                  Global.selectedUserId =
-                                      friendsList[i]['usrId'];
-                                  await navigatePageTop(
-                                      context: context,
-                                      page: ChatPage(
-                                          userId: friendsList[i]['usrId']),
-                                      rootNavigator: true);
-                                },
-                                leading: Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 3,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Colors.grey.withOpacity(.3),
-                                          offset: const Offset(0, 5),
-                                          blurRadius: 25)
-                                    ],
-                                  ),
-                                  child: Stack(
-                                    children: <Widget>[
-                                      Positioned.fill(
-                                        child: CircleAvatar(
-                                          backgroundImage: NetworkImage(
-                                              friendsList[i]['imgUrl']),
-                                        ),
-                                      ),
-                                      friendsList[i]['isOnline']
-                                          ? Align(
-                                              alignment: Alignment.topRight,
-                                              child: Container(
-                                                height: 15,
-                                                width: 15,
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                    color: Colors.white,
-                                                    width: 3,
-                                                  ),
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.green,
-                                                ),
-                                              ),
-                                            )
-                                          : Container(),
-                                    ],
-                                  ),
-                                ),
-                                title: Text(
-                                  "${friendsList[i]['username']}",
-                                  style: Theme.of(context).textTheme.bodyText1,
-                                ),
-                                subtitle: Text(
-                                  "${friendsList[i]['lastMsg']}",
-                                  style: !friendsList[i]['seen']
-                                      ? Theme.of(context)
-                                          .textTheme
-                                          .subtitle1!
-                                          .apply(color: Colors.black87)
-                                      : Theme.of(context)
-                                          .textTheme
-                                          .subtitle1!
-                                          .apply(color: Colors.black54),
-                                ),
-                                trailing: SizedBox(
-                                  width: 60,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: <Widget>[
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          friendsList[i]['seen']
-                                              ? const Icon(
-                                                  Icons.check,
-                                                  size: 15,
-                                                )
-                                              : const SizedBox(
-                                                  height: 15, width: 15),
-                                          Text(
-                                              "${friendsList[i]['lastMsgTime']}")
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        height: 5.0,
-                                      ),
-                                      friendsList[i]['hasUnSeenMsgs']
-                                          ? Container(
-                                              alignment: Alignment.center,
-                                              height: 25,
-                                              width: 25,
-                                              decoration: BoxDecoration(
-                                                color: Global.mainColor,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Text(
-                                                "${friendsList[i]['unseenCount']}",
-                                                style: const TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                            )
-                                          : const SizedBox(
-                                              height: 25,
-                                              width: 25,
-                                            ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const Divider(
-                                height: 1,
-                              )
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              : _searchResult.isNotEmpty
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: ListView.builder(
-                            padding: EdgeInsets.only(
-                                left: 15, right: 20, top: 10, bottom: 5),
-                            shrinkWrap: true,
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: _friendFavoriteList.length,
-                            scrollDirection: Axis.horizontal,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
+                    Visibility(
+                      visible: _isVisibileFavoriteFriendList,
+                      child: Container(
+                        height: 90,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.only(
+                              left: 5, right: 5, top: 10, bottom: 0),
+                          // shrinkWrap: true,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: _friendFavoriteList.length,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.max,
+                                  // mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Stack(children: [
                                       Align(
@@ -403,7 +212,7 @@ class _MainPageState extends State<MainPage> {
                                                 ),
                                               ),
                                             )
-                                          : Container(),
+                                          : SizedBox(),
                                     ]),
                                     Text(
                                       _friendFavoriteList[index].username,
@@ -415,17 +224,251 @@ class _MainPageState extends State<MainPage> {
                                     )
                                   ],
                                 ),
-                              );
-                            },
+                              ),
+                              onTap: () async {
+                                await navigatePageBottom(
+                                    context: context,
+                                    page: ChatPage(
+                                        userId:
+                                            _friendFavoriteList[index].usrId),
+                                    rootNavigator: true);
+                              },
+                              onLongPress: () {
+                                openFriendOptions(context, index);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.only(top: 15),
+                        controller: _friendListController,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: _friendList.length,
+                        itemBuilder: (ctx, i) {
+                          return Column(
+                            children: <Widget>[
+                              ListTile(
+                                isThreeLine: true,
+                                onLongPress: () {
+                                  openFriendOptions(context, i);
+                                },
+                                // onTap: () => Navigator.of(context).pushNamed('chat'),
+                                onTap: () async {
+                                  setState(() {
+                                    _isVisibleSearch = false;
+                                  });
+                                  Global.selectedUserId = _friendList[i].usrId;
+                                  await navigatePageTop(
+                                      context: context,
+                                      page: ChatPage(
+                                          userId: _friendList[i].usrId),
+                                      rootNavigator: true);
+                                },
+                                leading: Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 3,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.grey.withOpacity(.3),
+                                          offset: const Offset(0, 5),
+                                          blurRadius: 25)
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: <Widget>[
+                                      Positioned.fill(
+                                        child: CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                              _friendList[i].imgUrl),
+                                        ),
+                                      ),
+                                      _friendList[i].isOnline
+                                          ? Align(
+                                              alignment: Alignment.topRight,
+                                              child: Container(
+                                                height: 15,
+                                                width: 15,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Colors.white,
+                                                    width: 3,
+                                                  ),
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.green,
+                                                ),
+                                              ),
+                                            )
+                                          : Container(),
+                                    ],
+                                  ),
+                                ),
+                                title: Text(
+                                  "${_friendList[i].username}",
+                                  style: Theme.of(context).textTheme.bodyText1,
+                                ),
+                                subtitle: Text(
+                                  "${_friendList[i].lastMsg}",
+                                  style: !friendsList[i]['seen']
+                                      ? Theme.of(context)
+                                          .textTheme
+                                          .subtitle1!
+                                          .apply(color: Colors.black87)
+                                      : Theme.of(context)
+                                          .textTheme
+                                          .subtitle1!
+                                          .apply(color: Colors.black54),
+                                ),
+                                trailing: SizedBox(
+                                  width: 60,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: <Widget>[
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          _friendList[i].seen
+                                              ? const Icon(
+                                                  Icons.check,
+                                                  size: 15,
+                                                )
+                                              : const SizedBox(
+                                                  height: 15, width: 15),
+                                          Text("${_friendList[i].lastMsgTime}")
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 5.0,
+                                      ),
+                                      _friendList[i].hasUnSeenMsgs
+                                          ? Container(
+                                              alignment: Alignment.center,
+                                              height: 25,
+                                              width: 25,
+                                              decoration: BoxDecoration(
+                                                color: Global.mainColor,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Text(
+                                                "${_friendList[i].unseenCount}",
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            )
+                                          : const SizedBox(
+                                              height: 25,
+                                              width: 25,
+                                            ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const Divider(
+                                height: 1,
+                              )
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              : _searchResult.isNotEmpty
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Visibility(
+                          visible: _isVisibileFavoriteFriendList,
+                          child: Container(
+                            height: 90,
+                            child: ListView.builder(
+                              padding: EdgeInsets.only(
+                                  left: 5, right: 5, top: 10, bottom: 0),
+                              shrinkWrap: true,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: _friendFavoriteList.length,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, index) {
+                                return GestureDetector(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Stack(children: [
+                                          Align(
+                                            alignment: Alignment.center,
+                                            child: CircleAvatar(
+                                              backgroundImage: NetworkImage(
+                                                  _friendFavoriteList[index]
+                                                      .imgUrl),
+                                            ),
+                                          ),
+                                          _friendFavoriteList[index].isOnline
+                                              ? Positioned.fill(
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                    child: Container(
+                                                      height: 15,
+                                                      width: 15,
+                                                      decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                          color: Colors.white,
+                                                          width: 3,
+                                                        ),
+                                                        shape: BoxShape.circle,
+                                                        color: Colors.green,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              : Container(),
+                                        ]),
+                                        Text(
+                                          _friendFavoriteList[index].username,
+                                          style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87),
+                                          textAlign: TextAlign.center,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    await navigatePageBottom(
+                                        context: context,
+                                        page: ChatPage(
+                                            userId: _friendFavoriteList[index]
+                                                .usrId),
+                                        rootNavigator: true);
+                                  },
+                                  onLongPress: () {
+                                    openFriendOptions(context, index);
+                                  },
+                                );
+                              },
+                            ),
                           ),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
                         Expanded(
-                          flex: 2,
                           child: ListView.builder(
                             shrinkWrap: true,
+                            padding: EdgeInsets.only(top: 15),
                             // controller: _friendListController,
                             physics: const BouncingScrollPhysics(),
                             itemCount: _searchResult.length,
@@ -434,7 +477,9 @@ class _MainPageState extends State<MainPage> {
                                 children: <Widget>[
                                   ListTile(
                                     isThreeLine: true,
-                                    onLongPress: () {},
+                                    onLongPress: () {
+                                      openFriendOptions(context, i);
+                                    },
                                     // onTap: () => Navigator.of(context).pushNamed('chat'),
                                     onTap: () async {
                                       await navigatePageBottom(
@@ -562,7 +607,6 @@ class _MainPageState extends State<MainPage> {
                       ],
                     )
                   : _children[selectedPageIndex]),
-
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: keyboardIsOpened
           ? null
@@ -639,45 +683,63 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
       ),
-      // bottomNavigationBar: Theme(
-      //   data: Theme.of(context).copyWith(canvasColor: Colors.redAccent),
-      //   child: BottomNavigationBar(
-      //     currentIndex: selectedPageIndex,
-      //     onTap: changePage,
-      //     type: BottomNavigationBarType.fixed,
-      //     fixedColor: Colors.white,
-      //     items: [
-      //       const BottomNavigationBarItem(
-      //         icon: Icon(Icons.person),
-      //         title: Text(
-      //           'Profile',
-      //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      //         ),
-      //       ),
-      //       const BottomNavigationBarItem(
-      //         icon: Icon(Icons.camera),
-      //         title: Text(
-      //           'Camera',
-      //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      //         ),
-      //       ),
-      //       const BottomNavigationBarItem(
-      //         icon: Icon(Icons.chat_bubble),
-      //         title: Text(
-      //           'Chat',
-      //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      //         ),
-      //       ),
-      //       const BottomNavigationBarItem(
-      //         icon: Icon(Icons.settings),
-      //         title: Text(
-      //           'Settings',
-      //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
+    );
+  }
+
+  void openFriendOptions(BuildContext context, int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(10.0))),
+      builder: (context) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              child: Wrap(
+                children: [
+                  _friendList[index].isFavorite
+                      ? ListTile(
+                          leading: Icon(Icons.remove_circle_outline_rounded,
+                              color: Global.mainColor),
+                          title: Text(
+                            "Remove from favorites",
+                            style: TextStyle(color: Global.mainColor),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _friendFavoriteList.remove(_friendList[index]);
+                              _friendList[index].isFavorite = false;
+                              if (_friendFavoriteList.isEmpty)
+                                _isVisibileFavoriteFriendList = false;
+                              else
+                                _isVisibileFavoriteFriendList = true;
+                            });
+                            Navigator.pop(context);
+                          },
+                        )
+                      : ListTile(
+                          leading: Icon(Icons.add, color: Global.mainColor),
+                          title: Text(
+                            "Add to favorites",
+                            style: TextStyle(color: Global.mainColor),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _friendFavoriteList.add(_friendList[index]);
+                              _friendList[index].isFavorite = true;
+                              if (_friendFavoriteList.length > 0)
+                                _isVisibileFavoriteFriendList = true;
+                            });
+                            Navigator.pop(context);
+                          },
+                        )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
