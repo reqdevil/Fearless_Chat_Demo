@@ -701,10 +701,10 @@ class _MainPageState extends State<MainPage> {
                   _friendList[index].isFavorite
                       ? ListTile(
                           leading: Icon(Icons.remove_circle_outline_rounded,
-                              color: Global.mainColor),
+                              color: Colors.red),
                           title: Text(
                             "Remove from favorites",
-                            style: TextStyle(color: Global.mainColor),
+                            style: TextStyle(color: Colors.red),
                           ),
                           onTap: () {
                             setState(() {
