@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:record/record.dart';
 
 class RecordButton extends StatefulWidget {
-  Function(List<Message>) endOfRecord;
+  Function(Message) endOfRecord;
   Function(bool) hasRecord;
   // Function(List<Map<String, dynamic>>) onLongPressEnd;
   RecordButton(
@@ -213,27 +213,27 @@ class _RecordButtonState extends State<RecordButton> {
 
               var filePath = await Record().stop();
               AudioState.files.add(filePath!);
-              List<Message> lstMessages = Global.getMessages();
+              // List<Message> lstMessages = Global.getMessages();
               DateTime now = DateTime.now();
-              lstMessages.add(new Message(
-                      usrId: Global.selectedUserId,
-                      status: MessageType.sent,
-                      message: "",
-                      time: DateFormat('dd.MM.yyyy – kk:mm').format(now),
-                      hasShareMedia: true,
-                      filePaths: [filePath],
-                      location: [])
-                  // {
-                  //   'usrId': Global.selectedUserId,
-                  //   'status': MessageType.sent,
-                  //   'message': "",
-                  //   'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
-                  //   'hasShareMedia': true,
-                  //   'filePaths': [filePath],
-                  //   'location': []
-                  // },
-                  );
-              widget.endOfRecord(lstMessages);
+              Message message = new Message(
+                  usrId: Global.selectedUserId,
+                  status: MessageType.sent,
+                  message: "",
+                  time: DateFormat('dd.MM.yyyy – kk:mm').format(now),
+                  hasShareMedia: true,
+                  filePaths: [filePath],
+                  location: []);
+              // {
+              //   'usrId': Global.selectedUserId,
+              //   'status': MessageType.sent,
+              //   'message': "",
+              //   'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
+              //   'hasShareMedia': true,
+              //   'filePaths': [filePath],
+              //   'location': []
+              // },
+              // );
+              widget.endOfRecord(message);
               widget.hasRecord(false);
               // Global.audioListKey.currentState!
               //     .insertItem(AudioState.files.length - 1);
@@ -347,17 +347,17 @@ class _RecordButtonState extends State<RecordButton> {
           // Global.audioListKey.currentState!
           //     .insertItem(AudioState.files.length - 1);
           debugPrint(filePath);
-          List<Message> lstMessages = Global.getMessages();
+          // List<Message> lstMessages = Global.getMessages();
           DateTime now = DateTime.now();
-          lstMessages.add(new Message(
+          Message message = new Message(
               usrId: Global.selectedUserId,
               status: MessageType.sent,
               message: "",
               time: DateFormat('dd.MM.yyyy – kk:mm').format(now),
               hasShareMedia: true,
               filePaths: [filePath],
-              location: []));
-          widget.endOfRecord(lstMessages);
+              location: []);
+          widget.endOfRecord(message);
           widget.hasRecord(false);
           setState(() {
             isVisibleSlide = false;

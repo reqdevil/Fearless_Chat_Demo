@@ -573,12 +573,9 @@ class _ChatPageState extends State<ChatPage>
                               }
                             });
                           },
-                          endOfRecord: (messages) {
+                          endOfRecord: (message) {
                             setState(() {
-                              _messages = Global.getMessages()
-                                  .where((element) =>
-                                      element.usrId == widget.userId)
-                                  .toList();
+                              _messages.add(message);
                             });
                             scrollDown();
                           },
