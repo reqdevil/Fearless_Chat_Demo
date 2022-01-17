@@ -1,4 +1,6 @@
+import 'package:fearless_chat_demo/Models/message.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Global {
@@ -8,8 +10,15 @@ class Global {
     documentPath = (await getApplicationDocumentsDirectory()).path + "/";
   }
 
-  static List<Map<String, dynamic>> getMessages() {
-    return messages;
+  static List<Message> getMessages() {
+    List<Message> _messages = [];
+    for (var item in messages) {
+      Message m = Message.fromMap(item);
+
+      _messages.add(m);
+    }
+
+    return _messages;
   }
 
   static String selectedUserId = "";

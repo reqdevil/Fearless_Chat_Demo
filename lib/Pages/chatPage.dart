@@ -1,7 +1,8 @@
-import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
+import 'package:fearless_chat_demo/Models/friend.dart';
+import 'package:fearless_chat_demo/Models/message.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:fearless_chat_demo/Widgets/audioBubble.dart';
@@ -18,7 +19,6 @@ import 'dart:math' as math;
 import 'package:location/location.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:map_launcher/map_launcher.dart' as M;
-import 'package:map_launcher/map_launcher.dart';
 
 class ChatPage extends StatefulWidget {
   List<TakenCameraMedia>? listShareMedia;
@@ -32,8 +32,8 @@ class ChatPage extends StatefulWidget {
 
 late Map<IconData, String> icons;
 
-late Map<String, dynamic> _friend;
-List<Map<String, dynamic>> _messages = [];
+late Friend _friend;
+List<Message> _messages = [];
 
 final ScrollController _controller = ScrollController();
 FocusNode? _focusNode;
@@ -63,11 +63,16 @@ class _ChatPageState extends State<ChatPage>
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
     _textEditingController!.addListener(_onTextChange);
+
     _messages = Global.getMessages()
-        .where((element) => element['usrId'] == widget.userId)
+        .where((element) => element.usrId == widget.userId)
         .toList();
-    _friend =
-        friendsList.where((element) => element['usrId'] == widget.userId).first;
+
+    _friend = Friend.fromMap(friendsList
+        .where((element) => element['usrId'] == widget.userId)
+        .first);
+    // _friend =
+    //     friendsList.where((element) => element['usrId'] == widget.userId).first;
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       scrollDown();
@@ -103,7 +108,7 @@ class _ChatPageState extends State<ChatPage>
                   padding: const EdgeInsets.only(left: 0.0, right: 5),
                   child: CircleAvatar(
                     radius: 20.0,
-                    backgroundImage: NetworkImage(_friend['imgUrl']),
+                    backgroundImage: NetworkImage(_friend.imgUrl),
                     backgroundColor: Colors.transparent,
                   ),
                 ),
@@ -112,12 +117,12 @@ class _ChatPageState extends State<ChatPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      _friend['username'],
+                      _friend.username,
                       style: Theme.of(context).textTheme.subtitle1,
                       overflow: TextOverflow.clip,
                     ),
                     Text(
-                      _friend['isOnline'] ? "Online" : "Offline",
+                      _friend.isOnline ? "Online" : "Offline",
                       style: Theme.of(context).textTheme.subtitle1!.apply(
                             color: Global.mainColor,
                           ),
@@ -205,13 +210,13 @@ class _ChatPageState extends State<ChatPage>
                   itemCount: _messages.length,
                   itemBuilder: (context, index) {
                     return Container(
-                      child: _messages[index]['status'] == MessageType.received
+                      child: _messages[index].status == MessageType.received
                           ? Row(
                               children: [
                                 CircleAvatar(
                                   radius: 20.0,
                                   backgroundImage: NetworkImage(
-                                      _messages[index]['contactImgUrl']),
+                                      _messages[index].contactImgUrl!),
                                   backgroundColor: Colors.transparent,
                                 ),
                                 const SizedBox(
@@ -221,8 +226,7 @@ class _ChatPageState extends State<ChatPage>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      _messages[index]['contactName'],
-                                      //  messages[index].userName,
+                                      _messages[index].contactName!,
                                       style:
                                           Theme.of(context).textTheme.caption,
                                     ),
@@ -246,7 +250,7 @@ class _ChatPageState extends State<ChatPage>
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            _messages[index]['message'],
+                                            _messages[index].message,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyText1!
@@ -258,7 +262,7 @@ class _ChatPageState extends State<ChatPage>
                                           Align(
                                             alignment: Alignment.bottomRight,
                                             child: Text(
-                                              _messages[index]['time'],
+                                              _messages[index].time,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyText2!
@@ -300,9 +304,8 @@ class _ChatPageState extends State<ChatPage>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          _messages[index]['message'] != ""
-                                              ? Text(
-                                                  _messages[index]['message'],
+                                          _messages[index].message != ""
+                                              ? Text(_messages[index].message,
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .bodyText1!
@@ -313,7 +316,7 @@ class _ChatPageState extends State<ChatPage>
                                           getVoiceMedia(index, context),
                                           getGridMedia(index, context),
                                           getMap(List<String>.from(
-                                              _messages[index]['location'])),
+                                              _messages[index].location)),
                                           const SizedBox(
                                             height: 5,
                                           ),
@@ -323,26 +326,26 @@ class _ChatPageState extends State<ChatPage>
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              if ((_messages[index]['message']
-                                                          as String)
+                                              if (_messages[index]
+                                                      .message
                                                       .contains('.pdf') ||
-                                                  _messages[index]['message']
-                                                      .toString()
+                                                  _messages[index]
+                                                      .message
                                                       .contains('.doc') ||
-                                                  _messages[index]['message']
-                                                      .toString()
+                                                  _messages[index]
+                                                      .message
                                                       .contains('.ppt') ||
-                                                  _messages[index]['message']
-                                                      .toString()
+                                                  _messages[index]
+                                                      .message
                                                       .contains('.pptx') ||
-                                                  _messages[index]['message']
-                                                      .toString()
+                                                  _messages[index]
+                                                      .message
                                                       .contains('.txt') ||
-                                                  _messages[index]['message']
-                                                      .toString()
+                                                  _messages[index]
+                                                      .message
                                                       .contains('.xls') ||
-                                                  _messages[index]['message']
-                                                      .toString()
+                                                  _messages[index]
+                                                      .message
                                                       .contains('.xlsx'))
                                                 Align(
                                                   alignment:
@@ -358,7 +361,7 @@ class _ChatPageState extends State<ChatPage>
                                                 alignment:
                                                     Alignment.bottomRight,
                                                 child: Text(
-                                                  _messages[index]['time'],
+                                                  _messages[index].time,
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .bodyText1!
@@ -483,8 +486,8 @@ class _ChatPageState extends State<ChatPage>
                                                               _messages = Global
                                                                       .getMessages()
                                                                   .where((element) =>
-                                                                      element[
-                                                                          'usrId'] ==
+                                                                      element
+                                                                          .usrId ==
                                                                       widget
                                                                           .userId)
                                                                   .toList();
@@ -547,8 +550,7 @@ class _ChatPageState extends State<ChatPage>
                                         );
                                         _messages = Global.getMessages()
                                             .where((element) =>
-                                                element['usrId'] ==
-                                                widget.userId)
+                                                element.usrId == widget.userId)
                                             .toList();
                                         scrollDown();
                                         _textEditingController!.clear();
@@ -580,7 +582,7 @@ class _ChatPageState extends State<ChatPage>
                             setState(() {
                               _messages = Global.getMessages()
                                   .where((element) =>
-                                      element['usrId'] == widget.userId)
+                                      element.usrId == widget.userId)
                                   .toList();
                             });
                             scrollDown();
@@ -656,7 +658,7 @@ class _ChatPageState extends State<ChatPage>
           },
         );
         _messages = Global.getMessages()
-            .where((element) => element['usrId'] == widget.userId)
+            .where((element) => element.usrId == widget.userId)
             .toList();
 
         scrollDown();
@@ -669,7 +671,7 @@ class _ChatPageState extends State<ChatPage>
     if (index > _messages.length) {
       return widget;
     }
-    var t = List<String>.from(_messages[index]['filePaths']);
+    var t = List<String>.from(_messages[index].filePaths);
     if (t.isNotEmpty) {
       (t.forEach((item) {
         if (item.contains('.m4a')) {
@@ -819,7 +821,7 @@ class _ChatPageState extends State<ChatPage>
     if (index > _messages.length) {
       return widget;
     }
-    var t = List<String>.from(_messages[index]['filePaths']);
+    var t = List<String>.from(_messages[index].filePaths);
     if (t.isNotEmpty) {
       (t.forEach((item) {
         if (item.contains('.mp4') ||
@@ -937,7 +939,7 @@ class _ChatPageState extends State<ChatPage>
           },
         );
         _messages = Global.getMessages()
-            .where((element) => element['usrId'] == widget.userId)
+            .where((element) => element.usrId == widget.userId)
             .toList();
       });
 
@@ -991,7 +993,7 @@ class _ChatPageState extends State<ChatPage>
           },
         );
         _messages = Global.getMessages()
-            .where((element) => element['usrId'] == widget.userId)
+            .where((element) => element.usrId == widget.userId)
             .toList();
       });
 

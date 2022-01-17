@@ -1,3 +1,4 @@
+import 'package:fearless_chat_demo/Models/friend.dart';
 import 'package:fearless_chat_demo/Pages/LoginPage.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Pages/chatPage.dart';
@@ -15,9 +16,17 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  List<Friend> _friendList = [];
+  List<Friend> _friendFavoriteList = [];
   // late List<CameraDescription> cameras;
-  List favoriteFriends =
-      friendsList.where((element) => element['isFavorite'] as bool).toList();
+  // var ccc = List<Map<String, dynamic>>.from(friendsList);
+
+  // final firend = Friend.fromMap(friendsList);
+  // var cc = List<Friend>.from(
+  //     friendsList.where((element) => element['isFavorite'] as bool));
+  // var futureData = friendsList.map((i) => Friend.fromJson(i)).toList();
+  // List favoriteFriends =
+  //     friendsList.where((element) => element['isFavorite'] as bool).toList();
   int selectedPageIndex = 0;
   late List _children = [];
   bool _isVisibleSearch = false;
@@ -25,8 +34,8 @@ class _MainPageState extends State<MainPage> {
   final TextEditingController _searchTextEditorController =
       TextEditingController();
   ScrollController _friendListController = ScrollController();
-  List<Map<String, dynamic>> _searchResult = [];
-  List<Map<String, dynamic>> result = [];
+  List<Friend> _searchResult = [];
+  List<Friend> result = [];
   @override
   void initState() {
     requestPermissions();
@@ -36,6 +45,13 @@ class _MainPageState extends State<MainPage> {
       const PlaceholderWidget(color: Colors.deepOrange),
       const LoginPage()
     ];
+    for (var item in friendsList) {
+      Friend f = Friend.fromMap(item);
+      if (f.isFavorite) {
+        _friendFavoriteList.add(f);
+      }
+      _friendList.add(f);
+    }
     _searchTextEditorController.addListener(() {
       if (_searchTextEditorController.text.isNotEmpty) {
         setState(() {
@@ -103,8 +119,8 @@ class _MainPageState extends State<MainPage> {
                               _searchResult.clear();
                             });
                           } else {
-                            result = friendsList
-                                .where((user) => (user['username'] as String)
+                            result = _friendList
+                                .where((user) => (user.username)
                                     .toLowerCase()
                                     .contains(value.toLowerCase()))
                                 .toList();
@@ -136,6 +152,8 @@ class _MainPageState extends State<MainPage> {
           child: selectedPageIndex == 0 && _searchResult.isEmpty
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
                     Expanded(
                       flex: 1,
@@ -144,7 +162,7 @@ class _MainPageState extends State<MainPage> {
                             left: 15, right: 20, top: 10, bottom: 5),
                         shrinkWrap: true,
                         physics: const BouncingScrollPhysics(),
-                        itemCount: favoriteFriends.length,
+                        itemCount: _friendFavoriteList.length,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (context, index) {
                           return Padding(
@@ -158,10 +176,10 @@ class _MainPageState extends State<MainPage> {
                                     alignment: Alignment.center,
                                     child: CircleAvatar(
                                       backgroundImage: NetworkImage(
-                                          favoriteFriends[index]['imgUrl']),
+                                          _friendFavoriteList[index].imgUrl),
                                     ),
                                   ),
-                                  favoriteFriends[index]['isOnline']
+                                  _friendFavoriteList[index].isOnline
                                       ? Positioned.fill(
                                           child: Align(
                                             alignment: Alignment.topRight,
@@ -182,7 +200,7 @@ class _MainPageState extends State<MainPage> {
                                       : Container(),
                                 ]),
                                 Text(
-                                  favoriteFriends[index]['username'],
+                                  _friendFavoriteList[index].username,
                                   style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
@@ -338,6 +356,9 @@ class _MainPageState extends State<MainPage> {
                 )
               : _searchResult.isNotEmpty
                   ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.max,
                       children: [
                         Expanded(
                           flex: 1,
@@ -346,7 +367,7 @@ class _MainPageState extends State<MainPage> {
                                 left: 15, right: 20, top: 10, bottom: 5),
                             shrinkWrap: true,
                             physics: const BouncingScrollPhysics(),
-                            itemCount: favoriteFriends.length,
+                            itemCount: _friendFavoriteList.length,
                             scrollDirection: Axis.horizontal,
                             itemBuilder: (context, index) {
                               return Padding(
@@ -360,10 +381,11 @@ class _MainPageState extends State<MainPage> {
                                         alignment: Alignment.center,
                                         child: CircleAvatar(
                                           backgroundImage: NetworkImage(
-                                              favoriteFriends[index]['imgUrl']),
+                                              _friendFavoriteList[index]
+                                                  .imgUrl),
                                         ),
                                       ),
-                                      favoriteFriends[index]['isOnline']
+                                      _friendFavoriteList[index].isOnline
                                           ? Positioned.fill(
                                               child: Align(
                                                 alignment: Alignment.topRight,
@@ -384,7 +406,7 @@ class _MainPageState extends State<MainPage> {
                                           : Container(),
                                     ]),
                                     Text(
-                                      favoriteFriends[index]['username'],
+                                      _friendFavoriteList[index].username,
                                       style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.bold,
@@ -397,8 +419,11 @@ class _MainPageState extends State<MainPage> {
                             },
                           ),
                         ),
+                        SizedBox(
+                          height: 20,
+                        ),
                         Expanded(
-                          flex: 5,
+                          flex: 2,
                           child: ListView.builder(
                             shrinkWrap: true,
                             // controller: _friendListController,
@@ -415,8 +440,7 @@ class _MainPageState extends State<MainPage> {
                                       await navigatePageBottom(
                                           context: context,
                                           page: ChatPage(
-                                              userId: _searchResult[i]
-                                                  ['usrId']),
+                                              userId: _searchResult[i].usrId),
                                           rootNavigator: true);
                                     },
                                     leading: Container(
@@ -441,10 +465,10 @@ class _MainPageState extends State<MainPage> {
                                           Positioned.fill(
                                             child: CircleAvatar(
                                               backgroundImage: NetworkImage(
-                                                  _searchResult[i]['imgUrl']),
+                                                  _searchResult[i].imgUrl),
                                             ),
                                           ),
-                                          _searchResult[i]['isOnline']
+                                          _searchResult[i].isOnline
                                               ? Align(
                                                   alignment: Alignment.topRight,
                                                   child: Container(
@@ -465,12 +489,12 @@ class _MainPageState extends State<MainPage> {
                                       ),
                                     ),
                                     title: Text(
-                                      "${_searchResult[i]['username']}",
+                                      "${_searchResult[i].username}",
                                       style:
                                           Theme.of(context).textTheme.bodyText1,
                                     ),
                                     subtitle: Text(
-                                      "${_searchResult[i]['lastMsg']}",
+                                      "${_searchResult[i].lastMsg}",
                                       style: !friendsList[i]['seen']
                                           ? Theme.of(context)
                                               .textTheme
@@ -490,7 +514,7 @@ class _MainPageState extends State<MainPage> {
                                           Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              _searchResult[i]['seen']
+                                              _searchResult[i].seen
                                                   ? const Icon(
                                                       Icons.check,
                                                       size: 15,
@@ -498,13 +522,13 @@ class _MainPageState extends State<MainPage> {
                                                   : const SizedBox(
                                                       height: 15, width: 15),
                                               Text(
-                                                  "${_searchResult[i]['lastMsgTime']}")
+                                                  "${_searchResult[i].lastMsgTime}")
                                             ],
                                           ),
                                           const SizedBox(
                                             height: 5.0,
                                           ),
-                                          _searchResult[i]['hasUnSeenMsgs']
+                                          _searchResult[i].hasUnSeenMsgs
                                               ? Container(
                                                   alignment: Alignment.center,
                                                   height: 25,
@@ -514,7 +538,7 @@ class _MainPageState extends State<MainPage> {
                                                     shape: BoxShape.circle,
                                                   ),
                                                   child: Text(
-                                                    "${_searchResult[i]['unseenCount']}",
+                                                    "${_searchResult[i].unseenCount}",
                                                     style: const TextStyle(
                                                         color: Colors.white),
                                                   ),

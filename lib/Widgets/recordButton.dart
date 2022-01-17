@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:fearless_chat_demo/Models/message.dart';
 import 'package:fearless_chat_demo/Utils/audioState.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:fearless_chat_demo/Widgets/flowShader.dart';
@@ -10,7 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:record/record.dart';
 
 class RecordButton extends StatefulWidget {
-  Function(List<Map<String, dynamic>>) endOfRecord;
+  Function(List<Message>) endOfRecord;
   Function(bool) hasRecord;
   // Function(List<Map<String, dynamic>>) onLongPressEnd;
   RecordButton(
@@ -212,19 +213,26 @@ class _RecordButtonState extends State<RecordButton> {
 
               var filePath = await Record().stop();
               AudioState.files.add(filePath!);
-              List<Map<String, dynamic>> lstMessages = Global.getMessages();
+              List<Message> lstMessages = Global.getMessages();
               DateTime now = DateTime.now();
-              lstMessages.add(
-                {
-                  'usrId': Global.selectedUserId,
-                  'status': MessageType.sent,
-                  'message': "",
-                  'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
-                  'hasShareMedia': true,
-                  'filePaths': [filePath],
-                  'location': []
-                },
-              );
+              lstMessages.add(new Message(
+                      usrId: Global.selectedUserId,
+                      status: MessageType.sent,
+                      message: "",
+                      time: DateFormat('dd.MM.yyyy – kk:mm').format(now),
+                      hasShareMedia: true,
+                      filePaths: [filePath],
+                      location: [])
+                  // {
+                  //   'usrId': Global.selectedUserId,
+                  //   'status': MessageType.sent,
+                  //   'message': "",
+                  //   'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
+                  //   'hasShareMedia': true,
+                  //   'filePaths': [filePath],
+                  //   'location': []
+                  // },
+                  );
               widget.endOfRecord(lstMessages);
               widget.hasRecord(false);
               // Global.audioListKey.currentState!
@@ -339,19 +347,16 @@ class _RecordButtonState extends State<RecordButton> {
           // Global.audioListKey.currentState!
           //     .insertItem(AudioState.files.length - 1);
           debugPrint(filePath);
-          List<Map<String, dynamic>> lstMessages = Global.getMessages();
+          List<Message> lstMessages = Global.getMessages();
           DateTime now = DateTime.now();
-          lstMessages.add(
-            {
-              'usrId': Global.selectedUserId,
-              'status': MessageType.sent,
-              'message': "",
-              'time': DateFormat('dd.MM.yyyy – kk:mm').format(now),
-              'hasShareMedia': true,
-              'filePaths': [filePath],
-              'location': []
-            },
-          );
+          lstMessages.add(new Message(
+              usrId: Global.selectedUserId,
+              status: MessageType.sent,
+              message: "",
+              time: DateFormat('dd.MM.yyyy – kk:mm').format(now),
+              hasShareMedia: true,
+              filePaths: [filePath],
+              location: []));
           widget.endOfRecord(lstMessages);
           widget.hasRecord(false);
           setState(() {

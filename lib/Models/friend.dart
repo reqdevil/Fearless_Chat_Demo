@@ -4,8 +4,8 @@
 
 import 'dart:convert';
 
-class Firend {
-  Firend({
+class Friend {
+  Friend({
     required this.usrId,
     required this.imgUrl,
     required this.username,
@@ -29,11 +29,11 @@ class Firend {
   bool isOnline;
   bool isFavorite;
 
-  factory Firend.fromJson(String str) => Firend.fromMap(json.decode(str));
+  factory Friend.fromJson(String str) => Friend.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory Firend.fromMap(Map<String, dynamic> json) => Firend(
+  factory Friend.fromMap(Map<String, dynamic> json) => Friend(
         usrId: json["usrId"],
         imgUrl: json["imgUrl"],
         username: json["username"],

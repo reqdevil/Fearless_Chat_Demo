@@ -32,8 +32,8 @@ class Message {
   Message({
     required this.usrId,
     required this.status,
-    required this.contactImgUrl,
-    required this.contactName,
+    this.contactImgUrl,
+    this.contactName,
     required this.message,
     required this.time,
     required this.hasShareMedia,
@@ -41,10 +41,10 @@ class Message {
     required this.location,
   });
 
-  int usrId;
-  String status;
-  String contactImgUrl;
-  String contactName;
+  String usrId;
+  MessageType status;
+  String? contactImgUrl;
+  String? contactName;
   String message;
   String time;
   bool hasShareMedia;
