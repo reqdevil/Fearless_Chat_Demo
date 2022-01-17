@@ -11,6 +11,7 @@ import 'package:file_picker/file_picker.dart' as filePicker;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:math' as math;
@@ -741,6 +742,11 @@ class _ChatPageState extends State<ChatPage>
       double latitude = double.parse(locationString[0]);
       double longitude = double.parse(locationString[1]);
       widget = Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.white, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        padding: EdgeInsets.all(2),
         height: 150,
         child: new FlutterMap(
           options: new MapOptions(
@@ -760,43 +766,35 @@ class _ChatPageState extends State<ChatPage>
                   context: context,
                   shape: RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(25.0))),
+                          BorderRadius.vertical(top: Radius.circular(10.0))),
                   builder: (BuildContext context) {
                     return SafeArea(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Expanded(
-                            child: SingleChildScrollView(
-                              child: Container(
-                                height: MediaQuery.of(context).size.height / 8,
-                                child: Wrap(
-                                  children: <Widget>[
-                                    for (var map in availableMaps)
-                                      ListTile(
-                                        onTap: () async {
-                                          await M.MapLauncher.showMarker(
-                                            mapType: map.mapType,
-                                            coords:
-                                                M.Coords(latitude, longitude),
-                                            title: "I am here.",
-                                            description: "",
-                                          );
-                                        },
-                                        title: Text(map.mapName),
-                                        // leading: Image.asset(
-                                        //   map.icon,
-                                        //   height: 30.0,
-                                        //   width: 30.0,
-                                        // ),
-                                      ),
-                                  ],
-                                ),
-                              ),
+                      child: Expanded(
+                        child: SingleChildScrollView(
+                          child: Container(
+                            child: Wrap(
+                              children: <Widget>[
+                                for (var map in availableMaps)
+                                  ListTile(
+                                    onTap: () async {
+                                      await M.MapLauncher.showMarker(
+                                        mapType: map.mapType,
+                                        coords: M.Coords(latitude, longitude),
+                                        title: "I am here.",
+                                        description: "",
+                                      );
+                                    },
+                                    title: Text(map.mapName),
+                                    leading: SvgPicture.asset(
+                                      map.icon,
+                                      height: 30.0,
+                                      width: 30.0,
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     );
                   },
