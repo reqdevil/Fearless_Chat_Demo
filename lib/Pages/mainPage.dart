@@ -18,15 +18,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   List<Friend> _friendList = [];
   List<Friend> _friendFavoriteList = [];
-  // late List<CameraDescription> cameras;
-  // var ccc = List<Map<String, dynamic>>.from(friendsList);
-
-  // final firend = Friend.fromMap(friendsList);
-  // var cc = List<Friend>.from(
-  //     friendsList.where((element) => element['isFavorite'] as bool));
-  // var futureData = friendsList.map((i) => Friend.fromJson(i)).toList();
-  // List favoriteFriends =
-  //     friendsList.where((element) => element['isFavorite'] as bool).toList();
+ 
   int selectedPageIndex = 0;
   late bool _isVisibileFavoriteFriendList;
   late List _children = [];
