@@ -41,7 +41,7 @@ bool _isExposeChanging = false;
 late bool _isVideoRecorderSelected;
 late bool _isVideoRecording;
 late bool _isTapImage;
-bool _isSelectedImage = false;
+late bool _isSelectedImage;
 bool _isCameraInitialized = false;
 late Stream<int>? timerStream;
 late StreamSubscription<int> timerSubscription;
@@ -101,6 +101,7 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void initState() {
+    _isSelectedImage = false;
     // requestPermission();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {});
     _animationElementsController = AnimationController(
@@ -905,13 +906,21 @@ class _CameraPageState extends State<CameraPage>
                                                   }
                                                 },
                                                 style: ButtonStyle(
+                                                  shape: MaterialStateProperty
+                                                      .all<OutlinedBorder>(
+                                                          RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                      Radius.circular(25.0),
+                                                    ),
+                                                  )),
                                                   minimumSize:
                                                       MaterialStateProperty.all(
-                                                          const Size(15, 15)),
+                                                          const Size(35, 35)),
                                                   padding:
                                                       MaterialStateProperty.all(
                                                           const EdgeInsets.all(
-                                                              0)),
+                                                              10)),
                                                   backgroundColor:
                                                       MaterialStateProperty
                                                           .resolveWith<Color>(
@@ -2126,12 +2135,12 @@ class _CameraPageState extends State<CameraPage>
                                         setState(() {});
                                         Navigator.pop(context);
                                         Navigator.pop(
-                                            context,
-                                            mediaPathList
-                                                .where((element) =>
-                                                    element.isSelected)
-                                                .toList(),
-                                          );
+                                          context,
+                                          mediaPathList
+                                              .where((element) =>
+                                                  element.isSelected)
+                                              .toList(),
+                                        );
                                         // Navigator.pop(context);
                                         // await navigatePageBottom(
                                         //     context: context,
