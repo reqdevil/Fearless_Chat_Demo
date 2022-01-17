@@ -340,20 +340,65 @@ class _MainPageState extends State<MainPage> {
                   ? Column(
                       children: [
                         Expanded(
+                          flex: 1,
                           child: ListView.builder(
+                            padding: EdgeInsets.only(
+                                left: 15, right: 20, top: 10, bottom: 5),
                             shrinkWrap: true,
                             physics: const BouncingScrollPhysics(),
                             itemCount: favoriteFriends.length,
                             scrollDirection: Axis.horizontal,
                             itemBuilder: (context, index) {
-                              return CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                    favoriteFriends[index]['imgUrl']),
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Stack(children: [
+                                      Align(
+                                        alignment: Alignment.center,
+                                        child: CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                              favoriteFriends[index]['imgUrl']),
+                                        ),
+                                      ),
+                                      favoriteFriends[index]['isOnline']
+                                          ? Positioned.fill(
+                                              child: Align(
+                                                alignment: Alignment.topRight,
+                                                child: Container(
+                                                  height: 15,
+                                                  width: 15,
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                      color: Colors.white,
+                                                      width: 3,
+                                                    ),
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.green,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          : Container(),
+                                    ]),
+                                    Text(
+                                      favoriteFriends[index]['username'],
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87),
+                                      textAlign: TextAlign.center,
+                                    )
+                                  ],
+                                ),
                               );
                             },
                           ),
                         ),
                         Expanded(
+                          flex: 5,
                           child: ListView.builder(
                             shrinkWrap: true,
                             // controller: _friendListController,
