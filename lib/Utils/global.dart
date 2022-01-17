@@ -89,7 +89,8 @@ List<Map<String, dynamic>> friendsList = [
     'hasUnSeenMsgs': false,
     'unseenCount': 0,
     'lastMsgTime': '18:44',
-    'isOnline': true
+    'isOnline': true,
+    'isFavorite': true
   },
   {
     'usrId': '2',
@@ -101,7 +102,8 @@ List<Map<String, dynamic>> friendsList = [
     'hasUnSeenMsgs': false,
     'unseenCount': 0,
     'lastMsgTime': '18:44',
-    'isOnline': false
+    'isOnline': false,
+    'isFavorite': true
   },
   {
     'usrId': '3',
@@ -113,7 +115,8 @@ List<Map<String, dynamic>> friendsList = [
     'hasUnSeenMsgs': true,
     'unseenCount': 3,
     'lastMsgTime': '18:44',
-    'isOnline': true
+    'isOnline': true,
+    'isFavorite': true
   },
   {
     'usrId': '4',
@@ -125,7 +128,8 @@ List<Map<String, dynamic>> friendsList = [
     'hasUnSeenMsgs': true,
     'unseenCount': 2,
     'lastMsgTime': '18:44',
-    'isOnline': true
+    'isOnline': true,
+    'isFavorite': true
   },
   {
     'usrId': '5',
@@ -137,7 +141,8 @@ List<Map<String, dynamic>> friendsList = [
     'hasUnSeenMsgs': true,
     'unseenCount': 4,
     'lastMsgTime': '18:44',
-    'isOnline': true
+    'isOnline': true,
+    'isFavorite': false
   },
   {
     'usrId': '6',
@@ -149,7 +154,8 @@ List<Map<String, dynamic>> friendsList = [
     'hasUnSeenMsgs': false,
     'unseenCount': 0,
     'lastMsgTime': '18:44',
-    'isOnline': true
+    'isOnline': true,
+    'isFavorite': false
   },
   {
     'usrId': '7',
@@ -161,6 +167,7 @@ List<Map<String, dynamic>> friendsList = [
     'hasUnSeenMsgs': true,
     'unseenCount': 3,
     'lastMsgTime': '18:44',
-    'isOnline': true
+    'isOnline': true,
+    'isFavorite': false
   }
 ];

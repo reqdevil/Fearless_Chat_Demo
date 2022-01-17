@@ -16,6 +16,8 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   // late List<CameraDescription> cameras;
+  List favoriteFriends =
+      friendsList.where((element) => element['isFavorite'] as bool).toList();
   int selectedPageIndex = 0;
   late List _children = [];
   bool _isVisibleSearch = false;
@@ -132,182 +134,36 @@ class _MainPageState extends State<MainPage> {
           : null,
       body: SafeArea(
           child: selectedPageIndex == 0 && _searchResult.isEmpty
-              ? ListView.builder(
-                  controller: _friendListController,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: friendsList.length,
-                  itemBuilder: (ctx, i) {
-                    return Column(
-                      children: <Widget>[
-                        ListTile(
-                          isThreeLine: true,
-                          onLongPress: () {},
-                          // onTap: () => Navigator.of(context).pushNamed('chat'),
-                          onTap: () async {
-                            setState(() {
-                              _isVisibleSearch = false;
-                            });
-                            Global.selectedUserId = friendsList[i]['usrId'];
-                            await navigatePageTop(
-                                context: context,
-                                page: ChatPage(userId: friendsList[i]['usrId']),
-                                rootNavigator: true);
-                          },
-                          leading: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 3,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Colors.grey.withOpacity(.3),
-                                    offset: const Offset(0, 5),
-                                    blurRadius: 25)
-                              ],
-                            ),
-                            child: Stack(
-                              children: <Widget>[
-                                Positioned.fill(
-                                  child: CircleAvatar(
-                                    backgroundImage:
-                                        NetworkImage(friendsList[i]['imgUrl']),
-                                  ),
-                                ),
-                                friendsList[i]['isOnline']
-                                    ? Align(
-                                        alignment: Alignment.topRight,
-                                        child: Container(
-                                          height: 15,
-                                          width: 15,
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 3,
-                                            ),
-                                            shape: BoxShape.circle,
-                                            color: Colors.green,
-                                          ),
-                                        ),
-                                      )
-                                    : Container(),
-                              ],
-                            ),
-                          ),
-                          title: Text(
-                            "${friendsList[i]['username']}",
-                            style: Theme.of(context).textTheme.bodyText1,
-                          ),
-                          subtitle: Text(
-                            "${friendsList[i]['lastMsg']}",
-                            style: !friendsList[i]['seen']
-                                ? Theme.of(context)
-                                    .textTheme
-                                    .subtitle1!
-                                    .apply(color: Colors.black87)
-                                : Theme.of(context)
-                                    .textTheme
-                                    .subtitle1!
-                                    .apply(color: Colors.black54),
-                          ),
-                          trailing: SizedBox(
-                            width: 60,
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: ListView.builder(
+                        padding: EdgeInsets.only(
+                            left: 15, right: 20, top: 10, bottom: 5),
+                        shrinkWrap: true,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: favoriteFriends.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    friendsList[i]['seen']
-                                        ? const Icon(
-                                            Icons.check,
-                                            size: 15,
-                                          )
-                                        : const SizedBox(height: 15, width: 15),
-                                    Text("${friendsList[i]['lastMsgTime']}")
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 5.0,
-                                ),
-                                friendsList[i]['hasUnSeenMsgs']
-                                    ? Container(
-                                        alignment: Alignment.center,
-                                        height: 25,
-                                        width: 25,
-                                        decoration: BoxDecoration(
-                                          color: Global.mainColor,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Text(
-                                          "${friendsList[i]['unseenCount']}",
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                        ),
-                                      )
-                                    : const SizedBox(
-                                        height: 25,
-                                        width: 25,
-                                      ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const Divider(
-                          height: 1,
-                        )
-                      ],
-                    );
-                  },
-                )
-              : _searchResult.isNotEmpty
-                  ? ListView.builder(
-                      // controller: _friendListController,
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: _searchResult.length,
-                      itemBuilder: (ctx, i) {
-                        return Column(
-                          children: <Widget>[
-                            ListTile(
-                              isThreeLine: true,
-                              onLongPress: () {},
-                              // onTap: () => Navigator.of(context).pushNamed('chat'),
-                              onTap: () async {
-                                await navigatePageBottom(
-                                    context: context,
-                                    page: ChatPage(
-                                        userId: _searchResult[i]['usrId']),
-                                    rootNavigator: true);
-                              },
-                              leading: Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(.3),
-                                        offset: const Offset(0, 5),
-                                        blurRadius: 25)
-                                  ],
-                                ),
-                                child: Stack(
-                                  children: <Widget>[
-                                    Positioned.fill(
-                                      child: CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                            _searchResult[i]['imgUrl']),
-                                      ),
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Stack(children: [
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                          favoriteFriends[index]['imgUrl']),
                                     ),
-                                    _searchResult[i]['isOnline']
-                                        ? Align(
+                                  ),
+                                  favoriteFriends[index]['isOnline']
+                                      ? Positioned.fill(
+                                          child: Align(
                                             alignment: Alignment.topRight,
                                             child: Container(
                                               height: 15,
@@ -321,78 +177,320 @@ class _MainPageState extends State<MainPage> {
                                                 color: Colors.green,
                                               ),
                                             ),
-                                          )
-                                        : Container(),
-                                  ],
-                                ),
-                              ),
-                              title: Text(
-                                "${_searchResult[i]['username']}",
-                                style: Theme.of(context).textTheme.bodyText1,
-                              ),
-                              subtitle: Text(
-                                "${_searchResult[i]['lastMsg']}",
-                                style: !friendsList[i]['seen']
-                                    ? Theme.of(context)
-                                        .textTheme
-                                        .subtitle1!
-                                        .apply(color: Colors.black87)
-                                    : Theme.of(context)
-                                        .textTheme
-                                        .subtitle1!
-                                        .apply(color: Colors.black54),
-                              ),
-                              trailing: SizedBox(
-                                width: 60,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: <Widget>[
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        _searchResult[i]['seen']
-                                            ? const Icon(
-                                                Icons.check,
-                                                size: 15,
-                                              )
-                                            : const SizedBox(
-                                                height: 15, width: 15),
-                                        Text(
-                                            "${_searchResult[i]['lastMsgTime']}")
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 5.0,
-                                    ),
-                                    _searchResult[i]['hasUnSeenMsgs']
-                                        ? Container(
-                                            alignment: Alignment.center,
-                                            height: 25,
-                                            width: 25,
-                                            decoration: BoxDecoration(
-                                              color: Global.mainColor,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Text(
-                                              "${_searchResult[i]['unseenCount']}",
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          )
-                                        : const SizedBox(
-                                            height: 25,
-                                            width: 25,
                                           ),
-                                  ],
+                                        )
+                                      : Container(),
+                                ]),
+                                Text(
+                                  favoriteFriends[index]['username'],
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87),
+                                  textAlign: TextAlign.center,
+                                )
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 5,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        controller: _friendListController,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: friendsList.length,
+                        itemBuilder: (ctx, i) {
+                          return Column(
+                            children: <Widget>[
+                              ListTile(
+                                isThreeLine: true,
+                                onLongPress: () {},
+                                // onTap: () => Navigator.of(context).pushNamed('chat'),
+                                onTap: () async {
+                                  setState(() {
+                                    _isVisibleSearch = false;
+                                  });
+                                  Global.selectedUserId =
+                                      friendsList[i]['usrId'];
+                                  await navigatePageTop(
+                                      context: context,
+                                      page: ChatPage(
+                                          userId: friendsList[i]['usrId']),
+                                      rootNavigator: true);
+                                },
+                                leading: Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 3,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.grey.withOpacity(.3),
+                                          offset: const Offset(0, 5),
+                                          blurRadius: 25)
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: <Widget>[
+                                      Positioned.fill(
+                                        child: CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                              friendsList[i]['imgUrl']),
+                                        ),
+                                      ),
+                                      friendsList[i]['isOnline']
+                                          ? Align(
+                                              alignment: Alignment.topRight,
+                                              child: Container(
+                                                height: 15,
+                                                width: 15,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Colors.white,
+                                                    width: 3,
+                                                  ),
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.green,
+                                                ),
+                                              ),
+                                            )
+                                          : Container(),
+                                    ],
+                                  ),
+                                ),
+                                title: Text(
+                                  "${friendsList[i]['username']}",
+                                  style: Theme.of(context).textTheme.bodyText1,
+                                ),
+                                subtitle: Text(
+                                  "${friendsList[i]['lastMsg']}",
+                                  style: !friendsList[i]['seen']
+                                      ? Theme.of(context)
+                                          .textTheme
+                                          .subtitle1!
+                                          .apply(color: Colors.black87)
+                                      : Theme.of(context)
+                                          .textTheme
+                                          .subtitle1!
+                                          .apply(color: Colors.black54),
+                                ),
+                                trailing: SizedBox(
+                                  width: 60,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: <Widget>[
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          friendsList[i]['seen']
+                                              ? const Icon(
+                                                  Icons.check,
+                                                  size: 15,
+                                                )
+                                              : const SizedBox(
+                                                  height: 15, width: 15),
+                                          Text(
+                                              "${friendsList[i]['lastMsgTime']}")
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 5.0,
+                                      ),
+                                      friendsList[i]['hasUnSeenMsgs']
+                                          ? Container(
+                                              alignment: Alignment.center,
+                                              height: 25,
+                                              width: 25,
+                                              decoration: BoxDecoration(
+                                                color: Global.mainColor,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Text(
+                                                "${friendsList[i]['unseenCount']}",
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            )
+                                          : const SizedBox(
+                                              height: 25,
+                                              width: 25,
+                                            ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            const Divider(
-                              height: 1,
-                            )
-                          ],
-                        );
-                      },
+                              const Divider(
+                                height: 1,
+                              )
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              : _searchResult.isNotEmpty
+                  ? Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: favoriteFriends.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                    favoriteFriends[index]['imgUrl']),
+                              );
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            // controller: _friendListController,
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: _searchResult.length,
+                            itemBuilder: (ctx, i) {
+                              return Column(
+                                children: <Widget>[
+                                  ListTile(
+                                    isThreeLine: true,
+                                    onLongPress: () {},
+                                    // onTap: () => Navigator.of(context).pushNamed('chat'),
+                                    onTap: () async {
+                                      await navigatePageBottom(
+                                          context: context,
+                                          page: ChatPage(
+                                              userId: _searchResult[i]
+                                                  ['usrId']),
+                                          rootNavigator: true);
+                                    },
+                                    leading: Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 3,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(.3),
+                                              offset: const Offset(0, 5),
+                                              blurRadius: 25)
+                                        ],
+                                      ),
+                                      child: Stack(
+                                        children: <Widget>[
+                                          Positioned.fill(
+                                            child: CircleAvatar(
+                                              backgroundImage: NetworkImage(
+                                                  _searchResult[i]['imgUrl']),
+                                            ),
+                                          ),
+                                          _searchResult[i]['isOnline']
+                                              ? Align(
+                                                  alignment: Alignment.topRight,
+                                                  child: Container(
+                                                    height: 15,
+                                                    width: 15,
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: Colors.white,
+                                                        width: 3,
+                                                      ),
+                                                      shape: BoxShape.circle,
+                                                      color: Colors.green,
+                                                    ),
+                                                  ),
+                                                )
+                                              : Container(),
+                                        ],
+                                      ),
+                                    ),
+                                    title: Text(
+                                      "${_searchResult[i]['username']}",
+                                      style:
+                                          Theme.of(context).textTheme.bodyText1,
+                                    ),
+                                    subtitle: Text(
+                                      "${_searchResult[i]['lastMsg']}",
+                                      style: !friendsList[i]['seen']
+                                          ? Theme.of(context)
+                                              .textTheme
+                                              .subtitle1!
+                                              .apply(color: Colors.black87)
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .subtitle1!
+                                              .apply(color: Colors.black54),
+                                    ),
+                                    trailing: SizedBox(
+                                      width: 60,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: <Widget>[
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              _searchResult[i]['seen']
+                                                  ? const Icon(
+                                                      Icons.check,
+                                                      size: 15,
+                                                    )
+                                                  : const SizedBox(
+                                                      height: 15, width: 15),
+                                              Text(
+                                                  "${_searchResult[i]['lastMsgTime']}")
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 5.0,
+                                          ),
+                                          _searchResult[i]['hasUnSeenMsgs']
+                                              ? Container(
+                                                  alignment: Alignment.center,
+                                                  height: 25,
+                                                  width: 25,
+                                                  decoration: BoxDecoration(
+                                                    color: Global.mainColor,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: Text(
+                                                    "${_searchResult[i]['unseenCount']}",
+                                                    style: const TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                )
+                                              : const SizedBox(
+                                                  height: 25,
+                                                  width: 25,
+                                                ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const Divider(
+                                    height: 1,
+                                  )
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     )
                   : _children[selectedPageIndex]),
 
