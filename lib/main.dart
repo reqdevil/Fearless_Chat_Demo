@@ -20,6 +20,14 @@ class FearlessChatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      systemNavigationBarColor: Color(0xFF000000),
+      systemNavigationBarIconBrightness: Brightness.light,
+      systemNavigationBarDividerColor: null,
+      statusBarColor: Color(0xFF4a148c),
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.dark,
+    ));
     return ChangeNotifierProvider(
       create: (BuildContext context) => ThemeModel(),
       child: Consumer<ThemeModel>(
