@@ -28,7 +28,7 @@ class RecordButton extends StatefulWidget {
 }
 
 class _RecordButtonState extends State<RecordButton> {
-  static const double size = 50;
+  static const double size = 40;
 
   final double lockerHeight = 200;
   double timerWidth = 0;
