@@ -39,9 +39,10 @@ class FearlessChatApp extends StatelessWidget {
                 ? AppThemes.darkTheme
                 : AppThemes.lightTheme,
             themeMode: ThemeMode.system,
-            home: const AnnotatedRegion<SystemUiOverlayStyle>(
-                value: SystemUiOverlayStyle(statusBarColor: Colors.white),
-                child: MainPage()),
+            home: MainPage(),
+            // home: const AnnotatedRegion<SystemUiOverlayStyle>(
+            //     value: SystemUiOverlayStyle(statusBarColor: Colors.white),
+            //     child: MainPage()),
           );
         },
       ),

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:fearless_chat_demo/Models/friend.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Pages/chatPage.dart';
@@ -85,17 +87,20 @@ class _MainPageState extends State<MainPage> {
               title: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.background,
                     borderRadius: BorderRadius.circular(35.0),
                     border: Border.all(color: Colors.grey)),
                 height: 40,
                 child: Center(
                   child: TextField(
                       controller: _searchTextEditorController,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary),
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 5),
+                            hintStyle: TextStyle(color:Theme.of(context).colorScheme.primary),
                         hintText: 'Search...',
                         suffixIcon: Visibility(
                           visible: _isVisibleSearchClean,
