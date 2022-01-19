@@ -100,7 +100,8 @@ class _MainPageState extends State<MainPage> {
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 5),
-                            hintStyle: TextStyle(color:Theme.of(context).colorScheme.primary),
+                        hintStyle: TextStyle(
+                            color: Theme.of(context).colorScheme.primary),
                         hintText: 'Search...',
                         suffixIcon: Visibility(
                           visible: _isVisibleSearchClean,
@@ -137,14 +138,14 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
               actions: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    setState(() {
-                      _isVisibleSearch = !_isVisibleSearch;
-                    });
-                  },
-                ),
+                // IconButton(
+                //   icon: const Icon(Icons.search),
+                //   onPressed: () {
+                //     setState(() {
+                //       _isVisibleSearch = !_isVisibleSearch;
+                //     });
+                //   },
+                // ),
                 IconButton(
                   icon: const Icon(Icons.add_box),
                   onPressed: () {},
