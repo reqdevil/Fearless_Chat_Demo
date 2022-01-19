@@ -225,7 +225,8 @@ class _MainPageState extends State<MainPage> {
                                     rootNavigator: true);
                               },
                               onLongPress: () {
-                                openFriendOptions(context, _friendList[index]);
+                                openFriendOptions(
+                                    context, _friendFavoriteList[index]);
                               },
                             );
                           },
@@ -695,8 +696,14 @@ class _MainPageState extends State<MainPage> {
                           onTap: () {
                             setState(() {
                               _friendFavoriteList.remove(friend);
-                              int index = _friendList.indexOf(friend);
-                              _friendList[index].isFavorite = false;
+                              List<Friend> _tempFriendList = _friendList;
+                              for (Friend item in _tempFriendList) {
+                                if (item == friend) {
+                                  int index = _friendList.indexOf(friend);
+                                  _friendList[index].isFavorite = false;
+                                }
+                              }
+
                               if (_friendFavoriteList.isEmpty)
                                 _isVisibileFavoriteFriendList = false;
                               else
@@ -714,8 +721,14 @@ class _MainPageState extends State<MainPage> {
                           onTap: () {
                             setState(() {
                               _friendFavoriteList.add(friend);
-                              int index = _friendList.indexOf(friend);
-                              _friendList[index].isFavorite = true;
+                              List<Friend> _tempFriendList = _friendList;
+                              for (Friend item in _tempFriendList) {
+                                if (item == friend) {
+                                  int index = _friendList.indexOf(friend);
+                                  _friendList[index].isFavorite = true;
+                                }
+                              }
+
                               if (_friendFavoriteList.length > 0)
                                 _isVisibileFavoriteFriendList = true;
                             });
