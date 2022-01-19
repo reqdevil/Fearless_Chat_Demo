@@ -17,9 +17,11 @@ import 'dart:math' as math;
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
 import 'package:intl/intl.dart';
+import 'package:photo_gallery/photo_gallery.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key}) : super(key: key);
@@ -119,7 +121,8 @@ class _CameraPageState extends State<CameraPage>
       _isVideoRecording = false;
       hideStatusbar();
       enableRotation();
-
+      _loading = true;
+      initAsync();
       // Future.delayed(const Duration(milliseconds: 1000), () {
       //   onCameraSelected(cameras[0]);
       // });
@@ -2109,6 +2112,223 @@ class _CameraPageState extends State<CameraPage>
                       ),
                     )
                   : Container()),
+          onLongPress: () {
+            showModalBottomSheet(
+              enableDrag: true,
+              isDismissible: true,
+              isScrollControlled: true,
+              backgroundColor: Colors.black,
+              context: context,
+              builder: (context) {
+                return StatefulBuilder(
+                  builder: (context, setState) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AnimatedBuilder(
+                              animation: _animation,
+                              child: ElevatedButton(
+                                  onPressed: () async {
+                                    if (!_isSelectedImage) {
+                                      null;
+                                    } else {
+                                      setState(() {});
+                                      Navigator.pop(context);
+                                      Navigator.pop(
+                                        context,
+                                        mediaPathList
+                                            .where(
+                                                (element) => element.isSelected)
+                                            .toList(),
+                                      );
+                                      // Navigator.pop(context);
+                                      // await navigatePageBottom(
+                                      //     context: context,
+                                      //     page: ChatPage(
+                                      //         listShareMedia: mediaPathList
+                                      //             .where((element) =>
+                                      //                 element.isSelected)
+                                      //             .toList(),
+                                      //         userId: '2'),
+                                      //     rootNavigator: true);
+                                    }
+                                  },
+                                  style: ButtonStyle(
+                                    minimumSize: MaterialStateProperty.all(
+                                        const Size(15, 15)),
+                                    padding: MaterialStateProperty.all(
+                                        const EdgeInsets.all(0)),
+                                    backgroundColor: MaterialStateProperty
+                                        .resolveWith<Color>(
+                                      (Set<MaterialState> states) {
+                                        if (_isSelectedImage) {
+                                          return Colors.green[600] as Color;
+                                        } else if (!_isSelectedImage) {
+                                          return Colors.grey;
+                                        }
+                                        return Colors.transparent;
+                                      },
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.upload,
+                                    color: Colors.white,
+                                    size: 25,
+                                  )),
+                              builder: (context, child) {
+                                return Transform.rotate(
+                                  angle: _animation.value,
+                                  child: child,
+                                );
+                              },
+                            ),
+                            AnimatedBuilder(
+                              animation: _animation,
+                              child: ElevatedButton(
+                                  onPressed: () async {
+                                    if (!_isSelectedImage) {
+                                      null;
+                                    } else {
+                                      setState(() {
+                                        removeMediaFromShareList();
+                                      });
+                                    }
+                                  },
+                                  style: ButtonStyle(
+                                    minimumSize: MaterialStateProperty.all(
+                                        const Size(15, 15)),
+                                    padding: MaterialStateProperty.all(
+                                        const EdgeInsets.all(0)),
+                                    backgroundColor: MaterialStateProperty
+                                        .resolveWith<Color>(
+                                      (Set<MaterialState> states) {
+                                        if (_isSelectedImage) {
+                                          return Colors.red;
+                                        } else if (!_isSelectedImage) {
+                                          return Colors.grey;
+                                        }
+                                        return Colors.transparent;
+                                      },
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                    size: 25,
+                                  )),
+                              builder: (context, child) {
+                                return Transform.rotate(
+                                  angle: _animation.value,
+                                  child: child,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          // width: MediaQuery.of(context).size.width / 3,
+                          height: MediaQuery.of(context).size.height / 2.5,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _allMedia.length,
+                            physics: const BouncingScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 20),
+                                child: AnimatedBuilder(
+                                  animation: _animation,
+                                  child: Stack(
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.center,
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 20),
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              2,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              2,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            border: Border.all(
+                                                color: Colors.amber, width: 2),
+                                            image: DecorationImage(
+                                              image: FileImage(
+                                                getFile(index)
+                                                        .then((value) => value)
+                                                    as File,
+                                              ),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          child: _allMedia[index].mediumType ==
+                                                  MediumType.video
+                                              ? VideoItem(
+                                                  url: (getFile(index) as File)
+                                                      .path)
+                                              : Container(),
+                                        ),
+                                      ),
+                                      Positioned.fill(
+                                        top: 22,
+                                        right: 12,
+                                        child: Align(
+                                          alignment: Alignment.topRight,
+                                          child: Container(
+                                              margin: const EdgeInsets.all(2),
+                                              height: 20,
+                                              width: 20,
+                                              alignment: Alignment.center,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.transparent,
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.circular(10)),
+                                                  border: Border.all(
+                                                      color: Colors.white
+                                                          .withOpacity(0.5))),
+                                              child: const Icon(
+                                                Icons.check,
+                                                color: Colors.white,
+                                                size: 15,
+                                              )),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _animation.value,
+                                      child: child,
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            );
+          },
           onTap: () {
             setState(() {
               // _isTapImage = !_isTapImage;
@@ -2414,6 +2634,72 @@ class _CameraPageState extends State<CameraPage>
         );
       },
     );
+  }
+
+  Future getFile(int index) async {
+    File file = await _allMedia[index].getFile();
+    return file;
+  }
+
+  late List<Medium> _allMedia;
+  bool _loading = false;
+  Future<void> initAsync() async {
+    if (await _promptPermissionSetting()) {
+      List<Album> imageAlbums =
+          await PhotoGallery.listAlbums(mediumType: MediumType.image);
+      final List<Album> videoAlbums = await PhotoGallery.listAlbums(
+          mediumType: MediumType.video, hideIfEmpty: false);
+
+// FadeInImage(
+//     fit: BoxFit.cover,
+//     placeholder: MemoryImage(kTransparentImage),
+//     image: PhotoProvider(
+//         mediumId: mediumId,
+//     ),
+// )
+
+      for (Album item in imageAlbums) {}
+
+      final MediaPage imagePage = await imageAlbums.first.listMedia(
+        newest: true,
+        // skip: 5,
+        // take: 10,
+      );
+      final MediaPage videoPage = await videoAlbums.first.listMedia(
+        newest: true,
+        // skip: 0,
+        // take: 10,
+      );
+      final List<Medium> allMedia = [
+        ...imagePage.items,
+        ...videoPage.items,
+      ];
+
+      // var t = await albums.first.listMedia();
+      // var lst = await t.items.map((medium) => medium).toList();
+      // FadeInImage(
+      //             fit: BoxFit.cover,
+      //             placeholder: MemoryImage(kTransparentImage),
+      //             image: PhotoProvider(mediumId: medium.id),
+      //           )
+      setState(() {
+        _allMedia = allMedia;
+        _loading = false;
+      });
+    }
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  Future<bool> _promptPermissionSetting() async {
+    if (Platform.isIOS &&
+            await Permission.storage.request().isGranted &&
+            await Permission.photos.request().isGranted ||
+        Platform.isAndroid && await Permission.storage.request().isGranted) {
+      return true;
+    }
+    return false;
   }
 
   saveFileToGalery(FileType fileType, String filePath) async {

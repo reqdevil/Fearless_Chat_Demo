@@ -73,7 +73,8 @@ dependencies:
   flutter_svg: ^1.0.1
   shared_preferences: ^2.0.12
   provider: ^6.0.2
-  
+  photo_gallery: ^1.1.1
+  transparent_image: ^2.0.0
   # wechat_assets_picker: ^6.3.1
   
     # color: "#fffff"
