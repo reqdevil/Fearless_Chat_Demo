@@ -1,7 +1,7 @@
 import 'package:fearless_chat_demo/Models/friend.dart';
-import 'package:fearless_chat_demo/Pages/LoginPage.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Pages/chatPage.dart';
+import 'package:fearless_chat_demo/Pages/settingsPage.dart';
 import 'package:fearless_chat_demo/Utils/TransitionHelpers.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:flutter/foundation.dart';
@@ -18,7 +18,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   List<Friend> _friendList = [];
   List<Friend> _friendFavoriteList = [];
- 
+
   int selectedPageIndex = 0;
   late bool _isVisibileFavoriteFriendList;
   late List _children = [];
@@ -36,7 +36,8 @@ class _MainPageState extends State<MainPage> {
       null,
       const PlaceholderWidget(color: Colors.green),
       const PlaceholderWidget(color: Colors.deepOrange),
-      const LoginPage()
+      // const LoginPage()
+      const SettingsPage()
     ];
     for (var item in friendsList) {
       Friend f = Friend.fromMap(item);
@@ -71,14 +72,14 @@ class _MainPageState extends State<MainPage> {
     bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Scaffold(
       extendBody: true,
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       appBar: selectedPageIndex == 0
           ? AppBar(
               iconTheme: IconThemeData(
                 color: Colors.grey[700], //change your color here
               ),
-              backgroundColor: Colors.white,
+              // backgroundColor: Colors.white,
               textTheme:
                   Theme.of(context).textTheme.apply(bodyColor: Colors.black45),
               title: Visibility(
@@ -164,7 +165,6 @@ class _MainPageState extends State<MainPage> {
                           shrinkWrap: true,
                           padding: EdgeInsets.only(
                               left: 5, right: 5, top: 10, bottom: 0),
-                          // shrinkWrap: true,
                           physics: const BouncingScrollPhysics(),
                           itemCount: _friendFavoriteList.length,
                           scrollDirection: Axis.horizontal,
@@ -175,7 +175,6 @@ class _MainPageState extends State<MainPage> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  // mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Stack(children: [
                                       Align(
@@ -209,9 +208,9 @@ class _MainPageState extends State<MainPage> {
                                     Text(
                                       _friendFavoriteList[index].username,
                                       style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                       textAlign: TextAlign.center,
                                     )
                                   ],
@@ -311,14 +310,8 @@ class _MainPageState extends State<MainPage> {
                                 subtitle: Text(
                                   "${_friendList[i].lastMsg}",
                                   style: !friendsList[i]['seen']
-                                      ? Theme.of(context)
-                                          .textTheme
-                                          .subtitle1!
-                                          .apply(color: Colors.black87)
-                                      : Theme.of(context)
-                                          .textTheme
-                                          .subtitle1!
-                                          .apply(color: Colors.black54),
+                                      ? Theme.of(context).textTheme.subtitle1!
+                                      : Theme.of(context).textTheme.subtitle1!,
                                 ),
                                 trailing: SizedBox(
                                   width: 60,
@@ -434,8 +427,7 @@ class _MainPageState extends State<MainPage> {
                                           _friendFavoriteList[index].username,
                                           style: TextStyle(
                                               fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black87),
+                                              fontWeight: FontWeight.bold),
                                           textAlign: TextAlign.center,
                                         )
                                       ],
@@ -533,17 +525,14 @@ class _MainPageState extends State<MainPage> {
                                           Theme.of(context).textTheme.bodyText1,
                                     ),
                                     subtitle: Text(
-                                      "${_searchResult[i].lastMsg}",
-                                      style: !friendsList[i]['seen']
-                                          ? Theme.of(context)
-                                              .textTheme
-                                              .subtitle1!
-                                              .apply(color: Colors.black87)
-                                          : Theme.of(context)
-                                              .textTheme
-                                              .subtitle1!
-                                              .apply(color: Colors.black54),
-                                    ),
+                                        "${_searchResult[i].lastMsg}",
+                                        style: !friendsList[i]['seen']
+                                            ? Theme.of(context)
+                                                .textTheme
+                                                .subtitle1!
+                                            : Theme.of(context)
+                                                .textTheme
+                                                .subtitle1!),
                                     trailing: SizedBox(
                                       width: 60,
                                       child: Column(
@@ -606,6 +595,7 @@ class _MainPageState extends State<MainPage> {
           ? null
           : FloatingActionButton(
               elevation: 5,
+              foregroundColor: Colors.white,
               backgroundColor: Global.mainColor,
               child: const Icon(Icons.camera),
               onPressed: () async {
@@ -617,7 +607,7 @@ class _MainPageState extends State<MainPage> {
             ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
-        notchMargin: 7.0,
+        notchMargin: -10.0,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -625,8 +615,8 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.message,
                   color: selectedPageIndex == 0
-                      ? Global.mainColor
-                      : Colors.black45),
+                      ? Theme.of(context).colorScheme.onSecondary
+                      : Theme.of(context).colorScheme.onPrimary),
               onPressed: () async {
                 setState(() {
                   selectedPageIndex = 0;
@@ -639,8 +629,8 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.view_list,
                   color: selectedPageIndex == 1
-                      ? Global.mainColor
-                      : Colors.black45),
+                      ? Theme.of(context).colorScheme.onSecondary
+                      : Theme.of(context).colorScheme.onPrimary),
               onPressed: () {
                 setState(() {
                   selectedPageIndex = 1;
@@ -651,8 +641,8 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.call,
                   color: selectedPageIndex == 2
-                      ? Global.mainColor
-                      : Colors.black45),
+                      ? Theme.of(context).colorScheme.onSecondary
+                      : Theme.of(context).colorScheme.onPrimary),
               onPressed: () {
                 setState(() {
                   selectedPageIndex = 2;
@@ -662,8 +652,10 @@ class _MainPageState extends State<MainPage> {
             IconButton(
               icon: Icon(Icons.person_outline,
                   color: selectedPageIndex == 3
-                      ? Global.mainColor
-                      : Colors.black45),
+                      ? Theme.of(context).colorScheme.onSecondary
+                      : Theme.of(context).colorScheme.onPrimary
+                  // Global.mainColor : Colors.black45,
+                  ),
               onPressed: () async {
                 setState(() {
                   selectedPageIndex = 3;

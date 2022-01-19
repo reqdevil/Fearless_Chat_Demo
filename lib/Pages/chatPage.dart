@@ -93,10 +93,10 @@ class _ChatPageState extends State<ChatPage>
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
-          color: Global.mainColor, //change your color here
-        ),
+            // color: Global.mainColor, //change your color here
+            ),
         shadowColor: Colors.black,
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         title: Row(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -121,12 +121,8 @@ class _ChatPageState extends State<ChatPage>
                       style: Theme.of(context).textTheme.subtitle1,
                       overflow: TextOverflow.clip,
                     ),
-                    Text(
-                      _friend.isOnline ? "Online" : "Offline",
-                      style: Theme.of(context).textTheme.subtitle1!.apply(
-                            color: Global.mainColor,
-                          ),
-                    )
+                    Text(_friend.isOnline ? "Online" : "Offline",
+                        style: Theme.of(context).textTheme.subtitle1!)
                   ],
                 ),
               ],
@@ -143,7 +139,7 @@ class _ChatPageState extends State<ChatPage>
                       elevation: 0,
                       minimumSize: const Size(35, 35),
                       padding: const EdgeInsets.all(0),
-                      primary: Colors.grey.withOpacity(0.3),
+                      // primary: Colors.grey.withOpacity(0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
@@ -151,7 +147,8 @@ class _ChatPageState extends State<ChatPage>
                     onPressed: () {},
                     child: Icon(
                       Icons.phone,
-                      color: Colors.grey[800],
+                      color: Theme.of(context).colorScheme.secondaryVariant,
+                      // color: Colors.grey[800],
                     ),
                   ),
                   ElevatedButton(
@@ -159,7 +156,7 @@ class _ChatPageState extends State<ChatPage>
                       elevation: 0,
                       minimumSize: const Size(35, 35),
                       padding: const EdgeInsets.all(0),
-                      primary: Colors.grey.withOpacity(0.3),
+                      // primary: Colors.grey.withOpacity(0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
@@ -167,7 +164,8 @@ class _ChatPageState extends State<ChatPage>
                     onPressed: () {},
                     child: Icon(
                       Icons.videocam_sharp,
-                      color: Colors.grey[800],
+                      color: Theme.of(context).colorScheme.secondaryVariant,
+                      // color: Colors.grey[800],
                     ),
                   ),
                   ElevatedButton(
@@ -175,7 +173,7 @@ class _ChatPageState extends State<ChatPage>
                       elevation: 0,
                       minimumSize: const Size(35, 35),
                       padding: const EdgeInsets.all(0),
-                      primary: Colors.grey.withOpacity(0.3),
+                      // primary: Colors.grey.withOpacity(0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
@@ -183,7 +181,8 @@ class _ChatPageState extends State<ChatPage>
                     onPressed: () {},
                     child: Icon(
                       Icons.more_vert_rounded,
-                      color: Colors.grey[800],
+                      color: Theme.of(context).colorScheme.secondaryVariant,
+                      // color: Colors.grey[800],
                     ),
                   ),
                 ],
@@ -428,13 +427,10 @@ class _ChatPageState extends State<ChatPage>
                                                   ListTile(
                                                     title: Text(
                                                       icons[key].toString(),
-                                                      style: TextStyle(
-                                                          color:
-                                                              Global.mainColor),
                                                     ),
                                                     leading: Icon(
                                                       key,
-                                                      color: Global.mainColor,
+                                                      // color: Global.mainColor,
                                                     ),
                                                     onTap: () async {
                                                       Navigator.of(context)

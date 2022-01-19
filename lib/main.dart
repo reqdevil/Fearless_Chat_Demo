@@ -1,8 +1,11 @@
+import 'package:fearless_chat_demo/Theme/AppThemes.dart';
+import 'package:fearless_chat_demo/Theme/ThemeModel.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'Pages/mainPage.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,15 +20,23 @@ class FearlessChatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return ChangeNotifierProvider(
+      create: (BuildContext context) => ThemeModel(),
+      child: Consumer<ThemeModel>(
+        builder: (context, ThemeModel themeNotifier, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Flutter Demo',
+            theme: themeNotifier.isDark
+                ? AppThemes.darkTheme
+                : AppThemes.lightTheme,
+            themeMode: ThemeMode.system,
+            home: const AnnotatedRegion<SystemUiOverlayStyle>(
+                value: SystemUiOverlayStyle(statusBarColor: Colors.white),
+                child: MainPage()),
+          );
+        },
       ),
-      home: const AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle(statusBarColor: Colors.white),
-          child: MainPage()),
     );
   }
 }
