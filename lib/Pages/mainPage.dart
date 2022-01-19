@@ -82,56 +82,53 @@ class _MainPageState extends State<MainPage> {
               // backgroundColor: Colors.white,
               textTheme:
                   Theme.of(context).textTheme.apply(bodyColor: Colors.black45),
-              title: Visibility(
-                visible: _isVisibleSearch,
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(35.0),
-                      border: Border.all(color: Colors.grey)),
-                  height: 40,
-                  child: Center(
-                    child: TextField(
-                        controller: _searchTextEditorController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
-                          hintText: 'Search...',
-                          suffixIcon: Visibility(
-                            visible: _isVisibleSearchClean,
-                            child: GestureDetector(
-                              onTap: () {
-                                _searchTextEditorController.text = "";
-                                setState(() {
-                                  _searchResult.clear();
-                                });
-                              },
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.grey,
-                              ),
+              title: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(35.0),
+                    border: Border.all(color: Colors.grey)),
+                height: 40,
+                child: Center(
+                  child: TextField(
+                      controller: _searchTextEditorController,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        hintText: 'Search...',
+                        suffixIcon: Visibility(
+                          visible: _isVisibleSearchClean,
+                          child: GestureDetector(
+                            onTap: () {
+                              _searchTextEditorController.text = "";
+                              setState(() {
+                                _searchResult.clear();
+                              });
+                            },
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.grey,
                             ),
                           ),
                         ),
-                        onChanged: (value) {
-                          if (value == "") {
-                            setState(() {
-                              _searchResult.clear();
-                            });
-                          } else {
-                            result = _friendList
-                                .where((user) => (user.username)
-                                    .toLowerCase()
-                                    .contains(value.toLowerCase()))
-                                .toList();
-                          }
+                      ),
+                      onChanged: (value) {
+                        if (value == "") {
                           setState(() {
-                            _searchResult = result;
+                            _searchResult.clear();
                           });
-                        }),
-                  ),
+                        } else {
+                          result = _friendList
+                              .where((user) => (user.username)
+                                  .toLowerCase()
+                                  .contains(value.toLowerCase()))
+                              .toList();
+                        }
+                        setState(() {
+                          _searchResult = result;
+                        });
+                      }),
                 ),
               ),
               actions: <Widget>[
