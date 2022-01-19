@@ -15,7 +15,7 @@ class AppThemes {
     ),
     colorScheme: ColorScheme(
       brightness: Brightness.dark,
-      surface: Colors.yellow,
+      surface: Colors.grey,
       onSurface: Colors.black,
       // Colors that are not relevant to AppBar in DARK mode:
       primary: Global.mainColor,
@@ -23,7 +23,7 @@ class AppThemes {
       primaryVariant: Colors.grey,
       secondary: Colors.grey,
       secondaryVariant: Colors.white,
-      onSecondary: Colors.white,
+      onSecondary: Colors.black,
       background: Colors.grey,
       onBackground: Colors.grey,
       error: Colors.grey,
@@ -45,7 +45,7 @@ class AppThemes {
     ),
     colorScheme: ColorScheme(
       brightness: Brightness.light,
-      surface: Colors.yellow,
+      surface: Colors.white,
       onSurface: Colors.black,
       // Colors that are not relevant to AppBar in DARK mode:
       primary: Global.mainColor,
@@ -54,7 +54,7 @@ class AppThemes {
       secondary: Colors.grey,
       secondaryVariant: Colors.white,
       onSecondary: Global.mainColor,
-      background: Colors.grey,
+      background: Colors.grey[300] as Color,
       onBackground: Colors.grey,
       error: Colors.grey,
       onError: Colors.grey,

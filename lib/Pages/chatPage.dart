@@ -237,7 +237,9 @@ class _ChatPageState extends State<ChatPage>
                                               .6),
                                       padding: const EdgeInsets.all(15.0),
                                       decoration: BoxDecoration(
-                                        color: Colors.grey[300],
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .background,
                                         borderRadius: const BorderRadius.only(
                                           topRight: Radius.circular(25),
                                           bottomLeft: Radius.circular(25),
@@ -394,7 +396,7 @@ class _ChatPageState extends State<ChatPage>
                       child: Container(
                         width: getWidthChatBox(context),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius:
                               BorderRadius.circular(Global.borderRadius),
                           boxShadow: const [
@@ -501,6 +503,10 @@ class _ChatPageState extends State<ChatPage>
                               visible: isVisibleChatBox,
                               child: Expanded(
                                 child: TextField(
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
                                   autofocus: false,
                                   controller: _textEditingController,
                                   focusNode: _focusNode,
