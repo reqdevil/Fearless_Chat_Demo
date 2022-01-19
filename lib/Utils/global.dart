@@ -99,7 +99,7 @@ List<Map<String, dynamic>> friendsList = [
     'unseenCount': 0,
     'lastMsgTime': '18:44',
     'isOnline': true,
-    'isFavorite': true
+    'isFavorite': false
   },
   {
     'usrId': '2',
@@ -112,7 +112,7 @@ List<Map<String, dynamic>> friendsList = [
     'unseenCount': 0,
     'lastMsgTime': '18:44',
     'isOnline': false,
-    'isFavorite': true
+    'isFavorite': false
   },
   {
     'usrId': '3',
@@ -125,7 +125,7 @@ List<Map<String, dynamic>> friendsList = [
     'unseenCount': 3,
     'lastMsgTime': '18:44',
     'isOnline': true,
-    'isFavorite': true
+    'isFavorite': false
   },
   {
     'usrId': '4',
@@ -138,7 +138,7 @@ List<Map<String, dynamic>> friendsList = [
     'unseenCount': 2,
     'lastMsgTime': '18:44',
     'isOnline': true,
-    'isFavorite': true
+    'isFavorite': false
   },
   {
     'usrId': '5',
