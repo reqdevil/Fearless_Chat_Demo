@@ -17,7 +17,6 @@ import 'dart:math' as math;
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
 import 'package:intl/intl.dart';
@@ -672,7 +671,10 @@ class _CameraPageState extends State<CameraPage>
                                   child: Slider(
                                     value: _currentScale,
                                     min: _minAvailableZoom,
-                                    max: _maxAvailableZoom / 10.0,
+                                    max: _minAvailableZoom >
+                                            (_maxAvailableZoom / 10.0)
+                                        ? _maxAvailableZoom
+                                        : _maxAvailableZoom / 10.0,
                                     activeColor: Colors.white,
                                     inactiveColor: Colors.white30,
                                     onChanged: (value) async {
@@ -784,26 +786,19 @@ class _CameraPageState extends State<CameraPage>
                                                           child: SizedBox(
                                                             child: Container(
                                                               child: Center(
-                                                                  child: mediaPathList
-                                                                              .reversed
-                                                                              .toList()[
-                                                                                  itemIndex]
+                                                                  child: mediaPathList[itemIndex]
                                                                               .fileType ==
                                                                           FileType
                                                                               .photo
                                                                       ? Image
                                                                           .file(
-                                                                          File(mediaPathList
-                                                                              .reversed
-                                                                              .toList()[itemIndex]
+                                                                          File(mediaPathList[itemIndex]
                                                                               .filePath),
                                                                           fit: BoxFit
                                                                               .fill,
                                                                         )
                                                                       : VideoItem(
-                                                                          url: mediaPathList
-                                                                              .reversed
-                                                                              .toList()[itemIndex]
+                                                                          url: mediaPathList[itemIndex]
                                                                               .filePath)),
                                                               decoration:
                                                                   BoxDecoration(
@@ -1435,6 +1430,8 @@ class _CameraPageState extends State<CameraPage>
                   file.path, false, DateTime.now(), FileType.photo);
               setState(() {
                 mediaPathList.add(media);
+                mediaPathList
+                    .sort((a, b) => DateTime.now().compareTo(a.dateTime));
               });
 
               saveFileToGalery(FileType.photo, file.path);
@@ -1453,6 +1450,7 @@ class _CameraPageState extends State<CameraPage>
               file.path, false, DateTime.now(), FileType.photo);
           setState(() {
             mediaPathList.add(media);
+            mediaPathList.sort((a, b) => DateTime.now().compareTo(a.dateTime));
           });
 
           saveFileToGalery(FileType.photo, file.path);
@@ -1581,6 +1579,7 @@ class _CameraPageState extends State<CameraPage>
               TakenCameraMedia(filePath, false, DateTime.now(), FileType.video);
           setState(() {
             mediaPathList.add(media);
+            mediaPathList.sort((a, b) => DateTime.now().compareTo(a.dateTime));
           });
 
           saveFileToGalery(FileType.video, filePath);
@@ -1609,6 +1608,8 @@ class _CameraPageState extends State<CameraPage>
                   newFilePath, false, DateTime.now(), FileType.video);
               setState(() {
                 mediaPathList.add(media);
+                mediaPathList
+                    .sort((a, b) => DateTime.now().compareTo(a.dateTime));
               });
 
               saveFileToGalery(FileType.video, newFilePath);
@@ -2112,226 +2113,8 @@ class _CameraPageState extends State<CameraPage>
                       ),
                     )
                   : Container()),
-          onLongPress: () {
-            showModalBottomSheet(
-              enableDrag: true,
-              isDismissible: true,
-              isScrollControlled: true,
-              backgroundColor: Colors.black,
-              context: context,
-              builder: (context) {
-                return StatefulBuilder(
-                  builder: (context, setState) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            AnimatedBuilder(
-                              animation: _animation,
-                              child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (!_isSelectedImage) {
-                                      null;
-                                    } else {
-                                      setState(() {});
-                                      Navigator.pop(context);
-                                      Navigator.pop(
-                                        context,
-                                        mediaPathList
-                                            .where(
-                                                (element) => element.isSelected)
-                                            .toList(),
-                                      );
-                                      // Navigator.pop(context);
-                                      // await navigatePageBottom(
-                                      //     context: context,
-                                      //     page: ChatPage(
-                                      //         listShareMedia: mediaPathList
-                                      //             .where((element) =>
-                                      //                 element.isSelected)
-                                      //             .toList(),
-                                      //         userId: '2'),
-                                      //     rootNavigator: true);
-                                    }
-                                  },
-                                  style: ButtonStyle(
-                                    minimumSize: MaterialStateProperty.all(
-                                        const Size(15, 15)),
-                                    padding: MaterialStateProperty.all(
-                                        const EdgeInsets.all(0)),
-                                    backgroundColor: MaterialStateProperty
-                                        .resolveWith<Color>(
-                                      (Set<MaterialState> states) {
-                                        if (_isSelectedImage) {
-                                          return Colors.green[600] as Color;
-                                        } else if (!_isSelectedImage) {
-                                          return Colors.grey;
-                                        }
-                                        return Colors.transparent;
-                                      },
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.upload,
-                                    color: Colors.white,
-                                    size: 25,
-                                  )),
-                              builder: (context, child) {
-                                return Transform.rotate(
-                                  angle: _animation.value,
-                                  child: child,
-                                );
-                              },
-                            ),
-                            AnimatedBuilder(
-                              animation: _animation,
-                              child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (!_isSelectedImage) {
-                                      null;
-                                    } else {
-                                      setState(() {
-                                        removeMediaFromShareList();
-                                      });
-                                    }
-                                  },
-                                  style: ButtonStyle(
-                                    minimumSize: MaterialStateProperty.all(
-                                        const Size(15, 15)),
-                                    padding: MaterialStateProperty.all(
-                                        const EdgeInsets.all(0)),
-                                    backgroundColor: MaterialStateProperty
-                                        .resolveWith<Color>(
-                                      (Set<MaterialState> states) {
-                                        if (_isSelectedImage) {
-                                          return Colors.red;
-                                        } else if (!_isSelectedImage) {
-                                          return Colors.grey;
-                                        }
-                                        return Colors.transparent;
-                                      },
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
-                                    size: 25,
-                                  )),
-                              builder: (context, child) {
-                                return Transform.rotate(
-                                  angle: _animation.value,
-                                  child: child,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          // width: MediaQuery.of(context).size.width / 3,
-                          height: MediaQuery.of(context).size.height / 2.5,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _allMedia.length,
-                            physics: const BouncingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 20),
-                                child: AnimatedBuilder(
-                                  animation: _animation,
-                                  child: Stack(
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.center,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 20),
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2,
-                                          decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            border: Border.all(
-                                                color: Colors.amber, width: 2),
-                                            image: DecorationImage(
-                                              image: FileImage(
-                                                getFile(index)
-                                                        .then((value) => value)
-                                                    as File,
-                                              ),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                          child: _allMedia[index].mediumType ==
-                                                  MediumType.video
-                                              ? VideoItem(
-                                                  url: (getFile(index) as File)
-                                                      .path)
-                                              : Container(),
-                                        ),
-                                      ),
-                                      Positioned.fill(
-                                        top: 22,
-                                        right: 12,
-                                        child: Align(
-                                          alignment: Alignment.topRight,
-                                          child: Container(
-                                              margin: const EdgeInsets.all(2),
-                                              height: 20,
-                                              width: 20,
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(10)),
-                                                  border: Border.all(
-                                                      color: Colors.white
-                                                          .withOpacity(0.5))),
-                                              child: const Icon(
-                                                Icons.check,
-                                                color: Colors.white,
-                                                size: 15,
-                                              )),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  builder: (context, child) {
-                                    return Transform.rotate(
-                                      angle: _animation.value,
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            );
-          },
           onTap: () {
             setState(() {
-              // _isTapImage = !_isTapImage;
               _listShareMedia = mediaPathList;
               showModalBottomSheet(
                 enableDrag: true,
@@ -2468,14 +2251,9 @@ class _CameraPageState extends State<CameraPage>
                                     child: GestureDetector(
                                       onTap: () {
                                         setState(() {
-                                          mediaPathList.reversed
-                                                  .toList()[index]
-                                                  .isSelected =
-                                              !mediaPathList.reversed
-                                                  .toList()[index]
-                                                  .isSelected;
-                                          if (mediaPathList.reversed
-                                              .toList()
+                                          mediaPathList[index].isSelected =
+                                              !mediaPathList[index].isSelected;
+                                          if (mediaPathList
                                               .where((element) =>
                                                   element.isSelected)
                                               .toList()
@@ -2484,8 +2262,7 @@ class _CameraPageState extends State<CameraPage>
                                           } else {
                                             _isSelectedImage = false;
                                           }
-                                          _listShareMedia =
-                                              mediaPathList.reversed.toList();
+                                          _listShareMedia = mediaPathList;
                                         });
                                       },
                                       child: Stack(
@@ -2511,9 +2288,7 @@ class _CameraPageState extends State<CameraPage>
                                                 borderRadius:
                                                     BorderRadius.circular(10.0),
                                                 border: Border.all(
-                                                    color: mediaPathList
-                                                            .reversed
-                                                            .toList()[index]
+                                                    color: mediaPathList[index]
                                                             .isSelected
                                                         ? Colors.amber
                                                         : Colors.grey
@@ -2521,21 +2296,17 @@ class _CameraPageState extends State<CameraPage>
                                                     width: 2),
                                                 image: DecorationImage(
                                                   image: FileImage(
-                                                    File(mediaPathList.reversed
-                                                        .toList()[index]
+                                                    File(mediaPathList[index]
                                                         .filePath),
                                                   ),
                                                   fit: BoxFit.cover,
                                                 ),
                                               ),
-                                              child: mediaPathList.reversed
-                                                          .toList()[index]
+                                              child: mediaPathList[index]
                                                           .fileType ==
                                                       FileType.video
                                                   ? VideoItem(
-                                                      url: mediaPathList
-                                                          .reversed
-                                                          .toList()[index]
+                                                      url: mediaPathList[index]
                                                           .filePath)
                                                   : Container(),
                                             ),
@@ -2551,9 +2322,7 @@ class _CameraPageState extends State<CameraPage>
                                                 width: 20,
                                                 alignment: Alignment.center,
                                                 decoration: BoxDecoration(
-                                                    color: mediaPathList
-                                                            .reversed
-                                                            .toList()[index]
+                                                    color: mediaPathList[index]
                                                             .isSelected
                                                         ? Colors.blue
                                                         : Colors.transparent,
@@ -2564,8 +2333,7 @@ class _CameraPageState extends State<CameraPage>
                                                     border: Border.all(
                                                         color: Colors.white
                                                             .withOpacity(0.5))),
-                                                child: mediaPathList.reversed
-                                                        .toList()[index]
+                                                child: mediaPathList[index]
                                                         .isSelected
                                                     ? const Icon(
                                                         Icons.check,
@@ -2636,7 +2404,7 @@ class _CameraPageState extends State<CameraPage>
     );
   }
 
-  Future getFile(int index) async {
+  Future<File> getFile(int index) async {
     File file = await _allMedia[index].getFile();
     return file;
   }
@@ -2649,17 +2417,6 @@ class _CameraPageState extends State<CameraPage>
           await PhotoGallery.listAlbums(mediumType: MediumType.image);
       final List<Album> videoAlbums = await PhotoGallery.listAlbums(
           mediumType: MediumType.video, hideIfEmpty: false);
-
-// FadeInImage(
-//     fit: BoxFit.cover,
-//     placeholder: MemoryImage(kTransparentImage),
-//     image: PhotoProvider(
-//         mediumId: mediumId,
-//     ),
-// )
-
-      for (Album item in imageAlbums) {}
-
       final MediaPage imagePage = await imageAlbums.first.listMedia(
         newest: true,
         // skip: 5,
@@ -2674,14 +2431,28 @@ class _CameraPageState extends State<CameraPage>
         ...imagePage.items,
         ...videoPage.items,
       ];
+      for (Album album in imageAlbums) {
+        MediaPage imagePage = await album.listMedia(newest: true);
+        for (var item in imagePage.items) {
+          File file = await item.getFile();
+          TakenCameraMedia media = TakenCameraMedia(
+              file.path, false, item.modifiedDate!, FileType.photo);
+          mediaPathList.add(media);
+        }
+      }
+      for (Album album in videoAlbums) {
+        MediaPage imagePage = await album.listMedia(newest: true);
+        for (var item in imagePage.items) {
+          File file = await item.getFile();
+          TakenCameraMedia media = TakenCameraMedia(
+              file.path, false, item.modifiedDate!, FileType.video);
+          mediaPathList.add(media);
+        }
+      }
+      setState(() {
+        mediaPathList.sort((a, b) => DateTime.now().compareTo(a.dateTime));
+      });
 
-      // var t = await albums.first.listMedia();
-      // var lst = await t.items.map((medium) => medium).toList();
-      // FadeInImage(
-      //             fit: BoxFit.cover,
-      //             placeholder: MemoryImage(kTransparentImage),
-      //             image: PhotoProvider(mediumId: medium.id),
-      //           )
       setState(() {
         _allMedia = allMedia;
         _loading = false;
@@ -2729,7 +2500,7 @@ class _CameraPageState extends State<CameraPage>
   }
 
   void removeMediaFromShareList() {
-    for (var item in _listShareMedia.reversed.toList()) {
+    for (var item in _listShareMedia) {
       if (item.isSelected) {
         setState(() {
           mediaPathList.remove(item);
@@ -2745,11 +2516,7 @@ class _CameraPageState extends State<CameraPage>
 
       Navigator.pop(context);
     }
-    if (mediaPathList.reversed
-        .toList()
-        .where((element) => element.isSelected)
-        .toList()
-        .isEmpty) {
+    if (mediaPathList.where((element) => element.isSelected).toList().isEmpty) {
       setState(() {
         _isSelectedImage = false;
       });
