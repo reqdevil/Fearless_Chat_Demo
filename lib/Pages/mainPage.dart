@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Models/friend.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Pages/chatPage.dart';
@@ -18,6 +19,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  List<String> listOfShareMediaPath = [];
   List<Friend> _friendList = [];
   List<Friend> _friendFavoriteList = [];
 
@@ -223,8 +225,9 @@ class _MainPageState extends State<MainPage> {
                                 await navigatePageBottom(
                                     context: context,
                                     page: ChatPage(
-                                        userId:
-                                            _friendFavoriteList[index].usrId),
+                                      userId: _friendFavoriteList[index].usrId,
+                                      listShareMediaPath: listOfShareMediaPath,
+                                    ),
                                     rootNavigator: true);
                               },
                               onLongPress: () {
@@ -260,7 +263,10 @@ class _MainPageState extends State<MainPage> {
                                   await navigatePageTop(
                                       context: context,
                                       page: ChatPage(
-                                          userId: _friendList[i].usrId),
+                                        userId: _friendList[i].usrId,
+                                        listShareMediaPath:
+                                            listOfShareMediaPath,
+                                      ),
                                       rootNavigator: true);
                                 },
                                 leading: Container(
@@ -442,7 +448,9 @@ class _MainPageState extends State<MainPage> {
                                         context: context,
                                         page: ChatPage(
                                             userId: _friendFavoriteList[index]
-                                                .usrId),
+                                                .usrId,
+                                            listShareMediaPath:
+                                                listOfShareMediaPath),
                                         rootNavigator: true);
                                   },
                                   onLongPress: () {
@@ -475,7 +483,9 @@ class _MainPageState extends State<MainPage> {
                                       await navigatePageBottom(
                                           context: context,
                                           page: ChatPage(
-                                              userId: _searchResult[i].usrId),
+                                              userId: _searchResult[i].usrId,
+                                              listShareMediaPath:
+                                                  listOfShareMediaPath),
                                           rootNavigator: true);
                                     },
                                     leading: Container(
@@ -603,10 +613,29 @@ class _MainPageState extends State<MainPage> {
               backgroundColor: Global.mainColor,
               child: const Icon(Icons.camera),
               onPressed: () async {
-                await navigatePageBottom(
+                // await navigatePageBottom(
+                //     context: context,
+                //     page: const CameraPage(),
+                //     rootNavigator: true);
+
+                showGeneralDialog(
                     context: context,
-                    page: const CameraPage(),
-                    rootNavigator: true);
+                    useRootNavigator: true,
+                    transitionDuration: const Duration(milliseconds: 400),
+                    pageBuilder: (context, animation, secondaryAnimation) {
+                      return StatefulBuilder(
+                        builder:
+                            (BuildContext context, StateSetter sfsetState) {
+                          return const CameraPage();
+                        },
+                      );
+                    }).then((value) {
+                  setState(() {
+                    listOfShareMediaPath = (value as List<TakenCameraMedia>)
+                        .map((e) => e.filePath)
+                        .toList();
+                  });
+                });
               },
             ),
       bottomNavigationBar: BottomAppBar(

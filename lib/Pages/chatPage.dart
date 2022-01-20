@@ -22,8 +22,13 @@ import 'package:map_launcher/map_launcher.dart' as M;
 
 class ChatPage extends StatefulWidget {
   List<TakenCameraMedia>? listShareMedia;
+  List<String>? listShareMediaPath;
   final String userId;
-  ChatPage({Key? key, this.listShareMedia, required this.userId})
+  ChatPage(
+      {Key? key,
+      this.listShareMedia,
+      this.listShareMediaPath,
+      required this.userId})
       : super(key: key);
 
   @override
@@ -75,6 +80,29 @@ class _ChatPageState extends State<ChatPage>
     //     friendsList.where((element) => element['usrId'] == widget.userId).first;
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
+      setState(() {
+        if (widget.listShareMediaPath != null) {
+          if (widget.listShareMediaPath!.isNotEmpty) {
+            Global.messages.add(
+              {
+                'usrId': widget.userId,
+                'status': MessageType.sent,
+                'message': "",
+                'time': DateFormat('dd.MM.yyyy – kk:mm').format(DateTime.now()),
+                'hasShareMedia': false,
+                'filePaths': widget.listShareMediaPath,
+                'location': []
+              },
+            );
+            _messages = Global.getMessages()
+                .where((element) => element.usrId == widget.userId)
+                .toList();
+
+            widget.listShareMediaPath!.clear();
+          }
+        }
+      });
+
       scrollDown();
     });
     super.initState();
