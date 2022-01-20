@@ -37,7 +37,7 @@ bool _isFlashAuto = false;
 bool _isFlashOff = false;
 bool _isVisibleItemFlash = true;
 bool _isVisibleItemCloseAndDropDown = true;
-bool _isVisibleExposureContainer = false;
+// bool _isVisibleExposureContainer = false;
 bool _isExposeChanging = false;
 late bool _isVideoRecorderSelected;
 late bool _isVideoRecording;
@@ -1311,15 +1311,13 @@ class _CameraPageState extends State<CameraPage>
     var position = details.globalPosition;
     bool isLeftSideTapped = false;
     if (position.dx < MediaQuery.of(context).size.width / 2) {
-//tap lef side
+     //tap lef side
       isLeftSideTapped = true;
     } else {
       //tap right side
       isLeftSideTapped = false;
     }
     Widget exposedArea = Positioned(
-      // details.localPosition.dx / constraints.maxWidth,
-      // details.localPosition.dy / constraints.maxHeight,
       left: details.globalPosition.dx - 50.0,
       top: details.globalPosition.dy - 50.0,
       child: AnimatedOpacity(
@@ -2507,33 +2505,14 @@ class _CameraPageState extends State<CameraPage>
     );
   }
 
-  Future<File> getFile(int index) async {
-    File file = await _allMedia[index].getFile();
-    return file;
-  }
-
-  late List<Medium> _allMedia;
   bool _loading = false;
   Future<void> initAsync() async {
     if (await _promptPermissionSetting()) {
       List<Album> imageAlbums =
           await PhotoGallery.listAlbums(mediumType: MediumType.image);
-      final List<Album> videoAlbums = await PhotoGallery.listAlbums(
+      List<Album> videoAlbums = await PhotoGallery.listAlbums(
           mediumType: MediumType.video, hideIfEmpty: false);
-      final MediaPage imagePage = await imageAlbums.first.listMedia(
-        newest: true,
-        // skip: 5,
-        // take: 10,
-      );
-      final MediaPage videoPage = await videoAlbums.first.listMedia(
-        newest: true,
-        // skip: 0,
-        // take: 10,
-      );
-      final List<Medium> allMedia = [
-        ...imagePage.items,
-        ...videoPage.items,
-      ];
+
       for (Album album in imageAlbums) {
         MediaPage imagePage = await album.listMedia(newest: true);
         for (var item in imagePage.items) {
@@ -2557,7 +2536,6 @@ class _CameraPageState extends State<CameraPage>
       });
 
       setState(() {
-        _allMedia = allMedia;
         _loading = false;
       });
     }
