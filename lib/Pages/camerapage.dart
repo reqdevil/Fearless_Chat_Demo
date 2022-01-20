@@ -2547,7 +2547,10 @@ class _CameraPageState extends State<CameraPage>
   Future<bool> _promptPermissionSetting() async {
     bool t = await Permission.storage.request().isGranted;
     bool s = await Permission.photos.request().isGranted;
-
+    if (!t || !s) {
+      bool pers = await openAppSettings();
+      if (pers) return true;
+    }
     if (Platform.isIOS &&
             await Permission.storage.request().isGranted &&
             await Permission.photos.request().isGranted ||
