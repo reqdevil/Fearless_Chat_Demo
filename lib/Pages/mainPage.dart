@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
@@ -775,13 +776,12 @@ class _MainPageState extends State<MainPage> {
 
   requestPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
-      Permission.storage,
+      Platform.isAndroid ? Permission.storage : Permission.photos,
       Permission.camera,
       Permission.microphone,
       Permission.mediaLibrary,
       Permission.speech,
       Permission.location,
-      Permission.photos,
     ].request();
 
     final info = statuses[Permission.storage].toString();

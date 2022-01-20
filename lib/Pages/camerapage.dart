@@ -8,6 +8,7 @@ import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:fearless_chat_demo/enums.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -2546,14 +2547,29 @@ class _CameraPageState extends State<CameraPage>
 
   Future<bool> _promptPermissionSetting() async {
     bool t = await Permission.storage.request().isGranted;
-    bool s = await Permission.photos.request().isGranted;
-    if (!t || !s) {
-      bool pers = await openAppSettings();
-      if (pers) return true;
-    }
-    if (Platform.isIOS &&
-            await Permission.storage.request().isGranted &&
-            await Permission.photos.request().isGranted ||
+    // bool s = await Permission.photos.request().isGranted;
+    // if (!t) {
+    //   showDialog(
+    //       context: context,
+    //       builder: (BuildContext context) => CupertinoAlertDialog(
+    //             title: Text('Camera Permission'),
+    //             content: Text('This app needs media gallery'),
+    //             actions: <Widget>[
+    //               CupertinoDialogAction(
+    //                 child: Text('Deny'),
+    //                 onPressed: () => Navigator.of(context).pop(),
+    //               ),
+    //               CupertinoDialogAction(
+    //                 child: Text('Settings'),
+    //                 onPressed: () => openAppSettings(),
+    //               ),
+    //             ],
+    //           ));
+    // }
+    if (Platform.isIOS && await Permission.storage.request().isGranted
+        // &&
+        // await Permission.photos.request().isGranted
+        ||
         Platform.isAndroid && await Permission.storage.request().isGranted) {
       return true;
     }
