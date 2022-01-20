@@ -1427,8 +1427,9 @@ class _CameraPageState extends State<CameraPage>
               File file = await fixExifRotation(
                   newFilePath, oldOrientation, cameraType);
               TakenCameraMedia media = TakenCameraMedia(
-                  file.path, false, DateTime.now(), FileType.photo);
+                  file.path, true, DateTime.now(), FileType.photo);
               setState(() {
+                _isSelectedImage = true;
                 mediaPathList.add(media);
                 mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
               });
@@ -1445,11 +1446,12 @@ class _CameraPageState extends State<CameraPage>
         } else {
           File file =
               await fixExifRotation(imagePath, oldOrientation, cameraType);
-          TakenCameraMedia media = TakenCameraMedia(
-              file.path, false, DateTime.now(), FileType.photo);
+          TakenCameraMedia media =
+              TakenCameraMedia(file.path, true, DateTime.now(), FileType.photo);
           setState(() {
+            _isSelectedImage = true;
             mediaPathList.add(media);
-           mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+            mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
           });
 
           saveFileToGalery(FileType.photo, file.path);
@@ -1575,10 +1577,11 @@ class _CameraPageState extends State<CameraPage>
           // rotation = '0';
 
           TakenCameraMedia media =
-              TakenCameraMedia(filePath, false, DateTime.now(), FileType.video);
+              TakenCameraMedia(filePath, true, DateTime.now(), FileType.video);
           setState(() {
+            _isSelectedImage = true;
             mediaPathList.add(media);
-           mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+            mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
           });
 
           saveFileToGalery(FileType.video, filePath);
@@ -1604,10 +1607,11 @@ class _CameraPageState extends State<CameraPage>
               // SUCCESS
               await File(videoFile!.path).delete();
               TakenCameraMedia media = TakenCameraMedia(
-                  newFilePath, false, DateTime.now(), FileType.video);
+                  newFilePath, true, DateTime.now(), FileType.video);
               setState(() {
+                _isSelectedImage = true;
                 mediaPathList.add(media);
-               mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+                mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
               });
 
               saveFileToGalery(FileType.video, newFilePath);
@@ -2098,7 +2102,7 @@ class _CameraPageState extends State<CameraPage>
                   borderRadius: BorderRadius.circular(10.0),
                   border: Border.all(color: Colors.white, width: 2),
                   image: DecorationImage(
-                    image: FileImage(File(mediaPathList.last.filePath)),
+                    image: FileImage(File(mediaPathList.first.filePath)),
                     fit: BoxFit.cover,
                   )),
               child: localVideoController != null &&
@@ -2115,10 +2119,16 @@ class _CameraPageState extends State<CameraPage>
             setState(() {
               _listShareMedia = mediaPathList;
               showModalBottomSheet(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(10),
+                    topLeft: Radius.circular(10),
+                  ),
+                ),
                 enableDrag: true,
                 isDismissible: true,
                 isScrollControlled: true,
-                backgroundColor: Colors.black,
+                backgroundColor: Colors.black.withOpacity(0.7),
                 context: context,
                 builder: (context) {
                   return StatefulBuilder(
@@ -2128,110 +2138,116 @@ class _CameraPageState extends State<CameraPage>
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AnimatedBuilder(
-                                animation: _animation,
-                                child: ElevatedButton(
-                                    onPressed: () async {
-                                      if (!_isSelectedImage) {
-                                        null;
-                                      } else {
-                                        setState(() {});
-                                        Navigator.pop(context);
-                                        Navigator.pop(
-                                          context,
-                                          mediaPathList
-                                              .where((element) =>
-                                                  element.isSelected)
-                                              .toList(),
-                                        );
-                                        // Navigator.pop(context);
-                                        // await navigatePageBottom(
-                                        //     context: context,
-                                        //     page: ChatPage(
-                                        //         listShareMedia: mediaPathList
-                                        //             .where((element) =>
-                                        //                 element.isSelected)
-                                        //             .toList(),
-                                        //         userId: '2'),
-                                        //     rootNavigator: true);
-                                      }
-                                    },
-                                    style: ButtonStyle(
-                                      minimumSize: MaterialStateProperty.all(
-                                          const Size(15, 15)),
-                                      padding: MaterialStateProperty.all(
-                                          const EdgeInsets.all(0)),
-                                      backgroundColor: MaterialStateProperty
-                                          .resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                          if (_isSelectedImage) {
-                                            return Colors.green[600] as Color;
-                                          } else if (!_isSelectedImage) {
-                                            return Colors.grey;
-                                          }
-                                          return Colors.transparent;
-                                        },
+                          Container(
+                            margin: const EdgeInsets.only(
+                                top: 8.0, bottom: 0, right: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                AnimatedBuilder(
+                                  animation: _animation,
+                                  child: ElevatedButton(
+                                      onPressed: () async {
+                                        if (!_isSelectedImage) {
+                                          null;
+                                        } else {
+                                          setState(() {});
+                                          Navigator.pop(context);
+                                          Navigator.pop(
+                                            context,
+                                            mediaPathList
+                                                .where((element) =>
+                                                    element.isSelected)
+                                                .toList(),
+                                          );
+                                        }
+                                      },
+                                      style: ButtonStyle(
+                                        shape: MaterialStateProperty
+                                            .resolveWith<OutlinedBorder>((_) {
+                                          return RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20));
+                                        }),
+                                        minimumSize: MaterialStateProperty.all(
+                                            const Size(40, 40)),
+                                        padding: MaterialStateProperty.all(
+                                            const EdgeInsets.all(0)),
+                                        backgroundColor: MaterialStateProperty
+                                            .resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                            if (_isSelectedImage) {
+                                              return Colors.green[600] as Color;
+                                            } else if (!_isSelectedImage) {
+                                              return Colors.grey;
+                                            }
+                                            return Colors.transparent;
+                                          },
+                                        ),
                                       ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.upload,
-                                      color: Colors.white,
-                                      size: 25,
-                                    )),
-                                builder: (context, child) {
-                                  return Transform.rotate(
-                                    angle: _animation.value,
-                                    child: child,
-                                  );
-                                },
-                              ),
-                              AnimatedBuilder(
-                                animation: _animation,
-                                child: ElevatedButton(
-                                    onPressed: () async {
-                                      if (!_isSelectedImage) {
-                                        null;
-                                      } else {
-                                        setState(() {
-                                          removeMediaFromShareList();
-                                        });
-                                      }
-                                    },
-                                    style: ButtonStyle(
-                                      minimumSize: MaterialStateProperty.all(
-                                          const Size(15, 15)),
-                                      padding: MaterialStateProperty.all(
-                                          const EdgeInsets.all(0)),
-                                      backgroundColor: MaterialStateProperty
-                                          .resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                          if (_isSelectedImage) {
-                                            return Colors.red;
-                                          } else if (!_isSelectedImage) {
-                                            return Colors.grey;
-                                          }
-                                          return Colors.transparent;
-                                        },
+                                      child: const Icon(
+                                        Icons.upload,
+                                        color: Colors.white,
+                                        size: 25,
+                                      )),
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _animation.value,
+                                      child: child,
+                                    );
+                                  },
+                                ),
+                                AnimatedBuilder(
+                                  animation: _animation,
+                                  child: ElevatedButton(
+                                      onPressed: () async {
+                                        if (!_isSelectedImage) {
+                                          null;
+                                        } else {
+                                          setState(() {
+                                            removeMediaFromShareList();
+                                          });
+                                        }
+                                      },
+                                      style: ButtonStyle(
+                                        shape: MaterialStateProperty
+                                            .resolveWith<OutlinedBorder>((_) {
+                                          return RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20));
+                                        }),
+                                        minimumSize: MaterialStateProperty.all(
+                                            const Size(40, 40)),
+                                        padding: MaterialStateProperty.all(
+                                            const EdgeInsets.all(0)),
+                                        backgroundColor: MaterialStateProperty
+                                            .resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                            if (_isSelectedImage) {
+                                              return Colors.red;
+                                            } else if (!_isSelectedImage) {
+                                              return Colors.grey;
+                                            }
+                                            return Colors.transparent;
+                                          },
+                                        ),
                                       ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                      size: 25,
-                                    )),
-                                builder: (context, child) {
-                                  return Transform.rotate(
-                                    angle: _animation.value,
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            ],
+                                      child: const Icon(
+                                        Icons.delete,
+                                        color: Colors.white,
+                                        size: 25,
+                                      )),
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _animation.value,
+                                      child: child,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                           SizedBox(
                             // width: MediaQuery.of(context).size.width / 3,
@@ -2365,33 +2381,33 @@ class _CameraPageState extends State<CameraPage>
             });
           },
         ),
-        mediaPathList.isNotEmpty
-            ? Positioned.fill(
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    margin: const EdgeInsets.only(
-                        left: 2, right: 2, bottom: 2, top: 2),
-                    height: 20,
-                    width: 20,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                        border: Border.all(color: Colors.red)),
-                    child: Text(
-                      mediaPathList.length.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              )
-            : Container(),
+        // mediaPathList.isNotEmpty
+        //     ? Positioned.fill(
+        //         child: Align(
+        //           alignment: Alignment.topRight,
+        //           child: Container(
+        //             margin: const EdgeInsets.only(
+        //                 left: 2, right: 2, bottom: 2, top: 2),
+        //             height: 20,
+        //             width: 20,
+        //             alignment: Alignment.center,
+        //             decoration: BoxDecoration(
+        //                 color: Colors.red,
+        //                 borderRadius:
+        //                     const BorderRadius.all(Radius.circular(10)),
+        //                 border: Border.all(color: Colors.red)),
+        //             child: Text(
+        //               mediaPathList.length.toString(),
+        //               style: const TextStyle(
+        //                 color: Colors.white,
+        //                 fontWeight: FontWeight.bold,
+        //               ),
+        //               textAlign: TextAlign.center,
+        //             ),
+        //           ),
+        //         ),
+        //       )
+        //     : Container(),
       ]),
       builder: (context, child) {
         return Transform.rotate(
@@ -2448,7 +2464,7 @@ class _CameraPageState extends State<CameraPage>
         }
       }
       setState(() {
-       mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+        mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
       });
 
       setState(() {
@@ -2501,19 +2517,20 @@ class _CameraPageState extends State<CameraPage>
     for (var item in _listShareMedia) {
       if (item.isSelected) {
         setState(() {
-          mediaPathList.remove(item);
+          item.isSelected = false;
+          // mediaPathList.remove(item);
         });
       }
     }
 
-    if (mediaPathList.isEmpty) {
-      setState(() {
-        mediaPathList.clear();
-        _listShareMedia.clear();
-      });
+    // if (mediaPathList.isEmpty) {
+    //   setState(() {
+    //     mediaPathList.clear();
+    //     _listShareMedia.clear();
+    //   });
 
-      Navigator.pop(context);
-    }
+    //   Navigator.pop(context);
+    // }
     if (mediaPathList.where((element) => element.isSelected).toList().isEmpty) {
       setState(() {
         _isSelectedImage = false;
