@@ -1430,8 +1430,7 @@ class _CameraPageState extends State<CameraPage>
                   file.path, false, DateTime.now(), FileType.photo);
               setState(() {
                 mediaPathList.add(media);
-                mediaPathList
-                    .sort((a, b) => DateTime.now().compareTo(a.dateTime));
+                mediaPathList.sort((a, b) => a.dateTime.compareTo(b.dateTime));
               });
 
               saveFileToGalery(FileType.photo, file.path);
@@ -1450,7 +1449,7 @@ class _CameraPageState extends State<CameraPage>
               file.path, false, DateTime.now(), FileType.photo);
           setState(() {
             mediaPathList.add(media);
-            mediaPathList.sort((a, b) => DateTime.now().compareTo(a.dateTime));
+            mediaPathList.sort((a, b) => a.dateTime.compareTo(b.dateTime));
           });
 
           saveFileToGalery(FileType.photo, file.path);
@@ -1579,7 +1578,7 @@ class _CameraPageState extends State<CameraPage>
               TakenCameraMedia(filePath, false, DateTime.now(), FileType.video);
           setState(() {
             mediaPathList.add(media);
-            mediaPathList.sort((a, b) => DateTime.now().compareTo(a.dateTime));
+            mediaPathList.sort((a, b) => a.dateTime.compareTo(b.dateTime));
           });
 
           saveFileToGalery(FileType.video, filePath);
@@ -1608,8 +1607,7 @@ class _CameraPageState extends State<CameraPage>
                   newFilePath, false, DateTime.now(), FileType.video);
               setState(() {
                 mediaPathList.add(media);
-                mediaPathList
-                    .sort((a, b) => DateTime.now().compareTo(a.dateTime));
+                mediaPathList.sort((a, b) => a.dateTime.compareTo(b.dateTime));
               });
 
               saveFileToGalery(FileType.video, newFilePath);
@@ -2450,7 +2448,7 @@ class _CameraPageState extends State<CameraPage>
         }
       }
       setState(() {
-        mediaPathList.sort((a, b) => DateTime.now().compareTo(a.dateTime));
+        mediaPathList.sort((a, b) => a.dateTime.compareTo(b.dateTime));
       });
 
       setState(() {
