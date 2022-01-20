@@ -369,7 +369,8 @@ class _CameraPageState extends State<CameraPage>
                                                         fontSize: 14),
                                                     textAlign: TextAlign.center,
                                                   ),
-                                                  backgroundColor: Colors.black,
+                                                  backgroundColor: Colors.black
+                                                      .withOpacity(0.6),
                                                   content: Container(
                                                     height:
                                                         MediaQuery.of(context)
