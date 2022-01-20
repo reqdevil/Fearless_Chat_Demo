@@ -346,47 +346,135 @@ class _CameraPageState extends State<CameraPage>
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 8.0, bottom: 0),
-                                    child: Container(
-                                      margin: const EdgeInsets.only(top: 11),
-                                      height: 32,
-                                      decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.5),
-                                          borderRadius: const BorderRadius.all(
-                                            Radius.circular(5.0),
-                                          )),
-                                      child: DropdownButton<ResolutionPreset>(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return StatefulBuilder(
+                                              builder: (context, setState) {
+                                                return AlertDialog(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                      Radius.circular(10.0),
+                                                    ),
+                                                  ),
+                                                  title: Text(
+                                                    "Resolutions".toUpperCase(),
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  backgroundColor: Colors.black,
+                                                  content: Container(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            2,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            .8,
+                                                    child: ListView.builder(
+                                                      physics:
+                                                          BouncingScrollPhysics(),
+                                                      shrinkWrap: true,
+                                                      itemCount:
+                                                          resolutionPresets
+                                                              .length,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        return Theme(
+                                                          data: Theme.of(context).copyWith(
+                                                              unselectedWidgetColor:
+                                                                  Colors.amber[
+                                                                      800],
+                                                              focusColor:
+                                                                  Colors.red,
+                                                              splashColor: Colors
+                                                                  .transparent,
+                                                              disabledColor:
+                                                                  Colors.white),
+                                                          child: RadioListTile<
+                                                              ResolutionPreset>(
+                                                            activeColor: Colors
+                                                                .amber[800],
+                                                            title: Text(
+                                                              resolutionPresets[
+                                                                      index]
+                                                                  .name
+                                                                  .toUpperCase(),
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 12),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .left,
+                                                            ),
+                                                            // selected:
+                                                            //     currentResolutionPreset
+                                                            //             .index ==
+                                                            //         index,
+                                                            groupValue:
+                                                                currentResolutionPreset,
+                                                            value:
+                                                                resolutionPresets[
+                                                                    index],
+                                                            onChanged: (value) {
+                                                              setState(() {
+                                                                _isCameraInitialized =
+                                                                    false;
+                                                                currentResolutionPreset =
+                                                                    value!;
+                                                              });
+                                                              onCameraSelected(
+                                                                  controller!
+                                                                      .description);
+                                                            },
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: Container(
                                         alignment: Alignment.center,
-                                        dropdownColor: Colors.black87,
-                                        iconEnabledColor: Colors.white,
-                                        underline: Container(),
-                                        value: currentResolutionPreset,
-                                        items: [
-                                          for (ResolutionPreset preset
-                                              in resolutionPresets)
-                                            DropdownMenuItem(
-                                              child: Text(
-                                                preset
-                                                    .toString()
-                                                    .split('.')[1]
-                                                    .toUpperCase(),
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 12),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              value: preset,
-                                            )
-                                        ],
-                                        onChanged: (value) {
-                                          setState(() {
-                                            currentResolutionPreset = value!;
-                                            _isCameraInitialized = false;
-                                          });
-                                          onCameraSelected(
-                                              controller!.description);
-                                        },
-                                        hint: const Text("Select item"),
+                                        margin: const EdgeInsets.only(top: 11),
+                                        height: 32,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.2,
+                                        decoration: BoxDecoration(
+                                            color:
+                                                Colors.black.withOpacity(0.5),
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                              Radius.circular(5.0),
+                                            )),
+                                        child: Text(
+                                          currentResolutionPreset.name
+                                              .toUpperCase(),
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12),
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
                                     ),
                                   ),
