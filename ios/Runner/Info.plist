@@ -54,7 +54,7 @@
 		<key>NSLocationAlwaysUsageDescription</key>
 		<string>I need it</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Because</string>
+		<string>Fearless Chat needs location permission to work</string>
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>location</string>

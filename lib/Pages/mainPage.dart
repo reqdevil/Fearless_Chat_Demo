@@ -781,7 +781,7 @@ class _MainPageState extends State<MainPage> {
       Permission.mediaLibrary,
       Permission.speech,
       Permission.location,
-      Permission.photos
+      Permission.photos,
     ].request();
 
     final info = statuses[Permission.storage].toString();

@@ -1311,7 +1311,7 @@ class _CameraPageState extends State<CameraPage>
     var position = details.globalPosition;
     bool isLeftSideTapped = false;
     if (position.dx < MediaQuery.of(context).size.width / 2) {
-     //tap lef side
+      //tap lef side
       isLeftSideTapped = true;
     } else {
       //tap right side
@@ -2545,6 +2545,9 @@ class _CameraPageState extends State<CameraPage>
   }
 
   Future<bool> _promptPermissionSetting() async {
+    bool t = await Permission.storage.request().isGranted;
+    bool s = await Permission.photos.request().isGranted;
+
     if (Platform.isIOS &&
             await Permission.storage.request().isGranted &&
             await Permission.photos.request().isGranted ||
