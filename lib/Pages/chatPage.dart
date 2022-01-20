@@ -22,12 +22,10 @@ import 'package:map_launcher/map_launcher.dart' as M;
 
 class ChatPage extends StatefulWidget {
   List<TakenCameraMedia>? listShareMedia;
-  List<String>? listShareMediaPath;
   final String userId;
   ChatPage(
       {Key? key,
       this.listShareMedia,
-      this.listShareMediaPath,
       required this.userId})
       : super(key: key);
 
@@ -81,8 +79,12 @@ class _ChatPageState extends State<ChatPage>
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       setState(() {
-        if (widget.listShareMediaPath != null) {
-          if (widget.listShareMediaPath!.isNotEmpty) {
+        if (widget.listShareMedia != null) {
+          if (widget.listShareMedia!.isNotEmpty) {
+            List<String> _paths = [];
+            for (var item in widget.listShareMedia!) {
+              _paths.add(item.filePath);
+            }
             Global.messages.add(
               {
                 'usrId': widget.userId,
@@ -90,7 +92,7 @@ class _ChatPageState extends State<ChatPage>
                 'message': "",
                 'time': DateFormat('dd.MM.yyyy – kk:mm').format(DateTime.now()),
                 'hasShareMedia': false,
-                'filePaths': widget.listShareMediaPath,
+                'filePaths': _paths,
                 'location': []
               },
             );
@@ -98,7 +100,7 @@ class _ChatPageState extends State<ChatPage>
                 .where((element) => element.usrId == widget.userId)
                 .toList();
 
-            widget.listShareMediaPath!.clear();
+            widget.listShareMedia!.clear();
           }
         }
       });

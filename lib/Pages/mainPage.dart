@@ -19,7 +19,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  List<String> listOfShareMediaPath = [];
+  List<TakenCameraMedia> listOfShareMediaList = [];
   List<Friend> _friendList = [];
   List<Friend> _friendFavoriteList = [];
 
@@ -226,7 +226,7 @@ class _MainPageState extends State<MainPage> {
                                     context: context,
                                     page: ChatPage(
                                       userId: _friendFavoriteList[index].usrId,
-                                      listShareMediaPath: listOfShareMediaPath,
+                                      listShareMedia: listOfShareMediaList,
                                     ),
                                     rootNavigator: true);
                               },
@@ -264,8 +264,7 @@ class _MainPageState extends State<MainPage> {
                                       context: context,
                                       page: ChatPage(
                                         userId: _friendList[i].usrId,
-                                        listShareMediaPath:
-                                            listOfShareMediaPath,
+                                        listShareMedia: listOfShareMediaList,
                                       ),
                                       rootNavigator: true);
                                 },
@@ -449,8 +448,8 @@ class _MainPageState extends State<MainPage> {
                                         page: ChatPage(
                                             userId: _friendFavoriteList[index]
                                                 .usrId,
-                                            listShareMediaPath:
-                                                listOfShareMediaPath),
+                                            listShareMedia:
+                                                listOfShareMediaList),
                                         rootNavigator: true);
                                   },
                                   onLongPress: () {
@@ -484,8 +483,8 @@ class _MainPageState extends State<MainPage> {
                                           context: context,
                                           page: ChatPage(
                                               userId: _searchResult[i].usrId,
-                                              listShareMediaPath:
-                                                  listOfShareMediaPath),
+                                              listShareMedia:
+                                                  listOfShareMediaList),
                                           rootNavigator: true);
                                     },
                                     leading: Container(
@@ -631,9 +630,7 @@ class _MainPageState extends State<MainPage> {
                       );
                     }).then((value) {
                   setState(() {
-                    listOfShareMediaPath = (value as List<TakenCameraMedia>)
-                        .map((e) => e.filePath)
-                        .toList();
+                    listOfShareMediaList = (value as List<TakenCameraMedia>);
                   });
                 });
               },
