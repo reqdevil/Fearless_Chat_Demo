@@ -1481,7 +1481,7 @@ class _CameraPageState extends State<CameraPage>
 
     if (mounted) {
       setState(() {
-        controller!.cameraId == 1 ? mirror = -math.pi : 0;
+        controller!.cameraId == 1 ? mirror = math.pi : 0;
       });
     }
   }
