@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Utils/fixExifRotation.dart';
@@ -64,6 +65,7 @@ class _CameraPageState extends State<CameraPage>
   List<TakenCameraMedia> _listShareMedia = [];
   String imagePath = "";
   bool _toggleCamera = false;
+  bool _isSwitchedCamera = false;
   CameraController? controller;
   int _pointers = 0;
   // double _currentZoomLevel = 1.0;
@@ -218,8 +220,8 @@ class _CameraPageState extends State<CameraPage>
                     onPointerDown: (_) => _pointers++,
                     onPointerUp: (_) => _pointers--,
                     child: Stack(
-                      clipBehavior: Clip.none,
-                      // fit: StackFit.expand,
+                      // clipBehavior: Clip.none,
+                      fit: StackFit.expand,
                       children: [
                         Positioned.fill(
                           child: AspectRatio(
@@ -245,6 +247,7 @@ class _CameraPageState extends State<CameraPage>
                             ),
                           ),
                         ),
+                        generateBlured(_isSwitchedCamera),
                         Align(
                           alignment: Alignment.topCenter,
                           child: _isVideoRecording && _isVideoRecorderSelected
@@ -1226,20 +1229,42 @@ class _CameraPageState extends State<CameraPage>
                                                   onTap: () {
                                                     if (!_isVideoRecording) {
                                                       if (!_toggleCamera) {
-                                                        onCameraSelected(
-                                                            cameras[1]);
                                                         setState(() {
+                                                          _isSwitchedCamera =
+                                                              true;
                                                           _toggleCamera = true;
                                                           cameraType =
                                                               CameraType.front;
                                                         });
+                                                        Future.delayed(
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    750), () {
+                                                          onCameraSelected(
+                                                              cameras[1]);
+                                                          setState(() {
+                                                            _isSwitchedCamera =
+                                                                false;
+                                                          });
+                                                        });
                                                       } else {
-                                                        onCameraSelected(
-                                                            cameras[0]);
                                                         setState(() {
-                                                          _toggleCamera = false;
+                                                          _toggleCamera = true;
+                                                          _isSwitchedCamera =
+                                                              true;
                                                           cameraType =
                                                               CameraType.back;
+                                                        });
+                                                        Future.delayed(
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    750), () {
+                                                          onCameraSelected(
+                                                              cameras[0]);
+                                                          setState(() {
+                                                            _isSwitchedCamera =
+                                                                false;
+                                                          });
                                                         });
                                                       }
                                                     }
@@ -2612,18 +2637,51 @@ class _CameraPageState extends State<CameraPage>
       }
     }
 
-    // if (mediaPathList.isEmpty) {
-    //   setState(() {
-    //     mediaPathList.clear();
-    //     _listShareMedia.clear();
-    //   });
-
-    //   Navigator.pop(context);
-    // }
     if (mediaPathList.where((element) => element.isSelected).toList().isEmpty) {
       setState(() {
         _isSelectedImage = false;
       });
     }
+  }
+
+  Widget generateBlured(bool isSwitchedCamera) {
+    return Positioned.fill(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+            sigmaX: isSwitchedCamera ? 10.0 : 0.0,
+            sigmaY: isSwitchedCamera ? 10.0 : 0.0),
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          decoration: BoxDecoration(color: Colors.black.withOpacity(0.0)),
+          child: Visibility(
+            visible: isSwitchedCamera,
+            child: Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width / 3,
+                height: MediaQuery.of(context).size.height / 5,
+                margin: const EdgeInsets.symmetric(
+                    horizontal: 40.0, vertical: 150.0),
+                padding: const EdgeInsets.all(15.0),
+                decoration: new BoxDecoration(
+                  borderRadius: new BorderRadius.circular(10.0),
+                  shape: BoxShape.rectangle,
+                  color: Colors.black.withOpacity(0.5),
+                  boxShadow: <BoxShadow>[
+                    new BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 5.0,
+                      offset: new Offset(5.0, 5.0),
+                    ),
+                  ],
+                ),
+                child: Icon(Icons.camera_front_rounded,
+                    size: 50, color: Colors.white.withOpacity(0.7)),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
