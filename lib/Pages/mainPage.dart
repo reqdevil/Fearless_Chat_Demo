@@ -630,9 +630,10 @@ class _MainPageState extends State<MainPage> {
                         },
                       );
                     }).then((value) {
-                  setState(() {
-                    listOfShareMediaList = (value as List<TakenCameraMedia>);
-                  });
+                  if (value != null)
+                    setState(() {
+                      listOfShareMediaList = (value as List<TakenCameraMedia>);
+                    });
                 });
               },
             ),
