@@ -463,7 +463,7 @@ class _CameraPageState extends State<CameraPage>
                                         height: 32,
                                         width:
                                             MediaQuery.of(context).size.width *
-                                                0.2,
+                                                0.25,
                                         decoration: BoxDecoration(
                                             color:
                                                 Colors.black.withOpacity(0.5),
@@ -471,14 +471,28 @@ class _CameraPageState extends State<CameraPage>
                                                 const BorderRadius.all(
                                               Radius.circular(5.0),
                                             )),
-                                        child: Text(
-                                          currentResolutionPreset.name
-                                              .toUpperCase(),
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 12),
-                                          textAlign: TextAlign.center,
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          // mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.screenshot_rounded,
+                                                color: Colors.white),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                              currentResolutionPreset.name
+                                                  .toUpperCase(),
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
