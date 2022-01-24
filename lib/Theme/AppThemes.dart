@@ -55,7 +55,7 @@ class AppThemes {
       secondaryVariant: Colors.white,
       onSecondary: Global.mainColor,
       background: Colors.grey[300] as Color,
-      onBackground: Colors.grey,
+      onBackground: Global.mainColor,
       error: Colors.grey,
       onError: Colors.grey,
     ),
