@@ -4,12 +4,14 @@ import 'package:fearless_chat_demo/Models/friend.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
 import 'package:fearless_chat_demo/Pages/chatPage.dart';
 import 'package:fearless_chat_demo/Pages/settingsPage.dart';
+import 'package:fearless_chat_demo/Services/ServiceProvider.dart';
 import 'package:fearless_chat_demo/Utils/TransitionHelpers.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:fearless_chat_demo/Widgets/badge.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -33,6 +35,7 @@ class _MainPageState extends State<MainPage> {
   ScrollController _friendListController = ScrollController();
   List<Friend> _searchResult = [];
   List<Friend> result = [];
+  // late dynamic _provider;
   @override
   void initState() {
     requestPermissions();
@@ -68,11 +71,16 @@ class _MainPageState extends State<MainPage> {
         });
       }
     });
+    // WidgetsBinding.instance!.addPostFrameCallback((_) async {});
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    ServiceProvider _provider =
+        Provider.of<ServiceProvider>(context, listen: false);
+    _provider.getUnseenMessageCount(_friendList);
     bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Scaffold(
       extendBody: true,
@@ -658,7 +666,7 @@ class _MainPageState extends State<MainPage> {
                   //     context: context, page: ChatPage(), rootNavigator: true);
                 },
               ),
-              Badge(count: getUnseenMessageCount())
+              Badge()
             ]),
             IconButton(
               icon: Icon(Icons.view_list,

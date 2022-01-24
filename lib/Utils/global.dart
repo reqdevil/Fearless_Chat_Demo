@@ -108,8 +108,8 @@ List<Map<String, dynamic>> friendsList = [
     'username': 'ArmağanX',
     'lastMsg': 'Hey bro ;)',
     'seen': false,
-    'hasUnSeenMsgs': false,
-    'unseenCount': 0,
+    'hasUnSeenMsgs': true,
+    'unseenCount': 1,
     'lastMsgTime': '18:44',
     'isOnline': false,
     'isFavorite': false

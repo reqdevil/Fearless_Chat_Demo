@@ -1,3 +1,4 @@
+import 'package:fearless_chat_demo/Services/ServiceProvider.dart';
 import 'package:fearless_chat_demo/Theme/AppThemes.dart';
 import 'package:fearless_chat_demo/Theme/ThemeModel.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
@@ -12,7 +13,18 @@ void main() async {
   await Firebase.initializeApp();
   WidgetsFlutterBinding.ensureInitialized();
   await Global.init();
-  runApp(const FearlessChatApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ServiceProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeModel()),
+      ],
+      child: const FearlessChatApp(),
+    ),
+  );
+
+  // runApp(ChangeNotifierProvider<ServiceProvider>(
+  //     create: (context) => ServiceProvider(), child: const FearlessChatApp()));
 }
 
 class FearlessChatApp extends StatelessWidget {
@@ -39,7 +51,7 @@ class FearlessChatApp extends StatelessWidget {
                 ? AppThemes.darkTheme
                 : AppThemes.lightTheme,
             themeMode: ThemeMode.system,
-            
+
             home: MainPage(),
             // home: const AnnotatedRegion<SystemUiOverlayStyle>(
             //     value: SystemUiOverlayStyle(statusBarColor: Colors.white),
