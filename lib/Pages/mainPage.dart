@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
-
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Models/friend.dart';
 import 'package:fearless_chat_demo/Pages/camerapage.dart';
