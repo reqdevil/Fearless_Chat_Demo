@@ -6,6 +6,7 @@ import 'package:fearless_chat_demo/Pages/chatPage.dart';
 import 'package:fearless_chat_demo/Pages/settingsPage.dart';
 import 'package:fearless_chat_demo/Utils/TransitionHelpers.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
+import 'package:fearless_chat_demo/Widgets/badge.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -641,21 +642,24 @@ class _MainPageState extends State<MainPage> {
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.message,
-                  color: selectedPageIndex == 0
-                      ? Theme.of(context).colorScheme.onSecondary
-                      : Theme.of(context).colorScheme.onPrimary),
-              onPressed: () async {
-                setState(() {
-                  selectedPageIndex = 0;
-                });
+          children: [
+            Stack(children: [
+              IconButton(
+                icon: Icon(Icons.message,
+                    color: selectedPageIndex == 0
+                        ? Theme.of(context).colorScheme.onSecondary
+                        : Theme.of(context).colorScheme.onPrimary),
+                onPressed: () async {
+                  setState(() {
+                    selectedPageIndex = 0;
+                  });
 
-                // await navigatePageBottom(
-                //     context: context, page: ChatPage(), rootNavigator: true);
-              },
-            ),
+                  // await navigatePageBottom(
+                  //     context: context, page: ChatPage(), rootNavigator: true);
+                },
+              ),
+              Badge(count: getUnseenMessageCount())
+            ]),
             IconButton(
               icon: Icon(Icons.view_list,
                   color: selectedPageIndex == 1
@@ -742,10 +746,14 @@ class _MainPageState extends State<MainPage> {
                           },
                         )
                       : ListTile(
-                          leading: Icon(Icons.add, color: Global.mainColor),
+                          leading: Icon(Icons.add,
+                              color:
+                                  Theme.of(context).colorScheme.onBackground),
                           title: Text(
                             "Add to favorites",
-                            style: TextStyle(color: Global.mainColor),
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onBackground),
                           ),
                           onTap: () {
                             setState(() {
@@ -805,6 +813,16 @@ class _MainPageState extends State<MainPage> {
       //   MaterialPageRoute(builder: (context) => const ProgressPage()),
       // );
     }
+  }
+
+  int getUnseenMessageCount() {
+    int count = 0;
+    for (var item in _friendList) {
+      if (item.hasUnSeenMsgs) {
+        count += item.unseenCount;
+      }
+    }
+    return count;
   }
 }
 
