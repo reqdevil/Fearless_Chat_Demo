@@ -9,7 +9,6 @@ import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:fearless_chat_demo/enums.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -117,6 +116,7 @@ class _CameraPageState extends State<CameraPage>
 
     try {
       getCamera();
+
       _isTapImage = false;
       _isflashTap = false;
       _isVideoRecorderSelected = false;
@@ -124,7 +124,7 @@ class _CameraPageState extends State<CameraPage>
       hideStatusbar();
       enableRotation();
       _loading = true;
-      initAsync();
+
       // Future.delayed(const Duration(milliseconds: 1000), () {
       //   onCameraSelected(cameras[0]);
       // });
@@ -1241,7 +1241,22 @@ class _CameraPageState extends State<CameraPage>
                                       Align(
                                         alignment: Alignment.centerLeft,
                                         child: mediaPathList.isNotEmpty
-                                            ? _thumbnailWidget()
+                                            ? FutureBuilder(
+                                                future: initAsync(),
+                                                builder: (context,
+                                                    AsyncSnapshot<
+                                                            List<
+                                                                TakenCameraMedia>>
+                                                        snapshot) {
+                                                  if (snapshot.data != null) {
+                                                    return _thumbnailWidget(
+                                                        snapshot.data);
+                                                  } else {
+                                                    return CircularProgressIndicator();
+                                                  }
+                                                },
+                                                // child:
+                                              )
                                             : Container(),
                                       )
                                     ],
@@ -1524,7 +1539,8 @@ class _CameraPageState extends State<CameraPage>
 
     if (mounted) {
       setState(() {
-        controller!.cameraId == 1 ? mirror = math.pi : 0;
+        mirror = cameraType == CameraType.front ? math.pi : 0;
+        // controller!.cameraId == 1 ? mirror = math.pi : 0;
       });
     }
   }
@@ -2092,7 +2108,7 @@ class _CameraPageState extends State<CameraPage>
       cameraDescription,
       kIsWeb ? ResolutionPreset.max : currentResolutionPreset,
       enableAudio: enableAudio,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      imageFormatGroup: ImageFormatGroup.yuv420,
     );
 
     controller = cameraController;
@@ -2217,7 +2233,10 @@ class _CameraPageState extends State<CameraPage>
   }
 
   /// Display the thumbnail of the captured image or video.
-  Widget _thumbnailWidget() {
+  Widget _thumbnailWidget(List<TakenCameraMedia>? list) {
+    setState(() {
+      mediaPathList = list!;
+    });
     final VideoPlayerController? localVideoController = videoController;
     return AnimatedBuilder(
       animation: _animation,
@@ -2549,33 +2568,39 @@ class _CameraPageState extends State<CameraPage>
   }
 
   bool _loading = false;
-  Future<void> initAsync() async {
+  Future<List<TakenCameraMedia>> initAsync() async {
+    List<TakenCameraMedia> list = [];
     if (await _promptPermissionSetting()) {
       List<Album> imageAlbums =
           await PhotoGallery.listAlbums(mediumType: MediumType.image);
       List<Album> videoAlbums = await PhotoGallery.listAlbums(
           mediumType: MediumType.video, hideIfEmpty: false);
       List<Medium> allMedia = [];
-      for (Album album in imageAlbums) {
-        MediaPage imagePage = await album.listMedia(newest: true);
-        allMedia.addAll(imagePage.items);
-        // for (var item in imagePage.items) {
-        //   File file = await item.getFile();
-        //   TakenCameraMedia media = TakenCameraMedia(
-        //       file.path, false, item.modifiedDate!, FileType.photo);
-        //   mediaPathList.add(media);
-        // }
-      }
-      for (Album album in videoAlbums) {
-        MediaPage imagePage = await album.listMedia(newest: true);
-        allMedia.addAll(imagePage.items);
-        // for (var item in imagePage.items) {
-        //   File file = await item.getFile();
-        //   TakenCameraMedia media = TakenCameraMedia(
-        //       file.path, false, item.modifiedDate!, FileType.video);
-        //   mediaPathList.add(media);
-        // }
-      }
+      MediaPage imagePage =
+          await imageAlbums[0].listMedia(newest: true, skip: 0, take: 10);
+      allMedia.addAll(imagePage.items);
+      // for (Album album in imageAlbums) {
+
+      //   // for (var item in imagePage.items) {
+      //   //   File file = await item.getFile();
+      //   //   TakenCameraMedia media = TakenCameraMedia(
+      //   //       file.path, false, item.modifiedDate!, FileType.photo);
+      //   //   mediaPathList.add(media);
+      //   // }
+      // }
+      MediaPage videoPage =
+          await videoAlbums[0].listMedia(newest: true, skip: 0, take: 10);
+      allMedia.addAll(videoPage.items);
+      // for (Album album in videoAlbums) {
+
+      //   // for (var item in imagePage.items) {
+      //   //   File file = await item.getFile();
+      //   //   TakenCameraMedia media = TakenCameraMedia(
+      //   //       file.path, false, item.modifiedDate!, FileType.video);
+      //   //   mediaPathList.add(media);
+      //   // }
+      // }
+
       for (var item in allMedia) {
         File file = await item.getFile();
         TakenCameraMedia media = TakenCameraMedia(
@@ -2585,10 +2610,12 @@ class _CameraPageState extends State<CameraPage>
             item.mediumType == MediumType.video
                 ? FileType.video
                 : FileType.photo);
-        mediaPathList.add(media);
+
+        list.add(media);
       }
+
       setState(() {
-        mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+        list.sort((a, b) => b.dateTime.compareTo(a.dateTime));
       });
 
       setState(() {
@@ -2598,11 +2625,12 @@ class _CameraPageState extends State<CameraPage>
     setState(() {
       _loading = false;
     });
+    return list;
   }
 
   Future<bool> _promptPermissionSetting() async {
-    bool t = await Permission.storage.request().isGranted;
-    bool s = await Permission.photos.request().isGranted;
+    // bool t = await Permission.storage.request().isGranted;
+    // bool s = await Permission.photos.request().isGranted;
     // if (!t) {
     //   showDialog(
     //       context: context,
