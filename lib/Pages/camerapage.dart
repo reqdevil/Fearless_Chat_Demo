@@ -55,6 +55,8 @@ late CameraType cameraType;
 TapDownDetails? exposedAreaDetails;
 bool _isFingerTapped = false;
 bool _isLoadingGalleryMedia = false;
+int _albumIndex = 0;
+int _pageIndex = 5;
 
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -109,7 +111,8 @@ class _CameraPageState extends State<CameraPage>
     _isSelectedImage = false;
     // requestPermission();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      await Future<void>.microtask(initAsync);
+      // await Future<void>.microtask(getMediaFromGallery());
+      getMediaFromGallery(_albumIndex, _pageIndex);
     });
     _animationElementsController = AnimationController(
       vsync: this,
@@ -153,6 +156,11 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void dispose() {
+    setState(() {
+      _albumIndex = 0;
+      _pageIndex = 5;
+    });
+
     _animationElementsController.dispose();
     controller!.dispose();
     backToOriginalRotation();
@@ -1243,13 +1251,9 @@ class _CameraPageState extends State<CameraPage>
                                       ),
                                       Align(
                                         alignment: Alignment.centerLeft,
-                                        child: mediaPathList.isNotEmpty &&
-                                                _isLoadingGalleryMedia
-                                            ? CircularProgressIndicator()
-                                            : mediaPathList.isNotEmpty &&
-                                                    !_isLoadingGalleryMedia
-                                                ? _thumbnailWidget()
-                                                : Container(),
+                                        child: mediaPathList.isNotEmpty
+                                            ? _thumbnailWidget()
+                                            : Container(),
                                       )
                                     ],
                                   ),
@@ -2253,7 +2257,8 @@ class _CameraPageState extends State<CameraPage>
                       ),
                     )
                   : Container()),
-          onTap: () {
+          onTap: () async {
+            await getMediaFromGallery(_albumIndex, _pageIndex);
             setState(() {
               _listShareMedia = mediaPathList;
               showModalBottomSheet(
@@ -2557,7 +2562,8 @@ class _CameraPageState extends State<CameraPage>
     );
   }
 
-  Future<void> initAsync() async {
+  List<Medium> allMedia = [];
+  Future<void> getMediaFromGallery(int albumIndex, int pageIndex) async {
     setState(() {
       _isLoadingGalleryMedia = true;
     });
@@ -2566,9 +2572,10 @@ class _CameraPageState extends State<CameraPage>
           await PhotoGallery.listAlbums(mediumType: MediumType.image);
       List<Album> videoAlbums = await PhotoGallery.listAlbums(
           mediumType: MediumType.video, hideIfEmpty: false);
-      List<Medium> allMedia = [];
+
       // for (Album album in imageAlbums) {
-      MediaPage imagePage = await imageAlbums[0].listMedia(newest: true);
+      MediaPage imagePage = await imageAlbums[albumIndex]
+          .listMedia(newest: true, take: pageIndex);
       allMedia.addAll(imagePage.items);
       // for (var item in imagePage.items) {
       //   File file = await item.getFile();
@@ -2578,7 +2585,8 @@ class _CameraPageState extends State<CameraPage>
       // }
       // }
       // for (Album album in videoAlbums) {
-      MediaPage videoPage = await videoAlbums[0].listMedia(newest: true);
+      MediaPage videoPage = await videoAlbums[albumIndex]
+          .listMedia(newest: true, take: pageIndex);
       allMedia.addAll(videoPage.items);
       // for (var item in imagePage.items) {
       //   File file = await item.getFile();
@@ -2601,6 +2609,9 @@ class _CameraPageState extends State<CameraPage>
       }
       setState(() {
         mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+        _albumIndex += 1;
+        print("Album Index:" + _albumIndex.toString());
+        print("page Index:" + _pageIndex.toString());
       });
 
       setState(() {
