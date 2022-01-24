@@ -2559,26 +2559,28 @@ class _CameraPageState extends State<CameraPage>
       List<Album> videoAlbums = await PhotoGallery.listAlbums(
           mediumType: MediumType.video, hideIfEmpty: false);
       List<Medium> allMedia = [];
-      for (Album album in imageAlbums) {
-        MediaPage imagePage = await album.listMedia(newest: true, take: 10);
-        allMedia.addAll(imagePage.items);
-        // for (var item in imagePage.items) {
-        //   File file = await item.getFile();
-        //   TakenCameraMedia media = TakenCameraMedia(
-        //       file.path, false, item.modifiedDate!, FileType.photo);
-        //   mediaPathList.add(media);
-        // }
-      }
-      for (Album album in videoAlbums) {
-        MediaPage imagePage = await album.listMedia(newest: true, take: 10);
-        allMedia.addAll(imagePage.items);
-        // for (var item in imagePage.items) {
-        //   File file = await item.getFile();
-        //   TakenCameraMedia media = TakenCameraMedia(
-        //       file.path, false, item.modifiedDate!, FileType.video);
-        //   mediaPathList.add(media);
-        // }
-      }
+      // for (Album album in imageAlbums) {
+      MediaPage imagePage =
+          await imageAlbums[0].listMedia(newest: true, take: 10);
+      allMedia.addAll(imagePage.items);
+      // for (var item in imagePage.items) {
+      //   File file = await item.getFile();
+      //   TakenCameraMedia media = TakenCameraMedia(
+      //       file.path, false, item.modifiedDate!, FileType.photo);
+      //   mediaPathList.add(media);
+      // }
+      // }
+      // for (Album album in videoAlbums) {
+      MediaPage videoPage =
+          await videoAlbums[0].listMedia(newest: true, take: 10);
+      allMedia.addAll(videoPage.items);
+      // for (var item in imagePage.items) {
+      //   File file = await item.getFile();
+      //   TakenCameraMedia media = TakenCameraMedia(
+      //       file.path, false, item.modifiedDate!, FileType.video);
+      //   mediaPathList.add(media);
+      // }
+      // }
       for (var item in allMedia) {
         File file = await item.getFile();
         TakenCameraMedia media = TakenCameraMedia(
