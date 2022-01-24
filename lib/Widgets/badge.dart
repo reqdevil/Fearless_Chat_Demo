@@ -18,7 +18,7 @@ class _BadgeState extends State<Badge> {
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: context.watch<ServiceProvider>().count > 0,
+      // visible: context.watch<ServiceProvider>().count > 0,
       child: Positioned(
         top: -1.0,
         right: 0.0,
@@ -31,7 +31,8 @@ class _BadgeState extends State<Badge> {
               color: Global.mainColor,
             ),
             Text(
-              context.watch<ServiceProvider>().count.toString(),
+              // context.watch<ServiceProvider>().count.toString(),,
+              "",
               style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
