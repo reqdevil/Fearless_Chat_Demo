@@ -330,176 +330,100 @@ class _CameraPageState extends State<CameraPage>
                                   ),
                                 ),
                               ),
-                              AnimatedOpacity(
-                                opacity: !_isVideoRecorderSelected ? 1 : 0,
-                                duration: const Duration(milliseconds: 250),
-                                onEnd: () {
-                                  if (_isVideoRecorderSelected) {
-                                    setState(() {
-                                      _isVisibleItemCloseAndDropDown = false;
-                                    });
-                                  } else {
-                                    setState(() {
-                                      _isVisibleItemCloseAndDropDown = true;
-                                    });
-                                  }
-                                },
-                                curve: Curves.easeIn,
-                                child: Visibility(
-                                  visible: _isVisibleItemCloseAndDropDown,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 8.0, bottom: 0),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return StatefulBuilder(
-                                              builder: (context, setState) {
-                                                return AlertDialog(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                      Radius.circular(10.0),
-                                                    ),
-                                                  ),
-                                                  title: Text(
-                                                    "Resolutions".toUpperCase(),
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 14),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                  backgroundColor: Colors.black
-                                                      .withOpacity(0.6),
-                                                  content: Container(
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height /
-                                                            2,
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            .8,
-                                                    child: ListView.builder(
-                                                      physics:
-                                                          BouncingScrollPhysics(),
-                                                      shrinkWrap: true,
-                                                      itemCount:
-                                                          resolutionPresets
-                                                              .length,
-                                                      itemBuilder:
-                                                          (context, index) {
-                                                        return Theme(
-                                                          data: Theme.of(context).copyWith(
-                                                              unselectedWidgetColor:
-                                                                  Colors.amber[
-                                                                      800],
-                                                              focusColor:
-                                                                  Colors.red,
-                                                              splashColor: Colors
-                                                                  .transparent,
-                                                              disabledColor:
-                                                                  Colors.white),
-                                                          child: RadioListTile<
-                                                              ResolutionPreset>(
-                                                            activeColor: Colors
-                                                                .amber[800],
-                                                            title: Text(
-                                                              resolutionPresets[
-                                                                      index]
-                                                                  .name
-                                                                  .toUpperCase(),
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 12),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .left,
-                                                            ),
-                                                            // selected:
-                                                            //     currentResolutionPreset
-                                                            //             .index ==
-                                                            //         index,
-                                                            groupValue:
-                                                                currentResolutionPreset,
-                                                            value:
-                                                                resolutionPresets[
-                                                                    index],
-                                                            onChanged: (value) {
-                                                              setState(() {
-                                                                _isCameraInitialized =
-                                                                    false;
-                                                                currentResolutionPreset =
-                                                                    value!;
-                                                              });
-                                                              onCameraSelected(
-                                                                  controller!
-                                                                      .description);
-                                                            },
-                                                          ),
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          },
-                                        );
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        margin: const EdgeInsets.only(top: 11),
-                                        height: 32,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.25,
-                                        decoration: BoxDecoration(
-                                            color:
-                                                Colors.black.withOpacity(0.5),
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                              Radius.circular(5.0),
-                                            )),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          // mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.screenshot_rounded,
-                                                color: Colors.white),
-                                            SizedBox(
-                                              width: 5,
-                                            ),
-                                            Text(
-                                              currentResolutionPreset.name
-                                                  .toUpperCase(),
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 12),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ],
-                                        ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          height: 45,
+                          left: turns == 0
+                              ? 50
+                              : turns == -1
+                                  ? -27.5
+                                  : turns == 1
+                                      ? -38.5
+                                      : turns == 2
+                                          ? 50
+                                          : 10,
+                          top: turns == 0
+                              ? 0
+                              : turns == -1
+                                  ? 80
+                                  : turns == 1
+                                      ? 85
+                                      : turns == 2
+                                          ? 10
+                                          : 50,
+                          child: AnimatedBuilder(
+                            animation: _animation,
+                            child: AnimatedOpacity(
+                              opacity: !_isVideoRecorderSelected ? 1 : 0,
+                              duration: const Duration(milliseconds: 250),
+                              onEnd: () {
+                                if (_isVideoRecorderSelected) {
+                                  setState(() {
+                                    _isVisibleItemCloseAndDropDown = false;
+                                  });
+                                } else {
+                                  setState(() {
+                                    _isVisibleItemCloseAndDropDown = true;
+                                  });
+                                }
+                              },
+                              curve: Curves.easeIn,
+                              child: Visibility(
+                                visible: _isVisibleItemCloseAndDropDown,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 8.0, bottom: 0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showResolutions(context);
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      margin: const EdgeInsets.only(top: 11),
+                                      height: 32,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.25,
+                                      decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.5),
+                                          borderRadius: const BorderRadius.all(
+                                            Radius.circular(5.0),
+                                          )),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        // mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.screenshot_rounded,
+                                              color: Colors.white),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            currentResolutionPreset.name
+                                                .toUpperCase(),
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ],
+                            ),
+                            builder: (context, child) {
+                              return Transform.rotate(
+                                angle: _animation.value,
+                                child: child,
+                              );
+                            },
                           ),
                         ),
                         Align(
@@ -1336,6 +1260,85 @@ class _CameraPageState extends State<CameraPage>
                 },
               )
             : Container(color: Colors.black));
+  }
+
+  void showResolutions(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AnimatedBuilder(
+              animation: _animation,
+              child: AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                ),
+                title: Text(
+                  "Resolutions".toUpperCase(),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+                backgroundColor: Colors.black.withOpacity(0.6),
+                content: Container(
+                  height: MediaQuery.of(context).size.height / 2,
+                  width: MediaQuery.of(context).size.width * .8,
+                  child: ListView.builder(
+                    physics: BouncingScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: resolutionPresets.length,
+                    itemBuilder: (context, index) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                            unselectedWidgetColor: Colors.amber[800],
+                            focusColor: Colors.red,
+                            splashColor: Colors.transparent,
+                            disabledColor: Colors.white),
+                        child: RadioListTile<ResolutionPreset>(
+                          activeColor: Colors.amber[800],
+                          title: Text(
+                            resolutionPresets[index].name.toUpperCase(),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12),
+                            textAlign: TextAlign.left,
+                          ),
+                          // selected:
+                          //     currentResolutionPreset
+                          //             .index ==
+                          //         index,
+                          groupValue: currentResolutionPreset,
+                          value: resolutionPresets[index],
+                          onChanged: (value) {
+                            setState(() {
+                              _isCameraInitialized = false;
+                              currentResolutionPreset = value!;
+                            });
+                            onCameraSelected(controller!.description);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: _animation.value,
+                  child: child,
+                );
+              },
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget addExposedArea(TapDownDetails details, int turn) {
@@ -2586,7 +2589,7 @@ class _CameraPageState extends State<CameraPage>
 
   Future<bool> _promptPermissionSetting() async {
     bool t = await Permission.storage.request().isGranted;
-    // bool s = await Permission.photos.request().isGranted;
+    bool s = await Permission.photos.request().isGranted;
     // if (!t) {
     //   showDialog(
     //       context: context,
@@ -2605,10 +2608,9 @@ class _CameraPageState extends State<CameraPage>
     //             ],
     //           ));
     // }
-    if (Platform.isIOS && await Permission.storage.request().isGranted
-        // &&
-        // await Permission.photos.request().isGranted
-        ||
+    if (Platform.isIOS &&
+            await Permission.storage.request().isGranted &&
+            await Permission.photos.request().isGranted ||
         Platform.isAndroid && await Permission.storage.request().isGranted) {
       return true;
     }
