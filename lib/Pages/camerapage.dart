@@ -2555,24 +2555,37 @@ class _CameraPageState extends State<CameraPage>
           await PhotoGallery.listAlbums(mediumType: MediumType.image);
       List<Album> videoAlbums = await PhotoGallery.listAlbums(
           mediumType: MediumType.video, hideIfEmpty: false);
-
+      List<Medium> allMedia = [];
       for (Album album in imageAlbums) {
         MediaPage imagePage = await album.listMedia(newest: true);
-        for (var item in imagePage.items) {
-          File file = await item.getFile();
-          TakenCameraMedia media = TakenCameraMedia(
-              file.path, false, item.modifiedDate!, FileType.photo);
-          mediaPathList.add(media);
-        }
+        allMedia.addAll(imagePage.items);
+        // for (var item in imagePage.items) {
+        //   File file = await item.getFile();
+        //   TakenCameraMedia media = TakenCameraMedia(
+        //       file.path, false, item.modifiedDate!, FileType.photo);
+        //   mediaPathList.add(media);
+        // }
       }
       for (Album album in videoAlbums) {
         MediaPage imagePage = await album.listMedia(newest: true);
-        for (var item in imagePage.items) {
-          File file = await item.getFile();
-          TakenCameraMedia media = TakenCameraMedia(
-              file.path, false, item.modifiedDate!, FileType.video);
-          mediaPathList.add(media);
-        }
+        allMedia.addAll(imagePage.items);
+        // for (var item in imagePage.items) {
+        //   File file = await item.getFile();
+        //   TakenCameraMedia media = TakenCameraMedia(
+        //       file.path, false, item.modifiedDate!, FileType.video);
+        //   mediaPathList.add(media);
+        // }
+      }
+      for (var item in allMedia) {
+        File file = await item.getFile();
+        TakenCameraMedia media = TakenCameraMedia(
+            file.path,
+            false,
+            item.modifiedDate!,
+            item.mediumType == MediumType.video
+                ? FileType.video
+                : FileType.photo);
+        mediaPathList.add(media);
       }
       setState(() {
         mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
