@@ -4,12 +4,12 @@ import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Utils/fixExifRotation.dart';
-import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:fearless_chat_demo/Widgets/circularprogressindicator.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:fearless_chat_demo/enums.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -107,7 +107,9 @@ class _CameraPageState extends State<CameraPage>
   void initState() {
     _isSelectedImage = false;
     // requestPermission();
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {});
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      initAsync();
+    });
     _animationElementsController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -117,7 +119,6 @@ class _CameraPageState extends State<CameraPage>
 
     try {
       getCamera();
-
       _isTapImage = false;
       _isflashTap = false;
       _isVideoRecorderSelected = false;
@@ -134,6 +135,7 @@ class _CameraPageState extends State<CameraPage>
         print(e.toString());
       }
     }
+
     super.initState();
   }
 
@@ -1239,59 +1241,11 @@ class _CameraPageState extends State<CameraPage>
                                           ],
                                         ),
                                       ),
-                                      FutureBuilder(
-                                        future: initAsync(),
-                                        initialData: mediaPathList,
-                                        builder: (BuildContext context,
-                                            AsyncSnapshot<
-                                                    List<TakenCameraMedia>>
-                                                snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Container(
-                                                    height: 40,
-                                                    width: 40,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 15),
-                                                    alignment: Alignment.center,
-                                                    child: CircularProgressIndicator(
-                                                        backgroundColor:
-                                                            Global.mainColor,
-                                                        valueColor:
-                                                            AlwaysStoppedAnimation<
-                                                                    Color>(
-                                                                Colors
-                                                                    .white))));
-                                          } else if (snapshot.data != null) {
-                                            return Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: _thumbnailWidget(
-                                                  snapshot.data),
-                                            );
-                                          } else {
-                                            return Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Container(
-                                                    height: 40,
-                                                    width: 40,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 15),
-                                                    alignment: Alignment.center,
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      backgroundColor:
-                                                          Global.mainColor,
-                                                      valueColor:
-                                                          AlwaysStoppedAnimation<
-                                                                  Color>(
-                                                              Colors.white),
-                                                    )));
-                                          }
-                                        },
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: mediaPathList.isNotEmpty
+                                            ? _thumbnailWidget()
+                                            : Container(),
                                       )
                                     ],
                                   ),
@@ -1573,8 +1527,7 @@ class _CameraPageState extends State<CameraPage>
 
     if (mounted) {
       setState(() {
-        mirror = cameraType == CameraType.front ? math.pi : 0;
-        // controller!.cameraId == 1 ? mirror = math.pi : 0;
+        controller!.cameraId == 1 ? mirror = math.pi : 0;
       });
     }
   }
@@ -2142,7 +2095,7 @@ class _CameraPageState extends State<CameraPage>
       cameraDescription,
       kIsWeb ? ResolutionPreset.max : currentResolutionPreset,
       enableAudio: enableAudio,
-      imageFormatGroup: ImageFormatGroup.yuv420,
+      imageFormatGroup: ImageFormatGroup.jpeg,
     );
 
     controller = cameraController;
@@ -2267,10 +2220,7 @@ class _CameraPageState extends State<CameraPage>
   }
 
   /// Display the thumbnail of the captured image or video.
-  Widget _thumbnailWidget(List<TakenCameraMedia>? list) {
-    // setState(() {
-    mediaPathList = list!;
-    // });
+  Widget _thumbnailWidget() {
     final VideoPlayerController? localVideoController = videoController;
     return AnimatedBuilder(
       animation: _animation,
@@ -2299,248 +2249,82 @@ class _CameraPageState extends State<CameraPage>
                     )
                   : Container()),
           onTap: () {
-            // setState(() {
-            _listShareMedia = mediaPathList;
-            showModalBottomSheet(
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(10),
-                  topLeft: Radius.circular(10),
+            setState(() {
+              _listShareMedia = mediaPathList;
+              showModalBottomSheet(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(10),
+                    topLeft: Radius.circular(10),
+                  ),
                 ),
-              ),
-              enableDrag: true,
-              isDismissible: true,
-              isScrollControlled: true,
-              backgroundColor: Colors.black.withOpacity(0.7),
-              context: context,
-              builder: (context) {
-                return StatefulBuilder(
-                  builder: (context, setState) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(
-                              top: 8.0, bottom: 0, right: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              AnimatedBuilder(
-                                animation: _animation,
-                                child: ElevatedButton(
-                                    onPressed: () async {
-                                      if (!_isSelectedImage) {
-                                        null;
-                                      } else {
-                                        setState(() {});
-                                        Navigator.pop(context);
-                                        Navigator.pop(
-                                          context,
-                                          mediaPathList
-                                              .where((element) =>
-                                                  element.isSelected)
-                                              .toList(),
-                                        );
-                                      }
-                                    },
-                                    style: ButtonStyle(
-                                      shape: MaterialStateProperty.resolveWith<
-                                          OutlinedBorder>((_) {
-                                        return RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20));
-                                      }),
-                                      minimumSize: MaterialStateProperty.all(
-                                          const Size(40, 40)),
-                                      padding: MaterialStateProperty.all(
-                                          const EdgeInsets.all(0)),
-                                      backgroundColor: MaterialStateProperty
-                                          .resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                          if (_isSelectedImage) {
-                                            return Colors.green[600] as Color;
-                                          } else if (!_isSelectedImage) {
-                                            return Colors.grey;
-                                          }
-                                          return Colors.transparent;
-                                        },
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.upload,
-                                      color: Colors.white,
-                                      size: 25,
-                                    )),
-                                builder: (context, child) {
-                                  return Transform.rotate(
-                                    angle: _animation.value,
-                                    child: child,
-                                  );
-                                },
-                              ),
-                              AnimatedBuilder(
-                                animation: _animation,
-                                child: ElevatedButton(
-                                    onPressed: () async {
-                                      if (!_isSelectedImage) {
-                                        null;
-                                      } else {
-                                        setState(() {
-                                          removeMediaFromShareList();
-                                        });
-                                      }
-                                    },
-                                    style: ButtonStyle(
-                                      shape: MaterialStateProperty.resolveWith<
-                                          OutlinedBorder>((_) {
-                                        return RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20));
-                                      }),
-                                      minimumSize: MaterialStateProperty.all(
-                                          const Size(40, 40)),
-                                      padding: MaterialStateProperty.all(
-                                          const EdgeInsets.all(0)),
-                                      backgroundColor: MaterialStateProperty
-                                          .resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                          if (_isSelectedImage) {
-                                            return Colors.red;
-                                          } else if (!_isSelectedImage) {
-                                            return Colors.grey;
-                                          }
-                                          return Colors.transparent;
-                                        },
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                      size: 25,
-                                    )),
-                                builder: (context, child) {
-                                  return Transform.rotate(
-                                    angle: _animation.value,
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          // width: MediaQuery.of(context).size.width / 3,
-                          height: MediaQuery.of(context).size.height / 2.5,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: mediaPathList.length,
-                            physics: const BouncingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 20),
-                                child: AnimatedBuilder(
+                enableDrag: true,
+                isDismissible: true,
+                isScrollControlled: true,
+                backgroundColor: Colors.black.withOpacity(0.7),
+                context: context,
+                builder: (context) {
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(
+                                top: 8.0, bottom: 0, right: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                AnimatedBuilder(
                                   animation: _animation,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        mediaPathList[index].isSelected =
-                                            !mediaPathList[index].isSelected;
-                                        if (mediaPathList
-                                            .where(
-                                                (element) => element.isSelected)
-                                            .toList()
-                                            .isNotEmpty) {
-                                          _isSelectedImage = true;
+                                  child: ElevatedButton(
+                                      onPressed: () async {
+                                        if (!_isSelectedImage) {
+                                          null;
                                         } else {
-                                          _isSelectedImage = false;
+                                          setState(() {});
+                                          Navigator.pop(context);
+                                          Navigator.pop(
+                                            context,
+                                            mediaPathList
+                                                .where((element) =>
+                                                    element.isSelected)
+                                                .toList(),
+                                          );
                                         }
-                                        _listShareMedia = mediaPathList;
-                                      });
-                                    },
-                                    child: Stack(
-                                      children: [
-                                        Align(
-                                          alignment: Alignment.center,
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            margin: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 20),
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                            decoration: BoxDecoration(
-                                              color: Colors.black,
+                                      },
+                                      style: ButtonStyle(
+                                        shape: MaterialStateProperty
+                                            .resolveWith<OutlinedBorder>((_) {
+                                          return RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              border: Border.all(
-                                                  color: mediaPathList[index]
-                                                          .isSelected
-                                                      ? Colors.amber
-                                                      : Colors.grey
-                                                          .withOpacity(0.5),
-                                                  width: 2),
-                                              image: DecorationImage(
-                                                image: FileImage(
-                                                  File(mediaPathList[index]
-                                                      .filePath),
-                                                ),
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            child: mediaPathList[index]
-                                                        .fileType ==
-                                                    FileType.video
-                                                ? VideoItem(
-                                                    url: mediaPathList[index]
-                                                        .filePath)
-                                                : Container(),
-                                          ),
+                                                  BorderRadius.circular(20));
+                                        }),
+                                        minimumSize: MaterialStateProperty.all(
+                                            const Size(40, 40)),
+                                        padding: MaterialStateProperty.all(
+                                            const EdgeInsets.all(0)),
+                                        backgroundColor: MaterialStateProperty
+                                            .resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                            if (_isSelectedImage) {
+                                              return Colors.green[600] as Color;
+                                            } else if (!_isSelectedImage) {
+                                              return Colors.grey;
+                                            }
+                                            return Colors.transparent;
+                                          },
                                         ),
-                                        Positioned.fill(
-                                          top: 22,
-                                          right: 12,
-                                          child: Align(
-                                            alignment: Alignment.topRight,
-                                            child: Container(
-                                              margin: const EdgeInsets.all(2),
-                                              height: 20,
-                                              width: 20,
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(
-                                                  color: mediaPathList[index]
-                                                          .isSelected
-                                                      ? Colors.blue
-                                                      : Colors.transparent,
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(10)),
-                                                  border: Border.all(
-                                                      color: Colors.white
-                                                          .withOpacity(0.5))),
-                                              child: mediaPathList[index]
-                                                      .isSelected
-                                                  ? const Icon(
-                                                      Icons.check,
-                                                      color: Colors.white,
-                                                      size: 15,
-                                                    )
-                                                  : Container(),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.upload,
+                                        color: Colors.white,
+                                        size: 25,
+                                      )),
                                   builder: (context, child) {
                                     return Transform.rotate(
                                       angle: _animation.value,
@@ -2548,17 +2332,186 @@ class _CameraPageState extends State<CameraPage>
                                     );
                                   },
                                 ),
-                              );
-                            },
+                                AnimatedBuilder(
+                                  animation: _animation,
+                                  child: ElevatedButton(
+                                      onPressed: () async {
+                                        if (!_isSelectedImage) {
+                                          null;
+                                        } else {
+                                          setState(() {
+                                            removeMediaFromShareList();
+                                          });
+                                        }
+                                      },
+                                      style: ButtonStyle(
+                                        shape: MaterialStateProperty
+                                            .resolveWith<OutlinedBorder>((_) {
+                                          return RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20));
+                                        }),
+                                        minimumSize: MaterialStateProperty.all(
+                                            const Size(40, 40)),
+                                        padding: MaterialStateProperty.all(
+                                            const EdgeInsets.all(0)),
+                                        backgroundColor: MaterialStateProperty
+                                            .resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                            if (_isSelectedImage) {
+                                              return Colors.red;
+                                            } else if (!_isSelectedImage) {
+                                              return Colors.grey;
+                                            }
+                                            return Colors.transparent;
+                                          },
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.delete,
+                                        color: Colors.white,
+                                        size: 25,
+                                      )),
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _animation.value,
+                                      child: child,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            );
-            // });
+                          SizedBox(
+                            // width: MediaQuery.of(context).size.width / 3,
+                            height: MediaQuery.of(context).size.height / 2.5,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: mediaPathList.length,
+                              physics: const BouncingScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 20),
+                                  child: AnimatedBuilder(
+                                    animation: _animation,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          mediaPathList[index].isSelected =
+                                              !mediaPathList[index].isSelected;
+                                          if (mediaPathList
+                                              .where((element) =>
+                                                  element.isSelected)
+                                              .toList()
+                                              .isNotEmpty) {
+                                            _isSelectedImage = true;
+                                          } else {
+                                            _isSelectedImage = false;
+                                          }
+                                          _listShareMedia = mediaPathList;
+                                        });
+                                      },
+                                      child: Stack(
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.center,
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 20),
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2,
+                                              decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                                border: Border.all(
+                                                    color: mediaPathList[index]
+                                                            .isSelected
+                                                        ? Colors.amber
+                                                        : Colors.grey
+                                                            .withOpacity(0.5),
+                                                    width: 2),
+                                                image: DecorationImage(
+                                                  image: FileImage(
+                                                    File(mediaPathList[index]
+                                                        .filePath),
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              child: mediaPathList[index]
+                                                          .fileType ==
+                                                      FileType.video
+                                                  ? VideoItem(
+                                                      url: mediaPathList[index]
+                                                          .filePath)
+                                                  : Container(),
+                                            ),
+                                          ),
+                                          Positioned.fill(
+                                            top: 22,
+                                            right: 12,
+                                            child: Align(
+                                              alignment: Alignment.topRight,
+                                              child: Container(
+                                                margin: const EdgeInsets.all(2),
+                                                height: 20,
+                                                width: 20,
+                                                alignment: Alignment.center,
+                                                decoration: BoxDecoration(
+                                                    color: mediaPathList[index]
+                                                            .isSelected
+                                                        ? Colors.blue
+                                                        : Colors.transparent,
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(
+                                                                10)),
+                                                    border: Border.all(
+                                                        color: Colors.white
+                                                            .withOpacity(0.5))),
+                                                child: mediaPathList[index]
+                                                        .isSelected
+                                                    ? const Icon(
+                                                        Icons.check,
+                                                        color: Colors.white,
+                                                        size: 15,
+                                                      )
+                                                    : Container(),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    builder: (context, child) {
+                                      return Transform.rotate(
+                                        angle: _animation.value,
+                                        child: child,
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              );
+            });
           },
         ),
         // mediaPathList.isNotEmpty
@@ -2599,39 +2552,33 @@ class _CameraPageState extends State<CameraPage>
   }
 
   bool _loading = false;
-  Future<List<TakenCameraMedia>> initAsync() async {
-    List<TakenCameraMedia> list = [];
+  Future<void> initAsync() async {
     if (await _promptPermissionSetting()) {
       List<Album> imageAlbums =
           await PhotoGallery.listAlbums(mediumType: MediumType.image);
       List<Album> videoAlbums = await PhotoGallery.listAlbums(
           mediumType: MediumType.video, hideIfEmpty: false);
       List<Medium> allMedia = [];
-      MediaPage imagePage =
-          await imageAlbums[0].listMedia(newest: true, skip: 0, take: 10);
-      allMedia.addAll(imagePage.items);
-      // for (Album album in imageAlbums) {
-
-      //   // for (var item in imagePage.items) {
-      //   //   File file = await item.getFile();
-      //   //   TakenCameraMedia media = TakenCameraMedia(
-      //   //       file.path, false, item.modifiedDate!, FileType.photo);
-      //   //   mediaPathList.add(media);
-      //   // }
-      // }
-      MediaPage videoPage =
-          await videoAlbums[0].listMedia(newest: true, skip: 0, take: 10);
-      allMedia.addAll(videoPage.items);
-      // for (Album album in videoAlbums) {
-
-      //   // for (var item in imagePage.items) {
-      //   //   File file = await item.getFile();
-      //   //   TakenCameraMedia media = TakenCameraMedia(
-      //   //       file.path, false, item.modifiedDate!, FileType.video);
-      //   //   mediaPathList.add(media);
-      //   // }
-      // }
-
+      for (Album album in imageAlbums) {
+        MediaPage imagePage = await album.listMedia(newest: true, take: 10);
+        allMedia.addAll(imagePage.items);
+        // for (var item in imagePage.items) {
+        //   File file = await item.getFile();
+        //   TakenCameraMedia media = TakenCameraMedia(
+        //       file.path, false, item.modifiedDate!, FileType.photo);
+        //   mediaPathList.add(media);
+        // }
+      }
+      for (Album album in videoAlbums) {
+        MediaPage imagePage = await album.listMedia(newest: true, take: 10);
+        allMedia.addAll(imagePage.items);
+        // for (var item in imagePage.items) {
+        //   File file = await item.getFile();
+        //   TakenCameraMedia media = TakenCameraMedia(
+        //       file.path, false, item.modifiedDate!, FileType.video);
+        //   mediaPathList.add(media);
+        // }
+      }
       for (var item in allMedia) {
         File file = await item.getFile();
         TakenCameraMedia media = TakenCameraMedia(
@@ -2641,13 +2588,11 @@ class _CameraPageState extends State<CameraPage>
             item.mediumType == MediumType.video
                 ? FileType.video
                 : FileType.photo);
-
-        list.add(media);
+        mediaPathList.add(media);
       }
-
-      // setState(() {
-      list.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-      // });
+      //setState(() {
+      mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      //});
 
       // setState(() {
       //   _loading = false;
@@ -2656,12 +2601,9 @@ class _CameraPageState extends State<CameraPage>
     // setState(() {
     //   _loading = false;
     // });
-    return list;
   }
 
   Future<bool> _promptPermissionSetting() async {
-    // bool t = await Permission.storage.request().isGranted;
-    // bool s = await Permission.photos.request().isGranted;
     // if (!t) {
     //   showDialog(
     //       context: context,
