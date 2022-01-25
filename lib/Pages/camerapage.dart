@@ -2611,7 +2611,7 @@ class _CameraPageState extends State<CameraPage>
       });
 
       for (var item in allMedia) {
-        await item.getFile().then((value) {
+        await PhotoGallery.getFile(mediumId: item.id).then((value) {
           TakenCameraMedia media = TakenCameraMedia(
               value.path,
               false,
@@ -2623,6 +2623,9 @@ class _CameraPageState extends State<CameraPage>
             mediaPathList.add(media);
           });
         });
+        // await item.getFile().then((value) {
+
+        // });
       }
       // setState(() {
       //   mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
@@ -2655,7 +2658,7 @@ class _CameraPageState extends State<CameraPage>
     print("All Media Count: " + allMedia.length.toString());
 
     for (var item in allMedia) {
-      await item.getFile().then((value) {
+      await PhotoGallery.getFile(mediumId: item.id).then((value) {
         TakenCameraMedia media = TakenCameraMedia(
             value.path,
             false,
@@ -2667,6 +2670,7 @@ class _CameraPageState extends State<CameraPage>
           mediaPathList.add(media);
         });
       });
+      // await item.getFile().then((value) {});
     }
     // setState(() {
     //   mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
