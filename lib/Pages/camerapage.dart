@@ -54,6 +54,7 @@ String secondsStr = "00";
 late CameraType cameraType;
 TapDownDetails? exposedAreaDetails;
 bool _isFingerTapped = false;
+bool _isLoadingGalleryMedia = false;
 
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -108,7 +109,7 @@ class _CameraPageState extends State<CameraPage>
     _isSelectedImage = false;
     // requestPermission();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      initAsync();
+      await Future<void>.microtask(initAsync);
     });
     _animationElementsController = AnimationController(
       vsync: this,
@@ -125,7 +126,6 @@ class _CameraPageState extends State<CameraPage>
       _isVideoRecording = false;
       hideStatusbar();
       enableRotation();
-      _loading = true;
 
       // Future.delayed(const Duration(milliseconds: 1000), () {
       //   onCameraSelected(cameras[0]);
@@ -1243,9 +1243,13 @@ class _CameraPageState extends State<CameraPage>
                                       ),
                                       Align(
                                         alignment: Alignment.centerLeft,
-                                        child: mediaPathList.isNotEmpty
-                                            ? _thumbnailWidget()
-                                            : Container(),
+                                        child: mediaPathList.isNotEmpty &&
+                                                _isLoadingGalleryMedia
+                                            ? CircularProgressIndicator()
+                                            : mediaPathList.isNotEmpty &&
+                                                    !_isLoadingGalleryMedia
+                                                ? _thumbnailWidget()
+                                                : Container(),
                                       )
                                     ],
                                   ),
@@ -2235,7 +2239,8 @@ class _CameraPageState extends State<CameraPage>
                   borderRadius: BorderRadius.circular(10.0),
                   border: Border.all(color: Colors.white, width: 2),
                   image: DecorationImage(
-                    image: FileImage(File(mediaPathList.first.filePath)),
+                    image: FileImage(File(mediaPathList.first.filePath),
+                        scale: .3),
                     fit: BoxFit.cover,
                   )),
               child: localVideoController != null &&
@@ -2386,6 +2391,7 @@ class _CameraPageState extends State<CameraPage>
                             // width: MediaQuery.of(context).size.width / 3,
                             height: MediaQuery.of(context).size.height / 2.5,
                             child: ListView.builder(
+                              shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
                               itemCount: mediaPathList.length,
                               physics: const BouncingScrollPhysics(),
@@ -2443,9 +2449,9 @@ class _CameraPageState extends State<CameraPage>
                                                     width: 2),
                                                 image: DecorationImage(
                                                   image: FileImage(
-                                                    File(mediaPathList[index]
-                                                        .filePath),
-                                                  ),
+                                                      File(mediaPathList[index]
+                                                          .filePath),
+                                                      scale: .3),
                                                   fit: BoxFit.cover,
                                                 ),
                                               ),
@@ -2551,8 +2557,10 @@ class _CameraPageState extends State<CameraPage>
     );
   }
 
-  bool _loading = false;
   Future<void> initAsync() async {
+    setState(() {
+      _isLoadingGalleryMedia = true;
+    });
     if (await _promptPermissionSetting()) {
       List<Album> imageAlbums =
           await PhotoGallery.listAlbums(mediumType: MediumType.image);
@@ -2560,8 +2568,7 @@ class _CameraPageState extends State<CameraPage>
           mediumType: MediumType.video, hideIfEmpty: false);
       List<Medium> allMedia = [];
       // for (Album album in imageAlbums) {
-      MediaPage imagePage =
-          await imageAlbums[0].listMedia(newest: true, take: 10);
+      MediaPage imagePage = await imageAlbums[0].listMedia(newest: true);
       allMedia.addAll(imagePage.items);
       // for (var item in imagePage.items) {
       //   File file = await item.getFile();
@@ -2571,8 +2578,7 @@ class _CameraPageState extends State<CameraPage>
       // }
       // }
       // for (Album album in videoAlbums) {
-      MediaPage videoPage =
-          await videoAlbums[0].listMedia(newest: true, take: 10);
+      MediaPage videoPage = await videoAlbums[0].listMedia(newest: true);
       allMedia.addAll(videoPage.items);
       // for (var item in imagePage.items) {
       //   File file = await item.getFile();
@@ -2582,27 +2588,28 @@ class _CameraPageState extends State<CameraPage>
       // }
       // }
       for (var item in allMedia) {
-        File file = await item.getFile();
-        TakenCameraMedia media = TakenCameraMedia(
-            file.path,
-            false,
-            item.modifiedDate!,
-            item.mediumType == MediumType.video
-                ? FileType.video
-                : FileType.photo);
-        mediaPathList.add(media);
+        item.getFile().then((value) {
+          TakenCameraMedia media = TakenCameraMedia(
+              value.path,
+              false,
+              item.modifiedDate!,
+              item.mediumType == MediumType.video
+                  ? FileType.video
+                  : FileType.photo);
+          mediaPathList.add(media);
+        });
       }
-      //setState(() {
-      mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-      //});
+      setState(() {
+        mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      });
 
-      // setState(() {
-      //   _loading = false;
-      // });
+      setState(() {
+        _isLoadingGalleryMedia = false;
+      });
     }
-    // setState(() {
-    //   _loading = false;
-    // });
+    setState(() {
+      _isLoadingGalleryMedia = false;
+    });
   }
 
   Future<bool> _promptPermissionSetting() async {
