@@ -58,6 +58,7 @@ int _albumIndexImage = 1;
 int _albumIndexVideo = 1;
 int _pageIndex = 2;
 ScrollController scrollController = ScrollController();
+StateSetter? _stateSetter;
 
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -2286,6 +2287,9 @@ class _CameraPageState extends State<CameraPage>
                 builder: (context) {
                   return StatefulBuilder(
                     builder: (context, setState) {
+                      setState(() {
+                        _stateSetter = setState;
+                      });
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisSize: MainAxisSize.min,
@@ -2667,7 +2671,9 @@ class _CameraPageState extends State<CameraPage>
                 ? FileType.video
                 : FileType.photo);
         setState(() {
-          mediaPathList.add(media);
+          _stateSetter!(() {
+            mediaPathList.add(media);
+          });
         });
       });
       // await item.getFile().then((value) {});
