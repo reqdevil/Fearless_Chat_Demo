@@ -2596,14 +2596,14 @@ class _CameraPageState extends State<CameraPage>
       });
 
       MediaPage imagePage;
-      await imageAlbums[0].listMedia(newest: true).then((value) {
+      await imageAlbums[0].listMedia(newest: true, take: 1).then((value) {
         imagePage = value;
         setState(() {
           allMedia.addAll(imagePage.items);
         });
       });
       MediaPage videoPage;
-      await videoAlbums[0].listMedia(newest: true).then((value) {
+      await videoAlbums[0].listMedia(newest: true, take: 1).then((value) {
         setState(() {
           videoPage = value;
           allMedia.addAll(videoPage.items);
@@ -2633,7 +2633,9 @@ class _CameraPageState extends State<CameraPage>
   Future<void> getMediaFromGallery() async {
     // for (Album album in imageAlbums) {
     MediaPage imagePage;
-    await imageAlbums[_albumIndexImage].listMedia(newest: true).then((value) {
+    await imageAlbums[_albumIndexImage]
+        .listMedia(newest: true, take: 1)
+        .then((value) {
       imagePage = value;
       setState(() {
         allMedia.addAll(imagePage.items);
@@ -2641,7 +2643,9 @@ class _CameraPageState extends State<CameraPage>
     });
 
     MediaPage videoPage;
-    await videoAlbums[_albumIndexVideo].listMedia(newest: true).then((value) {
+    await videoAlbums[_albumIndexVideo]
+        .listMedia(newest: true, take: 1)
+        .then((value) {
       videoPage = value;
       setState(() {
         allMedia.addAll(videoPage.items);
