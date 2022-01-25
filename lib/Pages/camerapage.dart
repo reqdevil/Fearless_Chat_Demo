@@ -9,7 +9,6 @@ import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:fearless_chat_demo/enums.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -55,8 +54,10 @@ late CameraType cameraType;
 TapDownDetails? exposedAreaDetails;
 bool _isFingerTapped = false;
 bool _isLoadingGalleryMedia = false;
-int _albumIndex = 0;
-int _pageIndex = 5;
+int _albumIndexImage = 0;
+int _albumIndexVideo = 0;
+int _pageIndex = 4;
+ScrollController scrollController = ScrollController();
 
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -109,10 +110,26 @@ class _CameraPageState extends State<CameraPage>
   @override
   void initState() {
     _isSelectedImage = false;
+    scrollController.addListener(() {
+      if (scrollController.offset >=
+              scrollController.position.maxScrollExtent &&
+          !scrollController.position.outOfRange) {
+        setState(() {
+          if (_imageAlbumCount > _albumIndexImage) _albumIndexImage++;
+          if (_videoAlbumCount > _albumIndexVideo) _albumIndexVideo++;
+          getMediaFromGallery(_albumIndexImage, _albumIndexVideo, _pageIndex);
+        });
+      }
+      if (scrollController.offset <=
+              scrollController.position.minScrollExtent &&
+          !scrollController.position.outOfRange) {
+        setState(() {});
+      }
+    });
     // requestPermission();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       // await Future<void>.microtask(getMediaFromGallery());
-      getMediaFromGallery(_albumIndex, _pageIndex);
+      getAlbums();
     });
     _animationElementsController = AnimationController(
       vsync: this,
@@ -157,8 +174,9 @@ class _CameraPageState extends State<CameraPage>
   @override
   void dispose() {
     setState(() {
-      _albumIndex = 0;
-      _pageIndex = 5;
+      _albumIndexImage = 0;
+      _albumIndexVideo = 0;
+      _pageIndex = 4;
     });
 
     _animationElementsController.dispose();
@@ -2258,7 +2276,6 @@ class _CameraPageState extends State<CameraPage>
                     )
                   : Container()),
           onTap: () async {
-            await getMediaFromGallery(_albumIndex, _pageIndex);
             setState(() {
               _listShareMedia = mediaPathList;
               showModalBottomSheet(
@@ -2393,9 +2410,9 @@ class _CameraPageState extends State<CameraPage>
                             ),
                           ),
                           SizedBox(
-                            // width: MediaQuery.of(context).size.width / 3,
                             height: MediaQuery.of(context).size.height / 2.5,
                             child: ListView.builder(
+                              controller: scrollController,
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
                               itemCount: mediaPathList.length,
@@ -2563,38 +2580,31 @@ class _CameraPageState extends State<CameraPage>
   }
 
   List<Medium> allMedia = [];
-  Future<void> getMediaFromGallery(int albumIndex, int pageIndex) async {
-    setState(() {
-      _isLoadingGalleryMedia = true;
-    });
+  int _imageAlbumCount = 0;
+  int _videoAlbumCount = 0;
+  List<Album> imageAlbums = [];
+  List<Album> videoAlbums = [];
+  Future<void> getAlbums() async {
     if (await _promptPermissionSetting()) {
-      List<Album> imageAlbums =
-          await PhotoGallery.listAlbums(mediumType: MediumType.image);
-      List<Album> videoAlbums = await PhotoGallery.listAlbums(
+      imageAlbums = await PhotoGallery.listAlbums(mediumType: MediumType.image);
+      setState(() {
+        _imageAlbumCount = imageAlbums.length;
+      });
+      videoAlbums = await PhotoGallery.listAlbums(
           mediumType: MediumType.video, hideIfEmpty: false);
-
-      // for (Album album in imageAlbums) {
-      MediaPage imagePage = await imageAlbums[albumIndex]
-          .listMedia(newest: true, take: pageIndex);
-      allMedia.addAll(imagePage.items);
-      // for (var item in imagePage.items) {
-      //   File file = await item.getFile();
-      //   TakenCameraMedia media = TakenCameraMedia(
-      //       file.path, false, item.modifiedDate!, FileType.photo);
-      //   mediaPathList.add(media);
-      // }
-      // }
-      // for (Album album in videoAlbums) {
-      MediaPage videoPage = await videoAlbums[albumIndex]
-          .listMedia(newest: true, take: pageIndex);
-      allMedia.addAll(videoPage.items);
-      // for (var item in imagePage.items) {
-      //   File file = await item.getFile();
-      //   TakenCameraMedia media = TakenCameraMedia(
-      //       file.path, false, item.modifiedDate!, FileType.video);
-      //   mediaPathList.add(media);
-      // }
-      // }
+      setState(() {
+        _videoAlbumCount = videoAlbums.length;
+      });
+      MediaPage imagePage =
+          await imageAlbums[0].listMedia(newest: true, take: 5);
+      setState(() {
+        allMedia.addAll(imagePage.items);
+      });
+      MediaPage videoPage =
+          await videoAlbums[0].listMedia(newest: true, take: 5);
+      setState(() {
+        allMedia.addAll(videoPage.items);
+      });
       for (var item in allMedia) {
         item.getFile().then((value) {
           TakenCameraMedia media = TakenCameraMedia(
@@ -2604,23 +2614,60 @@ class _CameraPageState extends State<CameraPage>
               item.mediumType == MediumType.video
                   ? FileType.video
                   : FileType.photo);
-          mediaPathList.add(media);
+          setState(() {
+            mediaPathList.add(media);
+          });
         });
       }
       setState(() {
         mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-        _albumIndex += 1;
-        print("Album Index:" + _albumIndex.toString());
-        print("page Index:" + _pageIndex.toString());
       });
+    }
+  }
 
-      setState(() {
-        _isLoadingGalleryMedia = false;
+  Future<void> getMediaFromGallery(
+      int albumImageIndex, int albumVideoIndex, int pageIndex) async {
+    // for (Album album in imageAlbums) {
+    MediaPage imagePage = await imageAlbums[albumImageIndex]
+        .listMedia(newest: true, take: pageIndex);
+    setState(() {
+      allMedia.addAll(imagePage.items);
+    });
+
+    MediaPage videoPage = await videoAlbums[albumVideoIndex]
+        .listMedia(newest: true, take: pageIndex);
+    setState(() {
+      allMedia.addAll(videoPage.items);
+    });
+
+    print("All Media Count: " + allMedia.length.toString());
+
+    for (var item in allMedia) {
+      item.getFile().then((value) {
+        TakenCameraMedia media = TakenCameraMedia(
+            value.path,
+            false,
+            item.modifiedDate!,
+            item.mediumType == MediumType.video
+                ? FileType.video
+                : FileType.photo);
+        setState(() {
+          mediaPathList.add(media);
+        });
       });
     }
     setState(() {
-      _isLoadingGalleryMedia = false;
+      mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
     });
+    // print("Album Index:" + _albumIndexImage.toString());
+    // print("page Index:" + _pageIndex.toString());
+    // setState(() {
+    //   _isLoadingGalleryMedia = false;
+    // });
+
+    // setState(() {
+    //   _isLoadingGalleryMedia = false;
+    // });
   }
 
   Future<bool> _promptPermissionSetting() async {
