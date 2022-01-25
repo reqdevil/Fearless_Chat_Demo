@@ -113,11 +113,11 @@ class _CameraPageState extends State<CameraPage>
     scrollController.addListener(_loadMore);
 
     // requestPermission();
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      // await Future<void>.microtask(getMediaFromGallery());
+    // WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    //   // await Future<void>.microtask(getMediaFromGallery());
 
-      await Future<void>.microtask(getAlbums);
-    });
+    //   await Future<void>.microtask(getAlbums);
+    // });
     _animationElementsController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -133,7 +133,7 @@ class _CameraPageState extends State<CameraPage>
       _isVideoRecording = false;
       hideStatusbar();
       enableRotation();
-
+      Future<void>.microtask(getAlbums);
       // Future.delayed(const Duration(milliseconds: 1000), () {
       //   onCameraSelected(cameras[0]);
       // });
@@ -160,6 +160,8 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void dispose() {
+    backToOriginalRotation();
+    showStatusbar();
     scrollController.removeListener(_loadMore);
     setState(() {
       _albumIndexImage = 0;
@@ -169,8 +171,7 @@ class _CameraPageState extends State<CameraPage>
 
     _animationElementsController.dispose();
     controller!.dispose();
-    backToOriginalRotation();
-    showStatusbar();
+
     super.dispose();
   }
 
@@ -199,9 +200,9 @@ class _CameraPageState extends State<CameraPage>
       );
     }
 
-    // if (!controller!.value.isInitialized) {
-    //   return Container();
-    // }
+    if (!controller!.value.isInitialized) {
+      return Container();
+    }
 
     return Scaffold(
         // key: _scaffoldKey,
@@ -2005,7 +2006,10 @@ class _CameraPageState extends State<CameraPage>
   }
 
   showStatusbar() {
-    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    SystemChrome.setEnabledSystemUIOverlays([
+      SystemUiOverlay.top,
+      SystemUiOverlay.bottom,
+    ]);
   }
 
 // may block rotation; sets orientation back to OS defaults for the app
@@ -2575,27 +2579,39 @@ class _CameraPageState extends State<CameraPage>
   List<Album> videoAlbums = [];
   Future<void> getAlbums() async {
     if (await _promptPermissionSetting()) {
-      imageAlbums = await PhotoGallery.listAlbums(mediumType: MediumType.image);
-      setState(() {
-        _imageAlbumCount = imageAlbums.length;
+      await PhotoGallery.listAlbums(mediumType: MediumType.image).then((value) {
+        setState(() {
+          imageAlbums = value;
+          _imageAlbumCount = imageAlbums.length;
+        });
       });
-      videoAlbums = await PhotoGallery.listAlbums(
-          mediumType: MediumType.video, hideIfEmpty: false);
-      setState(() {
-        _videoAlbumCount = videoAlbums.length;
+
+      await PhotoGallery.listAlbums(
+              mediumType: MediumType.video, hideIfEmpty: false)
+          .then((value) {
+        setState(() {
+          videoAlbums = value;
+          _videoAlbumCount = videoAlbums.length;
+        });
       });
-      MediaPage imagePage =
-          await imageAlbums[0].listMedia(newest: true, take: _pageIndex);
-      setState(() {
-        allMedia.addAll(imagePage.items);
+
+      MediaPage imagePage;
+      await imageAlbums[0].listMedia(newest: true).then((value) {
+        imagePage = value;
+        setState(() {
+          allMedia.addAll(imagePage.items);
+        });
       });
-      MediaPage videoPage =
-          await videoAlbums[0].listMedia(newest: true, take: _pageIndex);
-      setState(() {
-        allMedia.addAll(videoPage.items);
+      MediaPage videoPage;
+      await videoAlbums[0].listMedia(newest: true).then((value) {
+        setState(() {
+          videoPage = value;
+          allMedia.addAll(videoPage.items);
+        });
       });
+
       for (var item in allMedia) {
-        item.getFile().then((value) {
+        await item.getFile().then((value) {
           TakenCameraMedia media = TakenCameraMedia(
               value.path,
               false,
@@ -2616,22 +2632,26 @@ class _CameraPageState extends State<CameraPage>
 
   Future<void> getMediaFromGallery() async {
     // for (Album album in imageAlbums) {
-    MediaPage imagePage = await imageAlbums[_albumIndexImage]
-        .listMedia(newest: true, take: _pageIndex);
-    setState(() {
-      allMedia.addAll(imagePage.items);
+    MediaPage imagePage;
+    await imageAlbums[_albumIndexImage].listMedia(newest: true).then((value) {
+      imagePage = value;
+      setState(() {
+        allMedia.addAll(imagePage.items);
+      });
     });
 
-    MediaPage videoPage = await videoAlbums[_albumIndexVideo]
-        .listMedia(newest: true, take: _pageIndex);
-    setState(() {
-      allMedia.addAll(videoPage.items);
+    MediaPage videoPage;
+    await videoAlbums[_albumIndexVideo].listMedia(newest: true).then((value) {
+      videoPage = value;
+      setState(() {
+        allMedia.addAll(videoPage.items);
+      });
     });
 
     print("All Media Count: " + allMedia.length.toString());
 
     for (var item in allMedia) {
-      item.getFile().then((value) {
+      await item.getFile().then((value) {
         TakenCameraMedia media = TakenCameraMedia(
             value.path,
             false,
@@ -2787,7 +2807,8 @@ class _CameraPageState extends State<CameraPage>
 
         // getMediaFromGallery(_albumIndexImage, _albumIndexVideo, _pageIndex);
       });
-      await Future<void>.microtask(getMediaFromGallery);
+      getMediaFromGallery();
+      // await Future<void>.microtask(getMediaFromGallery);
     }
     if (scrollController.offset <= scrollController.position.minScrollExtent &&
         !scrollController.position.outOfRange) {
