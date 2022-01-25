@@ -18,6 +18,7 @@ import 'dart:math' as math;
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
 import 'package:intl/intl.dart';
@@ -837,10 +838,12 @@ class _CameraPageState extends State<CameraPage>
                                                           child: SizedBox(
                                                             child: Container(
                                                               child: Center(
-                                                                  child: mediaPathList[itemIndex]
-                                                                              .fileType ==
-                                                                          FileType
-                                                                              .photo
+                                                                  child: mediaPathList[itemIndex].fileType ==
+                                                                              FileType
+                                                                                  .photo &&
+                                                                          mediaPathList[itemIndex]
+                                                                              .filePath
+                                                                              .isNotEmpty
                                                                       ? Image
                                                                           .file(
                                                                           File(mediaPathList[itemIndex]
@@ -848,9 +851,20 @@ class _CameraPageState extends State<CameraPage>
                                                                           fit: BoxFit
                                                                               .fill,
                                                                         )
-                                                                      : VideoItem(
-                                                                          url: mediaPathList[itemIndex]
-                                                                              .filePath)),
+                                                                      : mediaPathList[itemIndex].fileType == FileType.photo &&
+                                                                              mediaPathList[itemIndex].medium !=
+                                                                                  null
+                                                                          ? FadeInImage(
+                                                                              fit: BoxFit.cover,
+                                                                              placeholder: MemoryImage(kTransparentImage),
+                                                                              image: ThumbnailProvider(
+                                                                                mediumId: mediaPathList[itemIndex].medium!.id,
+                                                                                mediumType: mediaPathList[itemIndex].medium!.mediumType,
+                                                                                highQuality: true,
+                                                                              ),
+                                                                            )
+                                                                          : VideoItem(
+                                                                              url: mediaPathList[itemIndex].filePath)),
                                                               decoration:
                                                                   BoxDecoration(
                                                                 color: Colors
@@ -2246,29 +2260,54 @@ class _CameraPageState extends State<CameraPage>
       animation: _animation,
       child: Stack(children: [
         GestureDetector(
-          child: Container(
-              margin: const EdgeInsets.only(left: 10),
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: Colors.white, width: 2),
-                  image: DecorationImage(
-                    image: FileImage(File(mediaPathList.first.filePath),
-                        scale: .3),
+          child: mediaPathList.first.filePath.isNotEmpty
+              ? Container(
+                  margin: const EdgeInsets.only(left: 10),
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(10.0),
+                    border: Border.all(color: Colors.white, width: 2),
+                    image: DecorationImage(
+                      image: FileImage(File(mediaPathList.first.filePath),
+                          scale: .3),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: localVideoController != null &&
+                          localVideoController.value.isInitialized
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: AspectRatio(
+                            aspectRatio: localVideoController.value.aspectRatio,
+                            child: VideoPlayer(localVideoController),
+                          ),
+                        )
+                      : Container())
+              : Container(
+                  margin: const EdgeInsets.only(left: 10),
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(10.0),
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: FadeInImage(
                     fit: BoxFit.cover,
-                  )),
-              child: localVideoController != null &&
-                      localVideoController.value.isInitialized
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: AspectRatio(
-                        aspectRatio: localVideoController.value.aspectRatio,
-                        child: VideoPlayer(localVideoController),
-                      ),
-                    )
-                  : Container()),
+                    height: 60,
+                    width: 60,
+                    placeholder: MemoryImage(kTransparentImage, scale: .3),
+                    image: ThumbnailProvider(
+                      mediumId: mediaPathList.first.medium!.id,
+                      mediumType: mediaPathList.first.medium!.mediumType,
+                      height: 50,
+                      width: 50,
+                      highQuality: false,
+                    ),
+                  ),
+                ),
           onTap: () async {
             setState(() {
               _listShareMedia = mediaPathList;
@@ -2441,47 +2480,120 @@ class _CameraPageState extends State<CameraPage>
                                         children: [
                                           Align(
                                             alignment: Alignment.center,
-                                            child: Container(
-                                              alignment: Alignment.center,
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 20),
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2,
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2,
-                                              decoration: BoxDecoration(
-                                                color: Colors.black,
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                                border: Border.all(
-                                                    color: mediaPathList[index]
-                                                            .isSelected
-                                                        ? Colors.amber
-                                                        : Colors.grey
-                                                            .withOpacity(0.5),
-                                                    width: 2),
-                                                image: DecorationImage(
-                                                  image: FileImage(
-                                                      File(mediaPathList[index]
-                                                          .filePath),
-                                                      scale: .3),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                              child: mediaPathList[index]
-                                                          .fileType ==
-                                                      FileType.video
-                                                  ? VideoItem(
-                                                      url: mediaPathList[index]
-                                                          .filePath)
-                                                  : Container(),
-                                            ),
+                                            child: mediaPathList[index]
+                                                    .filePath
+                                                    .isNotEmpty
+                                                ? Container(
+                                                    alignment: Alignment.center,
+                                                    margin: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 20),
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            2,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            2,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                      border: Border.all(
+                                                          color: mediaPathList[
+                                                                      index]
+                                                                  .isSelected
+                                                              ? Colors.amber
+                                                              : Colors.grey
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                          width: 2),
+                                                      image: DecorationImage(
+                                                        image: FileImage(
+                                                            File(mediaPathList[
+                                                                    index]
+                                                                .filePath),
+                                                            scale: .3),
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                    child: mediaPathList[index]
+                                                                .fileType ==
+                                                            FileType.video
+                                                        ? VideoItem(
+                                                            url: mediaPathList[
+                                                                    index]
+                                                                .filePath)
+                                                        : Container(),
+                                                  )
+                                                : Container(
+                                                    alignment: Alignment.center,
+                                                    margin: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 20),
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            2,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            2,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                      border: Border.all(
+                                                          color: mediaPathList[
+                                                                      index]
+                                                                  .isSelected
+                                                              ? Colors.amber
+                                                              : Colors.grey
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                          width: 2),
+                                                    ),
+                                                    child: mediaPathList[index]
+                                                                .fileType ==
+                                                            FileType.photo
+                                                        ? FadeInImage(
+                                                            fit: BoxFit.cover,
+                                                            placeholder:
+                                                                MemoryImage(
+                                                                    kTransparentImage),
+                                                            image:
+                                                                ThumbnailProvider(
+                                                              mediumId:
+                                                                  mediaPathList[
+                                                                          index]
+                                                                      .medium!
+                                                                      .id,
+                                                              mediumType:
+                                                                  mediaPathList[
+                                                                          index]
+                                                                      .medium!
+                                                                      .mediumType,
+                                                              highQuality: true,
+                                                            ),
+                                                          )
+                                                        : mediaPathList[index]
+                                                                    .fileType ==
+                                                                FileType.video
+                                                            ? VideoItem(
+                                                                url: mediaPathList[
+                                                                        index]
+                                                                    .filePath)
+                                                            : Container(),
+                                                  ),
                                           ),
                                           Positioned.fill(
                                             top: 22,
@@ -2600,14 +2712,14 @@ class _CameraPageState extends State<CameraPage>
       });
 
       MediaPage imagePage;
-      await imageAlbums[0].listMedia(newest: true, take: 1).then((value) {
+      await imageAlbums[0].listMedia(newest: true).then((value) {
         imagePage = value;
         setState(() {
           allMedia.addAll(imagePage.items);
         });
       });
       MediaPage videoPage;
-      await videoAlbums[0].listMedia(newest: true, take: 1).then((value) {
+      await videoAlbums[0].listMedia(newest: true).then((value) {
         setState(() {
           videoPage = value;
           allMedia.addAll(videoPage.items);
@@ -2615,18 +2727,19 @@ class _CameraPageState extends State<CameraPage>
       });
 
       for (var item in allMedia) {
-        await PhotoGallery.getFile(mediumId: item.id).then((value) {
-          TakenCameraMedia media = TakenCameraMedia(
-              value.path,
-              false,
-              item.modifiedDate!,
-              item.mediumType == MediumType.video
-                  ? FileType.video
-                  : FileType.photo);
-          setState(() {
-            mediaPathList.add(media);
-          });
+        // await PhotoGallery.getFile(mediumId: item.id).then((value) {
+        TakenCameraMedia media = TakenCameraMedia(
+            "",
+            false,
+            item.modifiedDate!,
+            item.mediumType == MediumType.video
+                ? FileType.video
+                : FileType.photo,
+            item);
+        setState(() {
+          mediaPathList.add(media);
         });
+        // });
         // await item.getFile().then((value) {
 
         // });
@@ -2640,9 +2753,7 @@ class _CameraPageState extends State<CameraPage>
   Future<void> getMediaFromGallery() async {
     // for (Album album in imageAlbums) {
     MediaPage imagePage;
-    await imageAlbums[_albumIndexImage]
-        .listMedia(newest: true, take: 1)
-        .then((value) {
+    await imageAlbums[_albumIndexImage].listMedia(newest: true).then((value) {
       imagePage = value;
       setState(() {
         allMedia.addAll(imagePage.items);
@@ -2650,9 +2761,7 @@ class _CameraPageState extends State<CameraPage>
     });
 
     MediaPage videoPage;
-    await videoAlbums[_albumIndexVideo]
-        .listMedia(newest: true, take: 1)
-        .then((value) {
+    await videoAlbums[_albumIndexVideo].listMedia(newest: true).then((value) {
       videoPage = value;
       setState(() {
         allMedia.addAll(videoPage.items);
@@ -2662,20 +2771,21 @@ class _CameraPageState extends State<CameraPage>
     print("All Media Count: " + allMedia.length.toString());
 
     for (var item in allMedia) {
-      await PhotoGallery.getFile(mediumId: item.id).then((value) {
-        TakenCameraMedia media = TakenCameraMedia(
-            value.path,
-            false,
-            item.modifiedDate!,
-            item.mediumType == MediumType.video
-                ? FileType.video
-                : FileType.photo);
-        setState(() {
-          _stateSetter!(() {
-            mediaPathList.add(media);
-          });
+      // final List<int> data = await item.getThumbnail();
+
+      // await PhotoGallery.getFile(mediumId: item.id).then((value) {
+      TakenCameraMedia media = TakenCameraMedia(
+          "",
+          false,
+          item.modifiedDate!,
+          item.mediumType == MediumType.video ? FileType.video : FileType.photo,
+          item);
+      setState(() {
+        _stateSetter!(() {
+          mediaPathList.add(media);
         });
       });
+      // });
       // await item.getFile().then((value) {});
     }
     // setState(() {
