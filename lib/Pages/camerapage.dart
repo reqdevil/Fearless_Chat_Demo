@@ -54,9 +54,9 @@ late CameraType cameraType;
 TapDownDetails? exposedAreaDetails;
 bool _isFingerTapped = false;
 bool _isLoadingGalleryMedia = false;
-int _albumIndexImage = 0;
-int _albumIndexVideo = 0;
-int _pageIndex = 4;
+int _albumIndexImage = 1;
+int _albumIndexVideo = 1;
+int _pageIndex = 2;
 ScrollController scrollController = ScrollController();
 
 class _CameraPageState extends State<CameraPage>
@@ -110,26 +110,13 @@ class _CameraPageState extends State<CameraPage>
   @override
   void initState() {
     _isSelectedImage = false;
-    scrollController.addListener(() {
-      if (scrollController.offset >=
-              scrollController.position.maxScrollExtent &&
-          !scrollController.position.outOfRange) {
-        setState(() {
-          if (_imageAlbumCount > _albumIndexImage) _albumIndexImage++;
-          if (_videoAlbumCount > _albumIndexVideo) _albumIndexVideo++;
-          getMediaFromGallery(_albumIndexImage, _albumIndexVideo, _pageIndex);
-        });
-      }
-      if (scrollController.offset <=
-              scrollController.position.minScrollExtent &&
-          !scrollController.position.outOfRange) {
-        setState(() {});
-      }
-    });
+    scrollController.addListener(_loadMore);
+
     // requestPermission();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       // await Future<void>.microtask(getMediaFromGallery());
-      getAlbums();
+
+      await Future<void>.microtask(getAlbums);
     });
     _animationElementsController = AnimationController(
       vsync: this,
@@ -173,10 +160,11 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void dispose() {
+    scrollController.removeListener(_loadMore);
     setState(() {
       _albumIndexImage = 0;
       _albumIndexVideo = 0;
-      _pageIndex = 4;
+      _pageIndex = 2;
     });
 
     _animationElementsController.dispose();
@@ -194,7 +182,7 @@ class _CameraPageState extends State<CameraPage>
     onCameraSelected(cameras[0]);
   }
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  // final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     if (cameras.isEmpty) {
@@ -216,7 +204,7 @@ class _CameraPageState extends State<CameraPage>
     // }
 
     return Scaffold(
-        key: _scaffoldKey,
+        // key: _scaffoldKey,
         body: _isCameraInitialized
             ? NativeDeviceOrientationReader(
                 useSensor: true,
@@ -822,6 +810,7 @@ class _CameraPageState extends State<CameraPage>
                                         children: [
                                           Expanded(
                                             child: ListView.builder(
+                                              shrinkWrap: true,
                                               physics:
                                                   const BouncingScrollPhysics(),
                                               itemCount: mediaPathList.length,
@@ -2596,12 +2585,12 @@ class _CameraPageState extends State<CameraPage>
         _videoAlbumCount = videoAlbums.length;
       });
       MediaPage imagePage =
-          await imageAlbums[0].listMedia(newest: true, take: 5);
+          await imageAlbums[0].listMedia(newest: true, take: _pageIndex);
       setState(() {
         allMedia.addAll(imagePage.items);
       });
       MediaPage videoPage =
-          await videoAlbums[0].listMedia(newest: true, take: 5);
+          await videoAlbums[0].listMedia(newest: true, take: _pageIndex);
       setState(() {
         allMedia.addAll(videoPage.items);
       });
@@ -2619,23 +2608,22 @@ class _CameraPageState extends State<CameraPage>
           });
         });
       }
-      setState(() {
-        mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-      });
+      // setState(() {
+      //   mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      // });
     }
   }
 
-  Future<void> getMediaFromGallery(
-      int albumImageIndex, int albumVideoIndex, int pageIndex) async {
+  Future<void> getMediaFromGallery() async {
     // for (Album album in imageAlbums) {
-    MediaPage imagePage = await imageAlbums[albumImageIndex]
-        .listMedia(newest: true, take: pageIndex);
+    MediaPage imagePage = await imageAlbums[_albumIndexImage]
+        .listMedia(newest: true, take: _pageIndex);
     setState(() {
       allMedia.addAll(imagePage.items);
     });
 
-    MediaPage videoPage = await videoAlbums[albumVideoIndex]
-        .listMedia(newest: true, take: pageIndex);
+    MediaPage videoPage = await videoAlbums[_albumIndexVideo]
+        .listMedia(newest: true, take: _pageIndex);
     setState(() {
       allMedia.addAll(videoPage.items);
     });
@@ -2656,9 +2644,9 @@ class _CameraPageState extends State<CameraPage>
         });
       });
     }
-    setState(() {
-      mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-    });
+    // setState(() {
+    //   mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    // });
     // print("Album Index:" + _albumIndexImage.toString());
     // print("page Index:" + _pageIndex.toString());
     // setState(() {
@@ -2788,5 +2776,22 @@ class _CameraPageState extends State<CameraPage>
         ),
       ),
     );
+  }
+
+  void _loadMore() async {
+    if (scrollController.offset >= scrollController.position.maxScrollExtent &&
+        !scrollController.position.outOfRange) {
+      setState(() {
+        if (_imageAlbumCount > _albumIndexImage) _albumIndexImage++;
+        if (_videoAlbumCount > _albumIndexVideo) _albumIndexVideo++;
+
+        // getMediaFromGallery(_albumIndexImage, _albumIndexVideo, _pageIndex);
+      });
+      await Future<void>.microtask(getMediaFromGallery);
+    }
+    if (scrollController.offset <= scrollController.position.minScrollExtent &&
+        !scrollController.position.outOfRange) {
+      setState(() {});
+    }
   }
 }
