@@ -620,11 +620,6 @@ class _MainPageState extends State<MainPage> {
               backgroundColor: Global.mainColor,
               child: const Icon(Icons.camera),
               onPressed: () async {
-                // await navigatePageBottom(
-                //     context: context,
-                //     page: const CameraPage(),
-                //     rootNavigator: true);
-
                 showGeneralDialog(
                     context: context,
                     useRootNavigator: true,
