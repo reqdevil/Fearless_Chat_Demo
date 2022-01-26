@@ -135,7 +135,8 @@ class _CameraPageState extends State<CameraPage>
       _isVideoRecording = false;
       hideStatusbar();
       enableRotation();
-      Future<void>.microtask(getAlbums);
+      getAlbums();
+      // Future<void>.microtask(getAlbums);
       // Future.delayed(const Duration(milliseconds: 1000), () {
       //   onCameraSelected(cameras[0]);
       // });
@@ -2717,14 +2718,18 @@ class _CameraPageState extends State<CameraPage>
       });
 
       MediaPage imagePage;
-      await imageAlbums[0].listMedia(newest: true).then((value) {
+      await imageAlbums[0]
+          .listMedia(newest: true, take: _pageIndex)
+          .then((value) {
         imagePage = value;
         setState(() {
           allMedia.addAll(imagePage.items);
         });
       });
       MediaPage videoPage;
-      await videoAlbums[0].listMedia(newest: true).then((value) {
+      await videoAlbums[0]
+          .listMedia(newest: true, take: _pageIndex)
+          .then((value) {
         setState(() {
           videoPage = value;
           allMedia.addAll(videoPage.items);
@@ -2758,7 +2763,9 @@ class _CameraPageState extends State<CameraPage>
   Future<void> getMediaFromGallery() async {
     // for (Album album in imageAlbums) {
     MediaPage imagePage;
-    await imageAlbums[_albumIndexImage].listMedia(newest: true).then((value) {
+    await imageAlbums[_albumIndexImage]
+        .listMedia(newest: true, take: _pageIndex)
+        .then((value) {
       imagePage = value;
       setState(() {
         allMedia.addAll(imagePage.items);
@@ -2766,7 +2773,9 @@ class _CameraPageState extends State<CameraPage>
     });
 
     MediaPage videoPage;
-    await videoAlbums[_albumIndexVideo].listMedia(newest: true).then((value) {
+    await videoAlbums[_albumIndexVideo]
+        .listMedia(newest: true, take: _pageIndex)
+        .then((value) {
       videoPage = value;
       setState(() {
         allMedia.addAll(videoPage.items);
@@ -2936,7 +2945,7 @@ class _CameraPageState extends State<CameraPage>
 
         // getMediaFromGallery(_albumIndexImage, _albumIndexVideo, _pageIndex);
       });
-      getMediaFromGallery();
+      await getMediaFromGallery();
       // await Future<void>.microtask(getMediaFromGallery);
     }
     if (scrollController.offset <= scrollController.position.minScrollExtent &&
