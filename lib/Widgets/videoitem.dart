@@ -48,20 +48,26 @@ class _VideoItemState extends State<VideoItem> {
   @override
   Widget build(BuildContext context) {
     return _controller.value.isInitialized
-        ? Stack(alignment: Alignment.center, children: [
-            AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: VideoPlayer(_controller),
-            ),
-            Align(
+        ? Stack(
+            alignment: Alignment.center,
+            children: [
+              AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                child: VideoPlayer(_controller),
+              ),
+              Align(
                 alignment: Alignment.bottomLeft,
                 child: GestureDetector(
-                    onTap: playPause,
-                    child: Icon(
-                        _isPlaying ? Icons.pause_circle : Icons.play_circle,
-                        size: 45,
-                        color: Colors.white.withOpacity(0.6))))
-          ])
+                  onTap: playPause,
+                  child: Icon(
+                    _isPlaying ? Icons.pause_circle : Icons.play_circle,
+                    size: 45,
+                    color: Colors.white.withOpacity(0.6),
+                  ),
+                ),
+              ),
+            ],
+          )
         : Container();
   }
 

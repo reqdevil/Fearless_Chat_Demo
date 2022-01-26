@@ -57,7 +57,7 @@ bool _isFingerTapped = false;
 bool _isLoadingGalleryMedia = false;
 late int _albumIndexImage;
 late int _albumIndexVideo;
-late int _pageIndex;
+late int _takeMedia;
 ScrollController scrollController = ScrollController();
 StateSetter? _stateSetter;
 
@@ -113,7 +113,7 @@ class _CameraPageState extends State<CameraPage>
   void initState() {
     _albumIndexImage = 1;
     _albumIndexVideo = 1;
-    _pageIndex = 2;
+    _takeMedia = 5;
     _isSelectedImage = false;
     scrollController.addListener(_loadMore);
 
@@ -1525,9 +1525,7 @@ class _CameraPageState extends State<CameraPage>
     controller!.addListener(() {
       if (mounted) {
         setState(() {
-          setState(() {
-            _isCameraInitialized = controller!.value.isInitialized;
-          });
+          _isCameraInitialized = controller!.value.isInitialized;
         });
       }
       if (controller!.value.hasError) {
@@ -2278,7 +2276,7 @@ class _CameraPageState extends State<CameraPage>
                     border: Border.all(color: Colors.white, width: 2),
                     image: DecorationImage(
                       image: FileImage(File(mediaPathList.first.filePath),
-                          scale: .3),
+                          scale: 1.0),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -2308,7 +2306,7 @@ class _CameraPageState extends State<CameraPage>
                       fit: BoxFit.cover,
                       height: 60,
                       width: 60,
-                      placeholder: MemoryImage(kTransparentImage, scale: .3),
+                      placeholder: MemoryImage(kTransparentImage, scale: 1.0),
                       image: ThumbnailProvider(
                         mediumId: mediaPathList.first.medium!.id,
                         mediumType: mediaPathList.first.medium!.mediumType,
@@ -2600,10 +2598,25 @@ class _CameraPageState extends State<CameraPage>
                                                         : mediaPathList[index]
                                                                     .fileType ==
                                                                 FileType.video
-                                                            ? VideoItem(
-                                                                url: mediaPathList[
-                                                                        index]
-                                                                    .filePath)
+                                                            ? FutureBuilder(
+                                                                future: getVideoFilePath(
+                                                                    mediaPathList[
+                                                                            index]
+                                                                        .medium!),
+                                                                builder: (context,
+                                                                    AsyncSnapshot<
+                                                                            String>
+                                                                        snapshot) {
+                                                                  if (snapshot
+                                                                      .hasData) {
+                                                                    return VideoItem(
+                                                                        url: snapshot
+                                                                            .data!);
+                                                                  } else {
+                                                                    return SizedBox();
+                                                                  }
+                                                                },
+                                                              )
                                                             : Container(),
                                                   ),
                                           ),
@@ -2722,28 +2735,47 @@ class _CameraPageState extends State<CameraPage>
           _videoAlbumCount = videoAlbums.length;
         });
       });
+      List<Medium> dataImage = [];
+      for (var item in imageAlbums) {
+        // dataImage.addAll(await item.getThumbnail());
+        MediaPage mediaPage = await item.listMedia(newest: true);
+        dataImage.addAll(mediaPage.items);
+      }
+      List<Medium> dataVideo = [];
+      for (var item in videoAlbums) {
+        // dataVideo.addAll(await item.getThumbnail());
+        MediaPage mediaPage = await item.listMedia(newest: true);
+        dataVideo.addAll(mediaPage.items);
+      }
+      allMedia = [
+        ...dataImage,
+        ...dataVideo,
+      ];
+      // MediaPage imagePage;
+      // await imageAlbums[0]
+      //     .listMedia(
+      //   newest: true,
+      // )
+      //     .then((value) {
+      //   imagePage = value;
+      //   setState(() {
+      //     allMedia.addAll(imagePage.items);
+      //   });
+      // });
+      // MediaPage videoPage;
 
-      MediaPage imagePage;
-      await imageAlbums[0]
-          .listMedia(newest: true, take: _pageIndex)
-          .then((value) {
-        imagePage = value;
-        setState(() {
-          allMedia.addAll(imagePage.items);
-        });
-      });
-      MediaPage videoPage;
-      await videoAlbums[0]
-          .listMedia(newest: true, take: _pageIndex)
-          .then((value) {
-        setState(() {
-          videoPage = value;
-          allMedia.addAll(videoPage.items);
-        });
-      });
+      // await videoAlbums[0]
+      //     .listMedia(
+      //   newest: true,
+      // )
+      //     .then((value) {
+      //   setState(() {
+      //     videoPage = value;
+      //     allMedia.addAll(videoPage.items);
+      //   });
+      // });
 
       for (var item in allMedia) {
-        // await PhotoGallery.getFile(mediumId: item.id).then((value) {
         TakenCameraMedia media = TakenCameraMedia(
             "",
             false,
@@ -2754,15 +2786,9 @@ class _CameraPageState extends State<CameraPage>
             item);
         setState(() {
           mediaPathList.add(media);
+          mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
         });
-        // });
-        // await item.getFile().then((value) {
-
-        // });
       }
-      // setState(() {
-      //   mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-      // });
     }
   }
 
@@ -2770,7 +2796,7 @@ class _CameraPageState extends State<CameraPage>
     // for (Album album in imageAlbums) {
     MediaPage imagePage;
     await imageAlbums[_albumIndexImage]
-        .listMedia(newest: true, take: _pageIndex)
+        .listMedia(newest: true, take: _takeMedia)
         .then((value) {
       imagePage = value;
       setState(() {
@@ -2780,7 +2806,7 @@ class _CameraPageState extends State<CameraPage>
 
     MediaPage videoPage;
     await videoAlbums[_albumIndexVideo]
-        .listMedia(newest: true, take: _pageIndex)
+        .listMedia(newest: true, take: _takeMedia)
         .then((value) {
       videoPage = value;
       setState(() {
@@ -2951,7 +2977,7 @@ class _CameraPageState extends State<CameraPage>
 
         // getMediaFromGallery(_albumIndexImage, _albumIndexVideo, _pageIndex);
       });
-      await getMediaFromGallery();
+      // await getMediaFromGallery();
       // await Future<void>.microtask(getMediaFromGallery);
     }
     if (scrollController.offset <= scrollController.position.minScrollExtent &&
@@ -2959,4 +2985,26 @@ class _CameraPageState extends State<CameraPage>
       setState(() {});
     }
   }
+
+  Future<String> getVideoFilePath(Medium medium) async {
+    File file = await medium.getFile();
+    return file.path;
+  }
+
+  // VideoItem getVideo(BuildContext context, Medium medium) {
+  //   File file = new File("path");
+  //   Future.delayed(Duration.zero, () async {
+  //     file = await medium.getFile();
+  //   });
+  //   // medium.getFile().then((value) {
+  //   //   file = value;
+  //   // });
+  //   Future.delayed(new Duration(seconds: 1));
+
+  //   // Future.microtask(() async {
+  //   //   file = await medium.getFile();
+  //   // });
+  //   // medium.getFile().then((value) => file = value);
+  //   return VideoItem(url: file.path);
+  // }
 }
