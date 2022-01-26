@@ -19,14 +19,13 @@ import 'dart:math' as math;
 import 'package:location/location.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:map_launcher/map_launcher.dart' as M;
+import 'package:photo_gallery/photo_gallery.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ChatPage extends StatefulWidget {
   List<TakenCameraMedia>? listShareMedia;
   final String userId;
-  ChatPage(
-      {Key? key,
-      this.listShareMedia,
-      required this.userId})
+  ChatPage({Key? key, this.listShareMedia, required this.userId})
       : super(key: key);
 
   @override
@@ -82,8 +81,14 @@ class _ChatPageState extends State<ChatPage>
         if (widget.listShareMedia != null) {
           if (widget.listShareMedia!.isNotEmpty) {
             List<String> _paths = [];
-            for (var item in widget.listShareMedia!) {
+            for (var item in widget.listShareMedia!
+                .where((element) => element.filePath != "")) {
               _paths.add(item.filePath);
+            }
+            List<Medium> _mediums = [];
+            for (var item in widget.listShareMedia!
+                .where((element) => element.medium != null)) {
+              _mediums.add(item.medium!);
             }
             Global.messages.add(
               {
@@ -92,7 +97,11 @@ class _ChatPageState extends State<ChatPage>
                 'message': "",
                 'time': DateFormat('dd.MM.yyyy – kk:mm').format(DateTime.now()),
                 'hasShareMedia': false,
-                'filePaths': _paths,
+                'filePaths': _paths.isNotEmpty
+                    ? _paths
+                    : _mediums.isNotEmpty
+                        ? _mediums
+                        : [],
                 'location': []
               },
             );
@@ -668,8 +677,12 @@ class _ChatPageState extends State<ChatPage>
           );
         }).then((value) {
       setState(() {
-        List<String> lst =
-            (value as List<TakenCameraMedia>).map((e) => e.filePath).toList();
+        List<Medium?> lstMedium =
+            (value as List<TakenCameraMedia>).map((e) => e.medium).toList();
+        List<String> lst = (value)
+            .map((e) => e.filePath)
+            .where((element) => element != "")
+            .toList();
         Global.messages.add(
           {
             'usrId': widget.userId,
@@ -677,7 +690,7 @@ class _ChatPageState extends State<ChatPage>
             'message': _textEditingController!.text,
             'time': DateFormat('dd.MM.yyyy – kk:mm').format(DateTime.now()),
             'hasShareMedia': true,
-            'filePaths': lst,
+            'filePaths': lst.isNotEmpty ? lst : lstMedium,
             'location': []
           },
         );
@@ -695,7 +708,8 @@ class _ChatPageState extends State<ChatPage>
     if (index > _messages.length) {
       return widget;
     }
-    var t = List<String>.from(_messages[index].filePaths);
+    var t = List<String>.from(
+        _messages[index].filePaths.where((element) => element is String));
     if (t.isNotEmpty) {
       (t.forEach((item) {
         if (item.contains('.m4a')) {
@@ -840,17 +854,30 @@ class _ChatPageState extends State<ChatPage>
 
   Widget getGridMedia(int index, BuildContext context) {
     List<String> mediaPathList = [];
+    List<Medium> mediaMediumList = [];
     Widget widget = const SizedBox();
     if (index > _messages.length) {
       return widget;
     }
-    var t = List<String>.from(_messages[index].filePaths);
+    var t = List<String>.from(
+        _messages[index].filePaths.where((element) => element is String));
     if (t.isNotEmpty) {
       (t.forEach((item) {
         if (item.contains('.mp4') ||
             item.contains('.mov') ||
             item.contains('.jpg')) {
           mediaPathList.add(item);
+        }
+      }));
+    }
+    var m = List<Medium>.from(
+        _messages[index].filePaths.where((element) => element is Medium));
+    if (m.isNotEmpty) {
+      (m.forEach((item) {
+        if (item.filename!.contains('.mp4') ||
+            item.filename!.contains('.mov') ||
+            item.filename!.contains('.jpg')) {
+          mediaMediumList.add(item);
         }
       }));
     }
@@ -887,6 +914,63 @@ class _ChatPageState extends State<ChatPage>
                       mediaPathList[i].contains('.mp4')
                   ? VideoItem(url: mediaPathList[i])
                   : const SizedBox());
+        },
+      );
+    } else if (mediaMediumList.isNotEmpty) {
+      widget = GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
+        itemCount: mediaMediumList.length,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount:
+              MediaQuery.of(context).orientation == Orientation.landscape
+                  ? 3
+                  : 2,
+          crossAxisSpacing: 0,
+          mainAxisSpacing: 0,
+          childAspectRatio: (1 / 1),
+        ),
+        itemBuilder: (context, i) {
+          List<String> _videoPaths = [];
+          if (mediaMediumList[i].filename!.contains('.mov') ||
+              mediaMediumList[i].filename!.contains('.mp4')) {
+            for (var item in mediaMediumList) {
+              PhotoGallery.getFile(mediumId: item.id).then((value) {
+                _videoPaths.add(value.path);
+              });
+            }
+            return Container(
+              alignment: Alignment.center,
+              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(color: Colors.white, width: 1),
+              ),
+              child: _videoPaths[i].contains('.mov') ||
+                      _videoPaths[i].contains('.mp4')
+                  ? VideoItem(url: _videoPaths[i])
+                  : const SizedBox(),
+            );
+          } else {
+            return Container(
+              alignment: Alignment.center,
+              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(color: Colors.white, width: 1),
+              ),
+              child: FadeInImage(
+                fit: BoxFit.cover,
+                placeholder: MemoryImage(kTransparentImage),
+                image: PhotoProvider(
+                  mediumId: mediaMediumList[i].id,
+                ),
+              ),
+            );
+          }
         },
       );
     }
