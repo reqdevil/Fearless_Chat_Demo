@@ -406,7 +406,8 @@ class _ChatPageState extends State<ChatPage>
                                                       .textTheme
                                                       .bodyText1!
                                                       .apply(
-                                                          color: Colors.white),
+                                                        color: Colors.white,
+                                                      ),
                                                   textAlign: TextAlign.right,
                                                 ),
                                               ),
@@ -438,12 +439,12 @@ class _ChatPageState extends State<ChatPage>
                           color: Theme.of(context).colorScheme.surface,
                           borderRadius:
                               BorderRadius.circular(Global.borderRadius),
-                          boxShadow: const [
-                            BoxShadow(
-                                offset: Offset(0, 3),
-                                blurRadius: 5,
-                                color: Colors.grey)
-                          ],
+                          // boxShadow: [
+                          //   BoxShadow(
+                          //       offset: Offset(0, 3),
+                          //       blurRadius: 5,
+                          //       color: Theme.of(context).colorScheme.primary)
+                          // ],
                         ),
                         child: Row(
                           children: [
