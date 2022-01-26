@@ -2287,6 +2287,7 @@ class _CameraPageState extends State<CameraPage>
                       : Container())
               : Container(
                   margin: const EdgeInsets.only(left: 10),
+                  alignment: Alignment.center,
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
@@ -2294,17 +2295,20 @@ class _CameraPageState extends State<CameraPage>
                     borderRadius: BorderRadius.circular(10.0),
                     border: Border.all(color: Colors.white, width: 2),
                   ),
-                  child: FadeInImage(
-                    fit: BoxFit.cover,
-                    height: 60,
-                    width: 60,
-                    placeholder: MemoryImage(kTransparentImage, scale: .3),
-                    image: ThumbnailProvider(
-                      mediumId: mediaPathList.first.medium!.id,
-                      mediumType: mediaPathList.first.medium!.mediumType,
-                      height: 50,
-                      width: 50,
-                      highQuality: false,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(7.0),
+                    child: FadeInImage(
+                      fit: BoxFit.cover,
+                      height: 60,
+                      width: 60,
+                      placeholder: MemoryImage(kTransparentImage, scale: .3),
+                      image: ThumbnailProvider(
+                        mediumId: mediaPathList.first.medium!.id,
+                        mediumType: mediaPathList.first.medium!.mediumType,
+                        height: 50,
+                        width: 50,
+                        highQuality: false,
+                      ),
                     ),
                   ),
                 ),
@@ -2330,7 +2334,7 @@ class _CameraPageState extends State<CameraPage>
                         _stateSetter = setState;
                       });
                       return Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -2446,8 +2450,9 @@ class _CameraPageState extends State<CameraPage>
                             ),
                           ),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height / 2.5,
+                            height: MediaQuery.of(context).size.height / 3.5,
                             child: ListView.builder(
+                              padding: EdgeInsets.all(0),
                               controller: scrollController,
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
@@ -2456,7 +2461,7 @@ class _CameraPageState extends State<CameraPage>
                               itemBuilder: (context, index) {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 20),
+                                      horizontal: 5, vertical: 10),
                                   child: AnimatedBuilder(
                                     animation: _animation,
                                     child: GestureDetector(
@@ -2493,12 +2498,12 @@ class _CameraPageState extends State<CameraPage>
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width /
-                                                            2,
+                                                            3,
                                                     height:
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width /
-                                                            2,
+                                                            3,
                                                     decoration: BoxDecoration(
                                                       color: Colors.black,
                                                       borderRadius:
@@ -2536,17 +2541,17 @@ class _CameraPageState extends State<CameraPage>
                                                     margin: const EdgeInsets
                                                             .symmetric(
                                                         horizontal: 10,
-                                                        vertical: 20),
+                                                        vertical: 10),
                                                     width:
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width /
-                                                            2,
+                                                            3,
                                                     height:
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width /
-                                                            2,
+                                                            3,
                                                     decoration: BoxDecoration(
                                                       color: Colors.black,
                                                       borderRadius:
