@@ -55,9 +55,9 @@ late CameraType cameraType;
 TapDownDetails? exposedAreaDetails;
 bool _isFingerTapped = false;
 bool _isLoadingGalleryMedia = false;
-int _albumIndexImage = 1;
-int _albumIndexVideo = 1;
-int _pageIndex = 2;
+late int _albumIndexImage;
+late int _albumIndexVideo;
+late int _pageIndex;
 ScrollController scrollController = ScrollController();
 StateSetter? _stateSetter;
 
@@ -111,6 +111,9 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void initState() {
+    _albumIndexImage = 1;
+    _albumIndexVideo = 1;
+    _pageIndex = 2;
     _isSelectedImage = false;
     scrollController.addListener(_loadMore);
 
@@ -166,11 +169,6 @@ class _CameraPageState extends State<CameraPage>
     backToOriginalRotation();
     showStatusbar();
     scrollController.removeListener(_loadMore);
-    setState(() {
-      _albumIndexImage = 0;
-      _albumIndexVideo = 0;
-      _pageIndex = 2;
-    });
 
     _animationElementsController.dispose();
     controller!.dispose();
@@ -1514,7 +1512,14 @@ class _CameraPageState extends State<CameraPage>
     //   await controller!.dispose();
     // }
     setState(() {
-      controller = CameraController(cameraDescription, currentResolutionPreset);
+      controller = CameraController(
+        cameraDescription,
+        currentResolutionPreset,
+        enableAudio: enableAudio,
+        imageFormatGroup: Platform.isIOS
+            ? ImageFormatGroup.bgra8888
+            : ImageFormatGroup.yuv420,
+      );
     });
 
     controller!.addListener(() {
@@ -2130,7 +2135,8 @@ class _CameraPageState extends State<CameraPage>
       cameraDescription,
       kIsWeb ? ResolutionPreset.max : currentResolutionPreset,
       enableAudio: enableAudio,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      // imageFormatGroup:
+      //     Platform.isIOS ? ImageFormatGroup.bgra8888 : ImageFormatGroup.yuv420,
     );
 
     controller = cameraController;
