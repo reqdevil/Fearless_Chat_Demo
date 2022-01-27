@@ -936,23 +936,28 @@ class _ChatPageState extends State<ChatPage>
           List<String> _videoPaths = [];
           if (mediaMediumList[i].filename!.contains('.mov') ||
               mediaMediumList[i].filename!.contains('.mp4')) {
-            for (var item in mediaMediumList) {
-              PhotoGallery.getFile(mediumId: item.id).then((value) {
-                _videoPaths.add(value.path);
-              });
-            }
-            return Container(
-              alignment: Alignment.center,
-              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(5.0),
-                border: Border.all(color: Colors.white, width: 1),
-              ),
-              child: _videoPaths[i].contains('.mov') ||
-                      _videoPaths[i].contains('.mp4')
-                  ? VideoItem(url: _videoPaths[i])
-                  : const SizedBox(),
+            return FutureBuilder(
+              future: getVideoFile(mediaMediumList[i]),
+              builder: (context, AsyncSnapshot<File> snapshot) {
+                if (snapshot.hasData) {
+                  return Container(
+                    alignment: Alignment.center,
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(5.0),
+                      border: Border.all(color: Colors.white, width: 1),
+                    ),
+                    child: snapshot.data!.path.contains('.mov') ||
+                            snapshot.data!.path.contains('.mp4')
+                        ? VideoItem(url: snapshot.data!.path)
+                        : const SizedBox(),
+                  );
+                } else {
+                  return SizedBox();
+                }
+              },
             );
           } else {
             return Container(
@@ -976,6 +981,11 @@ class _ChatPageState extends State<ChatPage>
       );
     }
     return widget;
+  }
+
+  Future<File> getVideoFile(Medium medium) async {
+    File file = await medium.getFile();
+    return file;
   }
 
   Future showOptions() async {
