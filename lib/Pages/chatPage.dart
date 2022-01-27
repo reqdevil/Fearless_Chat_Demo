@@ -439,12 +439,12 @@ class _ChatPageState extends State<ChatPage>
                           color: Theme.of(context).colorScheme.surface,
                           borderRadius:
                               BorderRadius.circular(Global.borderRadius),
-                          // boxShadow: [
-                          //   BoxShadow(
-                          //       offset: Offset(0, 3),
-                          //       blurRadius: 5,
-                          //       color: Theme.of(context).colorScheme.primary)
-                          // ],
+                          boxShadow: [
+                            BoxShadow(
+                                offset: Offset(0, 3),
+                                blurRadius: 5,
+                                color: Colors.grey)
+                          ],
                         ),
                         child: Row(
                           children: [
@@ -864,9 +864,10 @@ class _ChatPageState extends State<ChatPage>
         _messages[index].filePaths.where((element) => element is String));
     if (t.isNotEmpty) {
       (t.forEach((item) {
-        if (item.contains('.mp4') ||
-            item.contains('.mov') ||
-            item.contains('.jpg')) {
+        if (item.toLowerCase().contains('.mp4') ||
+            item.toLowerCase().contains('.mov') ||
+            item.toLowerCase().contains('.jpg') ||
+            item.toLowerCase().contains('.png')) {
           mediaPathList.add(item);
         }
       }));
@@ -875,9 +876,10 @@ class _ChatPageState extends State<ChatPage>
         _messages[index].filePaths.where((element) => element is Medium));
     if (m.isNotEmpty) {
       (m.forEach((item) {
-        if (item.filename!.contains('.mp4') ||
-            item.filename!.contains('.mov') ||
-            item.filename!.contains('.jpg')) {
+        if (item.filename!.toLowerCase().contains('.mp4') ||
+            item.filename!.toLowerCase().contains('.mov') ||
+            item.filename!.toLowerCase().contains('.jpg') ||
+            item.filename!.toLowerCase().contains('.png')) {
           mediaMediumList.add(item);
         }
       }));
@@ -934,8 +936,8 @@ class _ChatPageState extends State<ChatPage>
         ),
         itemBuilder: (context, i) {
           List<String> _videoPaths = [];
-          if (mediaMediumList[i].filename!.contains('.mov') ||
-              mediaMediumList[i].filename!.contains('.mp4')) {
+          if (mediaMediumList[i].filename!.toLowerCase().contains('.mov') ||
+              mediaMediumList[i].filename!.toLowerCase().contains('.mp4')) {
             return FutureBuilder(
               future: getVideoFile(mediaMediumList[i]),
               builder: (context, AsyncSnapshot<File> snapshot) {
@@ -949,8 +951,8 @@ class _ChatPageState extends State<ChatPage>
                       borderRadius: BorderRadius.circular(5.0),
                       border: Border.all(color: Colors.white, width: 1),
                     ),
-                    child: snapshot.data!.path.contains('.mov') ||
-                            snapshot.data!.path.contains('.mp4')
+                    child: snapshot.data!.path.toLowerCase().contains('.mov') ||
+                            snapshot.data!.path.toLowerCase().contains('.mp4')
                         ? VideoItem(url: snapshot.data!.path)
                         : const SizedBox(),
                   );
