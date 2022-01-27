@@ -43,8 +43,9 @@ class _FearlessChatAppState extends State<FearlessChatApp> {
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
-      List<TakenCameraMedia> t = await getAlbumss();
-      Global.allMediaList = t;
+      await Future.wait(
+          [getAlbumss().then((value) => Global.allMediaList = value)]);
+      // Global.allMediaList = t;
     });
     super.initState();
   }
@@ -111,6 +112,7 @@ class _FearlessChatAppState extends State<FearlessChatApp> {
 
   Future<List<TakenCameraMedia>> getAlbumss() async {
     List<TakenCameraMedia> mediaPathList = [];
+
     if (await _promptPermissionSetting()) {
       List<Medium> allMedia = [];
       List<Album> imageAlbums = [];
@@ -121,7 +123,7 @@ class _FearlessChatAppState extends State<FearlessChatApp> {
       });
 
       await PhotoGallery.listAlbums(
-              mediumType: MediumType.video, hideIfEmpty: false)
+              mediumType: MediumType.video, hideIfEmpty: true)
           .then((value) {
         videoAlbums = value;
         // _videoAlbumCount = videoAlbums.length;
@@ -129,13 +131,13 @@ class _FearlessChatAppState extends State<FearlessChatApp> {
       List<Medium> dataImage = [];
       for (var item in imageAlbums) {
         // dataImage.addAll(await item.getThumbnail());
-        MediaPage mediaPage = await item.listMedia(newest: true);
+        MediaPage mediaPage = await item.listMedia(newest: true, take: 10);
         dataImage.addAll(mediaPage.items);
       }
       List<Medium> dataVideo = [];
       for (var item in videoAlbums) {
         // dataVideo.addAll(await item.getThumbnail());
-        MediaPage mediaPage = await item.listMedia(newest: true);
+        MediaPage mediaPage = await item.listMedia(newest: true, take: 10);
         dataVideo.addAll(mediaPage.items);
       }
       allMedia = [
@@ -170,7 +172,7 @@ class _FearlessChatAppState extends State<FearlessChatApp> {
         TakenCameraMedia media = TakenCameraMedia(
             "",
             false,
-            item.modifiedDate!,
+            item.creationDate!,
             item.mediumType == MediumType.video
                 ? FileType.video
                 : FileType.photo,
