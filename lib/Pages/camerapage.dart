@@ -106,6 +106,7 @@ class _CameraPageState extends State<CameraPage>
       cameraController.dispose();
     } else if (state == AppLifecycleState.resumed) {
       // Reinitialize the camera with same properties
+
       onNewCameraSelected(cameraController.description);
     }
   }
@@ -2317,7 +2318,7 @@ class _CameraPageState extends State<CameraPage>
                         mediumType: mediaPathList.first.medium!.mediumType,
                         height: 50,
                         width: 50,
-                        highQuality: false,
+                        highQuality: true,
                       ),
                     ),
                   ),
@@ -2533,7 +2534,7 @@ class _CameraPageState extends State<CameraPage>
                                                             File(mediaPathList[
                                                                     index]
                                                                 .filePath),
-                                                            scale: .3),
+                                                            scale: 1.0),
                                                         fit: BoxFit.cover,
                                                       ),
                                                     ),
