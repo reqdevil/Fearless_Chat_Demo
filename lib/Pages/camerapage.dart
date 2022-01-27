@@ -1596,9 +1596,9 @@ class _CameraPageState extends State<CameraPage>
         cameraDescription,
         currentResolutionPreset,
         enableAudio: enableAudio,
-        imageFormatGroup: Platform.isIOS
-            ? ImageFormatGroup.bgra8888
-            : ImageFormatGroup.yuv420,
+        // imageFormatGroup: Platform.isIOS
+        //     ? ImageFormatGroup.bgra8888
+        //     : ImageFormatGroup.yuv420,
       );
     });
 
@@ -2862,47 +2862,45 @@ class _CameraPageState extends State<CameraPage>
 
   Widget generateBlured(bool isSwitchedCamera) {
     return Positioned.fill(
-      child: AnimatedOpacity(
-        duration: Duration(milliseconds: 250),
-        opacity: isSwitchedCamera ? 1.0 : 0.0,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(color: Colors.black.withOpacity(0.0)),
-            child: AnimatedBuilder(
-              animation: _animation,
-              child: Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width / 3,
-                  height: MediaQuery.of(context).size.height / 5,
-                  margin: const EdgeInsets.symmetric(
-                      horizontal: 40.0, vertical: 150.0),
-                  padding: const EdgeInsets.all(15.0),
-                  decoration: new BoxDecoration(
-                    borderRadius: new BorderRadius.circular(10.0),
-                    shape: BoxShape.rectangle,
-                    color: Colors.black.withOpacity(0.5),
-                    boxShadow: <BoxShadow>[
-                      new BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 5.0,
-                        offset: new Offset(5.0, 5.0),
-                      ),
-                    ],
-                  ),
-                  child: Icon(Icons.swap_horizontal_circle_sharp,
-                      size: 50, color: Colors.white.withOpacity(0.7)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+            sigmaX: isSwitchedCamera ? 10.0 : 0.0,
+            sigmaY: isSwitchedCamera ? 10.0 : 0.0),
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          decoration: BoxDecoration(color: Colors.black.withOpacity(0.0)),
+          child: AnimatedBuilder(
+            animation: _animation,
+            child: Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width / 3,
+                height: MediaQuery.of(context).size.height / 5,
+                margin: const EdgeInsets.symmetric(
+                    horizontal: 40.0, vertical: 150.0),
+                padding: const EdgeInsets.all(15.0),
+                decoration: new BoxDecoration(
+                  borderRadius: new BorderRadius.circular(10.0),
+                  shape: BoxShape.rectangle,
+                  color: Colors.black.withOpacity(0.5),
+                  boxShadow: <BoxShadow>[
+                    new BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 5.0,
+                      offset: new Offset(5.0, 5.0),
+                    ),
+                  ],
                 ),
+                child: Icon(Icons.swap_horizontal_circle_sharp,
+                    size: 50, color: Colors.white.withOpacity(0.7)),
               ),
-              builder: (context, child) {
-                return Transform.rotate(
-                  angle: _animation.value,
-                  child: child,
-                );
-              },
             ),
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: _animation.value,
+                child: child,
+              );
+            },
           ),
         ),
       ),
