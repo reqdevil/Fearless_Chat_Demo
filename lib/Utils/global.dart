@@ -3,6 +3,7 @@ import 'package:fearless_chat_demo/Models/message.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:photo_gallery/photo_gallery.dart';
 
 class Global {
   Global._();
@@ -23,6 +24,7 @@ class Global {
   }
 
   static List<TakenCameraMedia> allMediaList = [];
+  static List<Album> allAlbums = [];
   static String selectedUserId = "";
   static const double borderRadius = 27;
   static const double defaultPadding = 8;

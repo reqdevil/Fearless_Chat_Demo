@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Utils/fixExifRotation.dart';
 import 'package:fearless_chat_demo/Utils/global.dart';
+import 'package:fearless_chat_demo/Widgets/VideoProvider.dart';
 import 'package:fearless_chat_demo/Widgets/circularprogressindicator.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:fearless_chat_demo/enums.dart';
@@ -113,9 +114,9 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void initState() {
-    setState(() {
-      mediaPathList = Global.allMediaList;
-    });
+    getImages();
+    // mediaPathList = Global.allMediaList;
+    // =Global.imageAlbums;
 
     _albumIndexImage = 1;
     _albumIndexVideo = 1;
@@ -123,12 +124,6 @@ class _CameraPageState extends State<CameraPage>
     _isSelectedImage = false;
     scrollController.addListener(_loadMore);
 
-    // requestPermission();
-    // WidgetsBinding.instance!.addPostFrameCallback((_) async {
-    //   // await Future<void>.microtask(getMediaFromGallery());
-
-    //   await Future<void>.microtask(getAlbums);
-    // });
     _animationElementsController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -144,11 +139,6 @@ class _CameraPageState extends State<CameraPage>
       _isVideoRecording = false;
       hideStatusbar();
       enableRotation();
-      // getAlbums();
-      // Future<void>.microtask(getAlbums);
-      // Future.delayed(const Duration(milliseconds: 1000), () {
-      //   onCameraSelected(cameras[0]);
-      // });
     } catch (e) {
       if (kDebugMode) {
         print(e.toString());
@@ -156,6 +146,86 @@ class _CameraPageState extends State<CameraPage>
     }
 
     super.initState();
+  }
+
+  MediaPage? imagePage;
+  MediaPage? videoPage;
+  List<Medium> images = [];
+  Future<void> getImages() async {
+    List<Album> imagesVideos = [];
+    imagesVideos =
+        Global.allAlbums.where((element) => element.isAllAlbum).toList();
+    for (var item in imagesVideos) {
+      if (item.mediumType == MediumType.image)
+        imagePage = await item.listMedia(newest: true, take: 30, skip: 0);
+      else
+        videoPage = await item.listMedia(newest: true, take: 30, skip: 0);
+    }
+    List<Medium> allMedia = [
+      ...imagePage!.items,
+      ...videoPage!.items,
+    ];
+    // var kdd = await imagesVideos
+    //     .map((e) async => await e.listMedia(newest: true, take: 30, skip: 0))
+    //     .toList();
+    // imagePage =
+    //     await Global.allAlbums[0].listMedia(newest: true, take: 30, skip: 0);
+    setState(() {
+      images.addAll(imagePage!.items);
+      images.addAll(videoPage!.items);
+      images.sort((a, b) => b.modifiedDate!.compareTo(a.modifiedDate!));
+      for (var item in images) {
+        TakenCameraMedia media = TakenCameraMedia(
+            "",
+            false,
+            item.modifiedDate!,
+            item.mediumType == MediumType.video
+                ? FileType.video
+                : FileType.photo,
+            item);
+
+        mediaPathList.add(media);
+        mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      }
+    });
+  }
+
+  Future<void> getNextPage() async {
+    if (imagePage != null && !imagePage!.isLast) {
+      final nextPageImage = await imagePage!.nextPage();
+
+      print('NEXT photo ITEMS: ${nextPageImage.items.length}');
+      // nextPageImage.items
+      //     .sort((a, b) => b.modifiedDate!.compareTo(a.modifiedDate!));
+      // nextPageVideo.items
+      //     .sort((a, b) => b.modifiedDate!.compareTo(a.modifiedDate!));
+
+      images.addAll(nextPageImage.items);
+    }
+    if (videoPage != null && !videoPage!.isLast) {
+      final nextPageVideo = await videoPage!.nextPage();
+      print('NEXT video ITEMS: ${nextPageVideo.items.length}');
+
+      images.addAll(nextPageVideo.items);
+    }
+    print('CURRENT ITEMS: ${images.length}');
+    images.sort((a, b) => b.modifiedDate!.compareTo(a.modifiedDate!));
+    print('TOTAL ITEMS: ${images.length}');
+    for (var item in images) {
+      TakenCameraMedia media = TakenCameraMedia(
+          "",
+          false,
+          item.modifiedDate!,
+          item.mediumType == MediumType.video ? FileType.video : FileType.photo,
+          item);
+      setState(() {
+        _stateSetter!(() {
+          mediaPathList.add(media);
+        });
+      });
+
+      // mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    }
   }
 
   requestPermission() async {
@@ -2604,25 +2674,31 @@ class _CameraPageState extends State<CameraPage>
                                                         : mediaPathList[index]
                                                                     .fileType ==
                                                                 FileType.video
-                                                            ? FutureBuilder(
-                                                                future: getVideoFilePath(
+                                                            ? VideoProvider(
+                                                                mediumId:
                                                                     mediaPathList[
                                                                             index]
-                                                                        .medium!),
-                                                                builder: (context,
-                                                                    AsyncSnapshot<
-                                                                            String>
-                                                                        snapshot) {
-                                                                  if (snapshot
-                                                                      .hasData) {
-                                                                    return VideoItem(
-                                                                        url: snapshot
-                                                                            .data!);
-                                                                  } else {
-                                                                    return SizedBox();
-                                                                  }
-                                                                },
-                                                              )
+                                                                        .medium!
+                                                                        .id)
+                                                            // ? FutureBuilder(
+                                                            //     future: getVideoFilePath(
+                                                            //         mediaPathList[
+                                                            //                 index]
+                                                            //             .medium!),
+                                                            //     builder: (context,
+                                                            //         AsyncSnapshot<
+                                                            //                 String>
+                                                            //             snapshot) {
+                                                            //       if (snapshot
+                                                            //           .hasData) {
+                                                            //         return VideoItem(
+                                                            //             url: snapshot
+                                                            //                 .data!);
+                                                            //       } else {
+                                                            //         return SizedBox();
+                                                            //       }
+                                                            //     },
+                                                            //   )
                                                             : Container(),
                                                   ),
                                           ),
@@ -2682,33 +2758,6 @@ class _CameraPageState extends State<CameraPage>
             });
           },
         ),
-        // mediaPathList.isNotEmpty
-        //     ? Positioned.fill(
-        //         child: Align(
-        //           alignment: Alignment.topRight,
-        //           child: Container(
-        //             margin: const EdgeInsets.only(
-        //                 left: 2, right: 2, bottom: 2, top: 2),
-        //             height: 20,
-        //             width: 20,
-        //             alignment: Alignment.center,
-        //             decoration: BoxDecoration(
-        //                 color: Colors.red,
-        //                 borderRadius:
-        //                     const BorderRadius.all(Radius.circular(10)),
-        //                 border: Border.all(color: Colors.red)),
-        //             child: Text(
-        //               mediaPathList.length.toString(),
-        //               style: const TextStyle(
-        //                 color: Colors.white,
-        //                 fontWeight: FontWeight.bold,
-        //               ),
-        //               textAlign: TextAlign.center,
-        //             ),
-        //           ),
-        //         ),
-        //       )
-        //     : Container(),
       ]),
       builder: (context, child) {
         return Transform.rotate(
@@ -2724,82 +2773,8 @@ class _CameraPageState extends State<CameraPage>
   int _videoAlbumCount = 0;
   List<Album> imageAlbums = [];
   List<Album> videoAlbums = [];
-  // Future<void> getAlbums() async {
-  //   if (await _promptPermissionSetting()) {
-  //     await PhotoGallery.listAlbums(mediumType: MediumType.image).then((value) {
-  //       setState(() {
-  //         imageAlbums = value;
-  //         _imageAlbumCount = imageAlbums.length;
-  //       });
-  //     });
-
-  //     await PhotoGallery.listAlbums(
-  //             mediumType: MediumType.video, hideIfEmpty: false)
-  //         .then((value) {
-  //       setState(() {
-  //         videoAlbums = value;
-  //         _videoAlbumCount = videoAlbums.length;
-  //       });
-  //     });
-  //     List<Medium> dataImage = [];
-  //     for (var item in imageAlbums) {
-  //       // dataImage.addAll(await item.getThumbnail());
-  //       MediaPage mediaPage = await item.listMedia(newest: true);
-  //       dataImage.addAll(mediaPage.items);
-  //     }
-  //     List<Medium> dataVideo = [];
-  //     for (var item in videoAlbums) {
-  //       // dataVideo.addAll(await item.getThumbnail());
-  //       MediaPage mediaPage = await item.listMedia(newest: true);
-  //       dataVideo.addAll(mediaPage.items);
-  //     }
-  //     allMedia = [
-  //       ...dataImage,
-  //       ...dataVideo,
-  //     ];
-  //     // MediaPage imagePage;
-  //     // await imageAlbums[0]
-  //     //     .listMedia(
-  //     //   newest: true,
-  //     // )
-  //     //     .then((value) {
-  //     //   imagePage = value;
-  //     //   setState(() {
-  //     //     allMedia.addAll(imagePage.items);
-  //     //   });
-  //     // });
-  //     // MediaPage videoPage;
-
-  //     // await videoAlbums[0]
-  //     //     .listMedia(
-  //     //   newest: true,
-  //     // )
-  //     //     .then((value) {
-  //     //   setState(() {
-  //     //     videoPage = value;
-  //     //     allMedia.addAll(videoPage.items);
-  //     //   });
-  //     // });
-
-  //     for (var item in allMedia) {
-  //       TakenCameraMedia media = TakenCameraMedia(
-  //           "",
-  //           false,
-  //           item.modifiedDate!,
-  //           item.mediumType == MediumType.video
-  //               ? FileType.video
-  //               : FileType.photo,
-  //           item);
-  //       setState(() {
-  //         mediaPathList.add(media);
-  //         mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-  //       });
-  //     }
-  //   }
-  // }
 
   Future<void> getMediaFromGallery() async {
-    // for (Album album in imageAlbums) {
     MediaPage imagePage;
     await imageAlbums[_albumIndexImage]
         .listMedia(newest: true, take: _takeMedia)
@@ -2823,9 +2798,6 @@ class _CameraPageState extends State<CameraPage>
     print("All Media Count: " + allMedia.length.toString());
 
     for (var item in allMedia) {
-      // final List<int> data = await item.getThumbnail();
-
-      // await PhotoGallery.getFile(mediumId: item.id).then((value) {
       TakenCameraMedia media = TakenCameraMedia(
           "",
           false,
@@ -2835,23 +2807,10 @@ class _CameraPageState extends State<CameraPage>
       setState(() {
         _stateSetter!(() {
           mediaPathList.add(media);
+          mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
         });
       });
-      // });
-      // await item.getFile().then((value) {});
     }
-    // setState(() {
-    //   mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-    // });
-    // print("Album Index:" + _albumIndexImage.toString());
-    // print("page Index:" + _pageIndex.toString());
-    // setState(() {
-    //   _isLoadingGalleryMedia = false;
-    // });
-
-    // setState(() {
-    //   _isLoadingGalleryMedia = false;
-    // });
   }
 
   saveFileToGalery(FileType fileType, String filePath) async {
@@ -2950,13 +2909,10 @@ class _CameraPageState extends State<CameraPage>
     if (scrollController.offset >= scrollController.position.maxScrollExtent &&
         !scrollController.position.outOfRange) {
       setState(() {
-        if (_imageAlbumCount > _albumIndexImage) _albumIndexImage++;
-        if (_videoAlbumCount > _albumIndexVideo) _albumIndexVideo++;
-
-        // getMediaFromGallery(_albumIndexImage, _albumIndexVideo, _pageIndex);
+        // if (_imageAlbumCount > _albumIndexImage) _albumIndexImage++;
+        // if (_videoAlbumCount > _albumIndexVideo) _albumIndexVideo++;
       });
-      // await getMediaFromGallery();
-      // await Future<void>.microtask(getMediaFromGallery);
+      getNextPage();
     }
     if (scrollController.offset <= scrollController.position.minScrollExtent &&
         !scrollController.position.outOfRange) {
@@ -2968,21 +2924,4 @@ class _CameraPageState extends State<CameraPage>
     File file = await medium.getFile();
     return file.path;
   }
-
-  // VideoItem getVideo(BuildContext context, Medium medium) {
-  //   File file = new File("path");
-  //   Future.delayed(Duration.zero, () async {
-  //     file = await medium.getFile();
-  //   });
-  //   // medium.getFile().then((value) {
-  //   //   file = value;
-  //   // });
-  //   Future.delayed(new Duration(seconds: 1));
-
-  //   // Future.microtask(() async {
-  //   //   file = await medium.getFile();
-  //   // });
-  //   // medium.getFile().then((value) => file = value);
-  //   return VideoItem(url: file.path);
-  // }
 }

@@ -11,6 +11,7 @@ import 'package:fearless_chat_demo/Widgets/badge.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_gallery/photo_gallery.dart';
 import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
@@ -39,6 +40,10 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     requestPermissions();
+    Future.delayed(Duration.zero, () async {
+      await Future.wait(
+          [getAlbumss().then((value) => Global.allAlbums = value)]);
+    });
     _children = [
       null,
       const PlaceholderWidget(color: Colors.green),
@@ -74,6 +79,48 @@ class _MainPageState extends State<MainPage> {
     // WidgetsBinding.instance!.addPostFrameCallback((_) async {});
 
     super.initState();
+  }
+
+  Future<bool> _promptPermissionSetting() async {
+    // if (!t) {
+    //   showDialog(
+    //       context: context,
+    //       builder: (BuildContext context) => CupertinoAlertDialog(
+    //             title: Text('Camera Permission'),
+    //             content: Text('This app needs media gallery'),
+    //             actions: <Widget>[
+    //               CupertinoDialogAction(
+    //                 child: Text('Deny'),
+    //                 onPressed: () => Navigator.of(context).pop(),
+    //               ),
+    //               CupertinoDialogAction(
+    //                 child: Text('Settings'),
+    //                 onPressed: () => openAppSettings(),
+    //               ),
+    //             ],
+    //           ));
+    // }
+    if (Platform.isIOS &&
+            await Permission.storage.request().isGranted &&
+            await Permission.photos.request().isGranted ||
+        Platform.isAndroid && await Permission.storage.request().isGranted) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<List<Album>> getAlbumss() async {
+    List<TakenCameraMedia> mediaPathList = [];
+    List<Album> allAlbums = [];
+    if (await _promptPermissionSetting()) {
+      List<Album> imageAlbums = await PhotoGallery.listAlbums(
+          mediumType: MediumType.image, hideIfEmpty: true);
+      List<Album> videoAlbums = await PhotoGallery.listAlbums(
+          mediumType: MediumType.video, hideIfEmpty: true);
+
+      allAlbums = [...imageAlbums, ...videoAlbums];
+    }
+    return allAlbums;
   }
 
   @override
