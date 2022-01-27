@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Utils/fixExifRotation.dart';
+import 'package:fearless_chat_demo/Utils/global.dart';
 import 'package:fearless_chat_demo/Widgets/circularprogressindicator.dart';
 import 'package:fearless_chat_demo/Widgets/videoitem.dart';
 import 'package:fearless_chat_demo/enums.dart';
@@ -111,6 +112,10 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void initState() {
+    setState(() {
+      mediaPathList = Global.allMediaList;
+    });
+
     _albumIndexImage = 1;
     _albumIndexVideo = 1;
     _takeMedia = 5;
@@ -138,7 +143,7 @@ class _CameraPageState extends State<CameraPage>
       _isVideoRecording = false;
       hideStatusbar();
       enableRotation();
-      getAlbums();
+      // getAlbums();
       // Future<void>.microtask(getAlbums);
       // Future.delayed(const Duration(milliseconds: 1000), () {
       //   onCameraSelected(cameras[0]);
@@ -2718,79 +2723,79 @@ class _CameraPageState extends State<CameraPage>
   int _videoAlbumCount = 0;
   List<Album> imageAlbums = [];
   List<Album> videoAlbums = [];
-  Future<void> getAlbums() async {
-    if (await _promptPermissionSetting()) {
-      await PhotoGallery.listAlbums(mediumType: MediumType.image).then((value) {
-        setState(() {
-          imageAlbums = value;
-          _imageAlbumCount = imageAlbums.length;
-        });
-      });
+  // Future<void> getAlbums() async {
+  //   if (await _promptPermissionSetting()) {
+  //     await PhotoGallery.listAlbums(mediumType: MediumType.image).then((value) {
+  //       setState(() {
+  //         imageAlbums = value;
+  //         _imageAlbumCount = imageAlbums.length;
+  //       });
+  //     });
 
-      await PhotoGallery.listAlbums(
-              mediumType: MediumType.video, hideIfEmpty: false)
-          .then((value) {
-        setState(() {
-          videoAlbums = value;
-          _videoAlbumCount = videoAlbums.length;
-        });
-      });
-      List<Medium> dataImage = [];
-      for (var item in imageAlbums) {
-        // dataImage.addAll(await item.getThumbnail());
-        MediaPage mediaPage = await item.listMedia(newest: true);
-        dataImage.addAll(mediaPage.items);
-      }
-      List<Medium> dataVideo = [];
-      for (var item in videoAlbums) {
-        // dataVideo.addAll(await item.getThumbnail());
-        MediaPage mediaPage = await item.listMedia(newest: true);
-        dataVideo.addAll(mediaPage.items);
-      }
-      allMedia = [
-        ...dataImage,
-        ...dataVideo,
-      ];
-      // MediaPage imagePage;
-      // await imageAlbums[0]
-      //     .listMedia(
-      //   newest: true,
-      // )
-      //     .then((value) {
-      //   imagePage = value;
-      //   setState(() {
-      //     allMedia.addAll(imagePage.items);
-      //   });
-      // });
-      // MediaPage videoPage;
+  //     await PhotoGallery.listAlbums(
+  //             mediumType: MediumType.video, hideIfEmpty: false)
+  //         .then((value) {
+  //       setState(() {
+  //         videoAlbums = value;
+  //         _videoAlbumCount = videoAlbums.length;
+  //       });
+  //     });
+  //     List<Medium> dataImage = [];
+  //     for (var item in imageAlbums) {
+  //       // dataImage.addAll(await item.getThumbnail());
+  //       MediaPage mediaPage = await item.listMedia(newest: true);
+  //       dataImage.addAll(mediaPage.items);
+  //     }
+  //     List<Medium> dataVideo = [];
+  //     for (var item in videoAlbums) {
+  //       // dataVideo.addAll(await item.getThumbnail());
+  //       MediaPage mediaPage = await item.listMedia(newest: true);
+  //       dataVideo.addAll(mediaPage.items);
+  //     }
+  //     allMedia = [
+  //       ...dataImage,
+  //       ...dataVideo,
+  //     ];
+  //     // MediaPage imagePage;
+  //     // await imageAlbums[0]
+  //     //     .listMedia(
+  //     //   newest: true,
+  //     // )
+  //     //     .then((value) {
+  //     //   imagePage = value;
+  //     //   setState(() {
+  //     //     allMedia.addAll(imagePage.items);
+  //     //   });
+  //     // });
+  //     // MediaPage videoPage;
 
-      // await videoAlbums[0]
-      //     .listMedia(
-      //   newest: true,
-      // )
-      //     .then((value) {
-      //   setState(() {
-      //     videoPage = value;
-      //     allMedia.addAll(videoPage.items);
-      //   });
-      // });
+  //     // await videoAlbums[0]
+  //     //     .listMedia(
+  //     //   newest: true,
+  //     // )
+  //     //     .then((value) {
+  //     //   setState(() {
+  //     //     videoPage = value;
+  //     //     allMedia.addAll(videoPage.items);
+  //     //   });
+  //     // });
 
-      for (var item in allMedia) {
-        TakenCameraMedia media = TakenCameraMedia(
-            "",
-            false,
-            item.modifiedDate!,
-            item.mediumType == MediumType.video
-                ? FileType.video
-                : FileType.photo,
-            item);
-        setState(() {
-          mediaPathList.add(media);
-          mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-        });
-      }
-    }
-  }
+  //     for (var item in allMedia) {
+  //       TakenCameraMedia media = TakenCameraMedia(
+  //           "",
+  //           false,
+  //           item.modifiedDate!,
+  //           item.mediumType == MediumType.video
+  //               ? FileType.video
+  //               : FileType.photo,
+  //           item);
+  //       setState(() {
+  //         mediaPathList.add(media);
+  //         mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+  //       });
+  //     }
+  //   }
+  // }
 
   Future<void> getMediaFromGallery() async {
     // for (Album album in imageAlbums) {
@@ -2846,34 +2851,6 @@ class _CameraPageState extends State<CameraPage>
     // setState(() {
     //   _isLoadingGalleryMedia = false;
     // });
-  }
-
-  Future<bool> _promptPermissionSetting() async {
-    // if (!t) {
-    //   showDialog(
-    //       context: context,
-    //       builder: (BuildContext context) => CupertinoAlertDialog(
-    //             title: Text('Camera Permission'),
-    //             content: Text('This app needs media gallery'),
-    //             actions: <Widget>[
-    //               CupertinoDialogAction(
-    //                 child: Text('Deny'),
-    //                 onPressed: () => Navigator.of(context).pop(),
-    //               ),
-    //               CupertinoDialogAction(
-    //                 child: Text('Settings'),
-    //                 onPressed: () => openAppSettings(),
-    //               ),
-    //             ],
-    //           ));
-    // }
-    if (Platform.isIOS &&
-            await Permission.storage.request().isGranted &&
-            await Permission.photos.request().isGranted ||
-        Platform.isAndroid && await Permission.storage.request().isGranted) {
-      return true;
-    }
-    return false;
   }
 
   saveFileToGalery(FileType fileType, String filePath) async {

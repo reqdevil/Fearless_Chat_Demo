@@ -1,3 +1,4 @@
+import 'package:fearless_chat_demo/Models/cameraimage.dart';
 import 'package:fearless_chat_demo/Models/message.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -21,6 +22,7 @@ class Global {
     return _messages;
   }
 
+  static List<TakenCameraMedia> allMediaList = [];
   static String selectedUserId = "";
   static const double borderRadius = 27;
   static const double defaultPadding = 8;
