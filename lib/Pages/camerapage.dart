@@ -161,33 +161,35 @@ class _CameraPageState extends State<CameraPage>
       else
         videoPage = await item.listMedia(newest: true, take: 30, skip: 0);
     }
-    List<Medium> allMedia = [
-      ...imagePage!.items,
-      ...videoPage!.items,
-    ];
+    // List<Medium> allMedia = [
+    //   ...imagePage!.items,
+    //   ...videoPage!.items,
+    // ];
     // var kdd = await imagesVideos
     //     .map((e) async => await e.listMedia(newest: true, take: 30, skip: 0))
     //     .toList();
     // imagePage =
     //     await Global.allAlbums[0].listMedia(newest: true, take: 30, skip: 0);
-    setState(() {
-      images.addAll(imagePage!.items);
-      images.addAll(videoPage!.items);
-      images.sort((a, b) => b.modifiedDate!.compareTo(a.modifiedDate!));
-      for (var item in images) {
-        TakenCameraMedia media = TakenCameraMedia(
-            "",
-            false,
-            item.modifiedDate!,
-            item.mediumType == MediumType.video
-                ? FileType.video
-                : FileType.photo,
-            item);
+    // setState(() {
+    images.addAll(imagePage!.items);
+    images.addAll(videoPage!.items);
+    images.sort((a, b) => Platform.isIOS
+        ? b.creationDate!.compareTo(a.creationDate!)
+        : b.modifiedDate!.compareTo(a.modifiedDate!));
+    for (var item in images) {
+      TakenCameraMedia media = TakenCameraMedia(
+          "",
+          false,
+          item.creationDate!,
+          item.mediumType == MediumType.video ? FileType.video : FileType.photo,
+          item);
 
-        mediaPathList.add(media);
+      mediaPathList.add(media);
+      setState(() {
         mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-      }
-    });
+      });
+    }
+    // });
   }
 
   Future<void> getNextPage() async {
@@ -209,13 +211,15 @@ class _CameraPageState extends State<CameraPage>
       images.addAll(nextPageVideo.items);
     }
     print('CURRENT ITEMS: ${images.length}');
-    images.sort((a, b) => b.modifiedDate!.compareTo(a.modifiedDate!));
+    images.sort((a, b) => Platform.isIOS
+        ? b.creationDate!.compareTo(a.creationDate!)
+        : b.modifiedDate!.compareTo(a.modifiedDate!));
     print('TOTAL ITEMS: ${images.length}');
     for (var item in images) {
       TakenCameraMedia media = TakenCameraMedia(
           "",
           false,
-          item.modifiedDate!,
+          Platform.isIOS ? item.creationDate! : item.modifiedDate!,
           item.mediumType == MediumType.video ? FileType.video : FileType.photo,
           item);
       setState(() {
