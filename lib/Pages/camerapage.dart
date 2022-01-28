@@ -87,7 +87,7 @@ class _CameraPageState extends State<CameraPage>
   double _baseScale = 1.0;
   XFile? imageFile;
   XFile? videoFile;
-  NativeDeviceOrientation oldOrientation = NativeDeviceOrientation.portraitUp;
+  late NativeDeviceOrientation oldOrientation;
   NativeDeviceOrientation? _orientationBeforeCapturevideo;
   final resolutionPresets = ResolutionPreset.values;
   ResolutionPreset currentResolutionPreset = ResolutionPreset.high;
@@ -112,6 +112,7 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void initState() {
+    oldOrientation = NativeDeviceOrientation.portraitUp;
     getImages();
     // mediaPathList = Global.allMediaList;
     // =Global.imageAlbums;
@@ -317,8 +318,8 @@ class _CameraPageState extends State<CameraPage>
                   }
 
                   if (oldOrientation != orientation) {
-                    oldOrientation = orientation;
                     onRotationChangeHandler(orientation);
+                    oldOrientation = orientation;
                   }
                   final double mirror = controller!.cameraId == 1 ? math.pi : 0;
 
@@ -1412,9 +1413,9 @@ class _CameraPageState extends State<CameraPage>
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: (context, setState) {
+          key: GlobalKey(),
+          builder: (context, sfsetState) {
             return AnimatedBuilder(
-              key: GlobalKey(),
               animation: _animation,
               child: AlertDialog(
                 shape: RoundedRectangleBorder(
@@ -1459,11 +1460,17 @@ class _CameraPageState extends State<CameraPage>
                           groupValue: currentResolutionPreset,
                           value: resolutionPresets[index],
                           onChanged: (value) {
-                            setState(() {
+                            Navigator.pop(context);
+                            sfsetState(() {
                               _isCameraInitialized = false;
                               currentResolutionPreset = value!;
                             });
+                            // Navigator.pop(context);
+
                             onCameraSelected(controller!.description);
+                            // sfsetState(() {
+                            //   _resolutionChanged = false;
+                            // });
                           },
                         ),
                       );
