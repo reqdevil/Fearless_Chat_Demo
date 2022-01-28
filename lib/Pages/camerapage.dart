@@ -34,7 +34,6 @@ class CameraPage extends StatefulWidget {
   _CameraPageState createState() => _CameraPageState();
 }
 
-
 late bool _isflashTap;
 bool _isFlashOn = false;
 bool _isFlashAuto = false;
@@ -158,36 +157,33 @@ class _CameraPageState extends State<CameraPage>
       if (item.mediumType == MediumType.image)
         imagePage = await item.listMedia(newest: true, take: 30, skip: 0);
       else
-        videoPage = await item.listMedia(newest: true, take: 30, skip: 0);
+        videoPage = await item.listMedia(newest: true, take: 1, skip: 0);
     }
-    // List<Medium> allMedia = [
-    //   ...imagePage!.items,
-    //   ...videoPage!.items,
-    // ];
-    // var kdd = await imagesVideos
-    //     .map((e) async => await e.listMedia(newest: true, take: 30, skip: 0))
-    //     .toList();
-    // imagePage =
-    //     await Global.allAlbums[0].listMedia(newest: true, take: 30, skip: 0);
-    // setState(() {
-    images.addAll(imagePage!.items);
-    images.addAll(videoPage!.items);
-    images.sort((a, b) => Platform.isIOS
-        ? b.creationDate!.compareTo(a.creationDate!)
-        : b.modifiedDate!.compareTo(a.modifiedDate!));
-    for (var item in images) {
-      TakenCameraMedia media = TakenCameraMedia(
-          "",
-          false,
-          Platform.isIOS ? item.creationDate! : item.modifiedDate!,
-          item.mediumType == MediumType.video ? FileType.video : FileType.photo,
-          item);
+    setState(() {
+      images.addAll(imagePage!.items);
+      images.addAll(videoPage!.items);
+      List<Medium> tempList = images.toSet().toList();
+      images = tempList;
+      images.sort((a, b) => Platform.isIOS
+          ? b.creationDate!.compareTo(a.creationDate!)
+          : b.modifiedDate!.compareTo(a.modifiedDate!));
 
-      mediaPathList.add(media);
-      setState(() {
+      for (var item in images) {
+        TakenCameraMedia media = TakenCameraMedia(
+            "",
+            false,
+            Platform.isIOS ? item.creationDate! : item.modifiedDate!,
+            item.mediumType == MediumType.video
+                ? FileType.video
+                : FileType.photo,
+            item);
+
+        mediaPathList.add(media);
+
         mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-      });
-    }
+      }
+    });
+
     // });
   }
 
@@ -200,35 +196,45 @@ class _CameraPageState extends State<CameraPage>
       //     .sort((a, b) => b.modifiedDate!.compareTo(a.modifiedDate!));
       // nextPageVideo.items
       //     .sort((a, b) => b.modifiedDate!.compareTo(a.modifiedDate!));
-
-      images.addAll(nextPageImage.items);
+      setState(() {
+        images.addAll(nextPageImage.items);
+        List<Medium> tempList = images.toSet().toList();
+        images = tempList;
+      });
     }
     if (videoPage != null && !videoPage!.isLast) {
       final nextPageVideo = await videoPage!.nextPage();
       print('NEXT video ITEMS: ${nextPageVideo.items.length}');
 
-      images.addAll(nextPageVideo.items);
+      setState(() {
+        images.addAll(nextPageVideo.items);
+        List<Medium> tempList = images.toSet().toList();
+        images = tempList;
+      });
     }
     print('CURRENT ITEMS: ${images.length}');
-    images.sort((a, b) => Platform.isIOS
-        ? b.creationDate!.compareTo(a.creationDate!)
-        : b.modifiedDate!.compareTo(a.modifiedDate!));
-    print('TOTAL ITEMS: ${images.length}');
-    for (var item in images) {
-      TakenCameraMedia media = TakenCameraMedia(
-          "",
-          false,
-          Platform.isIOS ? item.creationDate! : item.modifiedDate!,
-          item.mediumType == MediumType.video ? FileType.video : FileType.photo,
-          item);
-      setState(() {
+    setState(() {
+      images.sort((a, b) => Platform.isIOS
+          ? b.creationDate!.compareTo(a.creationDate!)
+          : b.modifiedDate!.compareTo(a.modifiedDate!));
+      print('TOTAL ITEMS: ${images.length}');
+      for (var item in images) {
+        TakenCameraMedia media = TakenCameraMedia(
+            "",
+            false,
+            Platform.isIOS ? item.creationDate! : item.modifiedDate!,
+            item.mediumType == MediumType.video
+                ? FileType.video
+                : FileType.photo,
+            item);
+
         _stateSetter!(() {
           mediaPathList.add(media);
         });
-      });
 
-      // mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-    }
+        // mediaPathList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      }
+    });
   }
 
   requestPermission() async {
@@ -314,8 +320,8 @@ class _CameraPageState extends State<CameraPage>
                     oldOrientation = orientation;
                     onRotationChangeHandler(orientation);
                   }
-                 final double mirror = controller!.cameraId == 1 ? math.pi : 0;
-                 
+                  final double mirror = controller!.cameraId == 1 ? math.pi : 0;
+
                   return Listener(
                     onPointerDown: (_) => _pointers++,
                     onPointerUp: (_) => _pointers--,
@@ -1616,8 +1622,6 @@ class _CameraPageState extends State<CameraPage>
     //   await controller!.dispose();
     // }
 
-    
-
     setState(() {
       controller = CameraController(
         cameraDescription,
@@ -2800,8 +2804,6 @@ class _CameraPageState extends State<CameraPage>
   }
 
   List<Medium> allMedia = [];
-  int _imageAlbumCount = 0;
-  int _videoAlbumCount = 0;
   List<Album> imageAlbums = [];
   List<Album> videoAlbums = [];
 
@@ -2850,7 +2852,6 @@ class _CameraPageState extends State<CameraPage>
       if (kDebugMode) {
         print(result);
       }
-      // toastInfo("$result");
     } else if (fileType == FileType.photo) {
       final originalFile = File(filePath);
       List<int> imageBytes = await originalFile.readAsBytes();
@@ -2862,7 +2863,6 @@ class _CameraPageState extends State<CameraPage>
       if (kDebugMode) {
         print(result);
       }
-      // toastInfo("$result");
     }
   }
 
@@ -2875,7 +2875,6 @@ class _CameraPageState extends State<CameraPage>
       if (item.isSelected) {
         setState(() {
           item.isSelected = false;
-          // mediaPathList.remove(item);
         });
       }
     }
@@ -2973,10 +2972,7 @@ class _CameraPageState extends State<CameraPage>
   void _loadMore() async {
     if (scrollController.offset >= scrollController.position.maxScrollExtent &&
         !scrollController.position.outOfRange) {
-      setState(() {
-        // if (_imageAlbumCount > _albumIndexImage) _albumIndexImage++;
-        // if (_videoAlbumCount > _albumIndexVideo) _albumIndexVideo++;
-      });
+      setState(() {});
       getNextPage();
     }
     if (scrollController.offset <= scrollController.position.minScrollExtent &&
