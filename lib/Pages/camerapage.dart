@@ -61,7 +61,6 @@ late int _albumIndexVideo;
 late int _takeMedia;
 ScrollController scrollController = ScrollController();
 StateSetter? _stateSetter;
-NativeDeviceOrientation orientation = NativeDeviceOrientation.portraitUp;
 
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -293,7 +292,7 @@ class _CameraPageState extends State<CameraPage>
                 useSensor: true,
                 builder: (context) {
                   // NativeDeviceOrientation orientation;
-                  orientation =
+                  final orientation =
                       NativeDeviceOrientationReader.orientation(context);
                   int turns = 0;
                   switch (orientation) {
@@ -1454,7 +1453,6 @@ class _CameraPageState extends State<CameraPage>
                           value: resolutionPresets[index],
                           onChanged: (value) {
                             setState(() {
-                              orientation = oldOrientation;
                               _isCameraInitialized = false;
                               currentResolutionPreset = value!;
                             });
