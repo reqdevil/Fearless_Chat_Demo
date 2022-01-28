@@ -1667,8 +1667,14 @@ class _CameraPageState extends State<CameraPage>
     }
 
     if (mounted) {
+      CameraLensDirection lensDirection = controller!.description.lensDirection;
       setState(() {
-        controller!.cameraId == 1 ? mirror = math.pi : 0;
+        if (lensDirection == CameraLensDirection.front) {
+          mirror = math.pi;
+        } else if (lensDirection == CameraLensDirection.front) {
+          mirror = 0;
+        }
+        // controller!.cameraId == 1 ? mirror = math.pi : 0;
       });
     }
   }
