@@ -43,6 +43,7 @@ TextEditingController? _textEditingController;
 late double _textEditorWidth;
 bool isVisibleChatBox = true;
 List<String> _locationString = [];
+bool _isOpenedCamera = false;
 
 class _ChatPageState extends State<ChatPage>
     with SingleTickerProviderStateMixin {
@@ -129,274 +130,181 @@ class _ChatPageState extends State<ChatPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(
-            // color: Global.mainColor, //change your color here
-            ),
-        shadowColor: Colors.black,
-        // backgroundColor: Colors.white,
-        title: Row(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 0.0, right: 5),
-                  child: CircleAvatar(
-                    radius: 20.0,
-                    backgroundImage: NetworkImage(_friend.imgUrl),
-                    backgroundColor: Colors.transparent,
-                  ),
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(
+                // color: Global.mainColor, //change your color here
                 ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      _friend.username,
-                      style: Theme.of(context).textTheme.subtitle1,
-                      overflow: TextOverflow.clip,
+            shadowColor: Colors.black,
+            // backgroundColor: Colors.white,
+            title: Row(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0.0, right: 5),
+                      child: CircleAvatar(
+                        radius: 20.0,
+                        backgroundImage: NetworkImage(_friend.imgUrl),
+                        backgroundColor: Colors.transparent,
+                      ),
                     ),
-                    Text(_friend.isOnline ? "Online" : "Offline",
-                        style: Theme.of(context).textTheme.subtitle1!)
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          _friend.username,
+                          style: Theme.of(context).textTheme.subtitle1,
+                          overflow: TextOverflow.clip,
+                        ),
+                        Text(_friend.isOnline ? "Online" : "Offline",
+                            style: Theme.of(context).textTheme.subtitle1!)
+                      ],
+                    ),
                   ],
                 ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          minimumSize: const Size(35, 35),
+                          padding: const EdgeInsets.all(0),
+                          // primary: Colors.grey.withOpacity(0.3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                        ),
+                        onPressed: () {},
+                        child: Icon(
+                          Icons.phone,
+                          color: Theme.of(context).colorScheme.secondaryVariant,
+                          // color: Colors.grey[800],
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          minimumSize: const Size(35, 35),
+                          padding: const EdgeInsets.all(0),
+                          // primary: Colors.grey.withOpacity(0.3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                        ),
+                        onPressed: () {},
+                        child: Icon(
+                          Icons.videocam_sharp,
+                          color: Theme.of(context).colorScheme.secondaryVariant,
+                          // color: Colors.grey[800],
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          minimumSize: const Size(35, 35),
+                          padding: const EdgeInsets.all(0),
+                          // primary: Colors.grey.withOpacity(0.3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                        ),
+                        onPressed: () {},
+                        child: Icon(
+                          Icons.more_vert_rounded,
+                          color: Theme.of(context).colorScheme.secondaryVariant,
+                          // color: Colors.grey[800],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.end,
+          ),
+          body: SafeArea(
+            bottom: true,
+            minimum: const EdgeInsets.only(bottom: 8),
+            child: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).requestFocus(new FocusNode());
+              },
+              child: Column(
                 children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      minimumSize: const Size(35, 35),
-                      padding: const EdgeInsets.all(0),
-                      // primary: Colors.grey.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                    onPressed: () {},
-                    child: Icon(
-                      Icons.phone,
-                      color: Theme.of(context).colorScheme.secondaryVariant,
-                      // color: Colors.grey[800],
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      minimumSize: const Size(35, 35),
-                      padding: const EdgeInsets.all(0),
-                      // primary: Colors.grey.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                    onPressed: () {},
-                    child: Icon(
-                      Icons.videocam_sharp,
-                      color: Theme.of(context).colorScheme.secondaryVariant,
-                      // color: Colors.grey[800],
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      minimumSize: const Size(35, 35),
-                      padding: const EdgeInsets.all(0),
-                      // primary: Colors.grey.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                    onPressed: () {},
-                    child: Icon(
-                      Icons.more_vert_rounded,
-                      color: Theme.of(context).colorScheme.secondaryVariant,
-                      // color: Colors.grey[800],
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
-      body: SafeArea(
-        bottom: true,
-        minimum: const EdgeInsets.only(bottom: 8),
-        child: GestureDetector(
-          onTap: () {
-            FocusScope.of(context).requestFocus(new FocusNode());
-          },
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  controller: _controller,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.all(15),
-                  itemCount: _messages.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      child: _messages[index].status == MessageType.received
-                          ? Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 20.0,
-                                  backgroundImage: NetworkImage(
-                                      _messages[index].contactImgUrl!),
-                                  backgroundColor: Colors.transparent,
-                                ),
-                                const SizedBox(
-                                  width: 15,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      controller: _controller,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.all(15),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          child: _messages[index].status == MessageType.received
+                              ? Row(
                                   children: [
-                                    Text(
-                                      _messages[index].contactName!,
-                                      style:
-                                          Theme.of(context).textTheme.caption,
+                                    CircleAvatar(
+                                      radius: 20.0,
+                                      backgroundImage: NetworkImage(
+                                          _messages[index].contactImgUrl!),
+                                      backgroundColor: Colors.transparent,
                                     ),
-                                    Container(
-                                      constraints: BoxConstraints(
-                                          maxWidth: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              .6),
-                                      padding: const EdgeInsets.all(15.0),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .background,
-                                        borderRadius: const BorderRadius.only(
-                                          topRight: Radius.circular(25),
-                                          bottomLeft: Radius.circular(25),
-                                          bottomRight: Radius.circular(25),
+                                    const SizedBox(
+                                      width: 15,
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _messages[index].contactName!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .caption,
                                         ),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            _messages[index].message,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1!
-                                                .apply(
-                                                  color: Colors.black87,
-                                                ),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Align(
-                                            alignment: Alignment.bottomRight,
-                                            child: Text(
-                                              _messages[index].time,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyText2!
-                                                  .apply(color: Colors.grey),
+                                        Container(
+                                          constraints: BoxConstraints(
+                                              maxWidth: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  .6),
+                                          padding: const EdgeInsets.all(15.0),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .background,
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                              topRight: Radius.circular(25),
+                                              bottomLeft: Radius.circular(25),
+                                              bottomRight: Radius.circular(25),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 15),
-                                  ],
-                                ),
-                              ],
-                            )
-                          : Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      constraints: BoxConstraints(
-                                          maxWidth: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              .6),
-                                      padding: const EdgeInsets.all(15.0),
-                                      decoration: BoxDecoration(
-                                        color: Global.mainColor,
-                                        borderRadius: const BorderRadius.only(
-                                          topRight: Radius.circular(25),
-                                          topLeft: Radius.circular(25),
-                                          bottomLeft: Radius.circular(25),
-                                        ),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          _messages[index].message != ""
-                                              ? Text(_messages[index].message,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyText1!
-                                                      .apply(
-                                                        color: Colors.white,
-                                                      ))
-                                              : const SizedBox(),
-                                          getVoiceMedia(index, context),
-                                          getGridMedia(index, context),
-                                          getMap(List<String>.from(
-                                              _messages[index].location)),
-                                          const SizedBox(
-                                            height: 5,
-                                          ),
-                                          Row(
+                                          child: Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              if (_messages[index]
-                                                      .message
-                                                      .contains('.pdf') ||
-                                                  _messages[index]
-                                                      .message
-                                                      .contains('.doc') ||
-                                                  _messages[index]
-                                                      .message
-                                                      .contains('.ppt') ||
-                                                  _messages[index]
-                                                      .message
-                                                      .contains('.pptx') ||
-                                                  _messages[index]
-                                                      .message
-                                                      .contains('.txt') ||
-                                                  _messages[index]
-                                                      .message
-                                                      .contains('.xls') ||
-                                                  _messages[index]
-                                                      .message
-                                                      .contains('.xlsx'))
-                                                Align(
-                                                  alignment:
-                                                      Alignment.bottomLeft,
-                                                  child: Icon(
-                                                    Icons.file_present_outlined,
-                                                    color: Colors.white,
-                                                  ),
-                                                )
-                                              else
-                                                SizedBox(),
+                                              Text(
+                                                _messages[index].message,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyText1!
+                                                    .apply(
+                                                      color: Colors.black87,
+                                                    ),
+                                              ),
+                                              const SizedBox(height: 5),
                                               Align(
                                                 alignment:
                                                     Alignment.bottomRight,
@@ -404,236 +312,359 @@ class _ChatPageState extends State<ChatPage>
                                                   _messages[index].time,
                                                   style: Theme.of(context)
                                                       .textTheme
-                                                      .bodyText1!
+                                                      .bodyText2!
                                                       .apply(
-                                                        color: Colors.white,
-                                                      ),
-                                                  textAlign: TextAlign.right,
+                                                          color: Colors.grey),
                                                 ),
                                               ),
                                             ],
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 15),
-                                  ],
-                                ),
-                              ],
-                            ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 8, bottom: 0, right: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        width: getWidthChatBox(context),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius:
-                              BorderRadius.circular(Global.borderRadius),
-                          boxShadow: [
-                            BoxShadow(
-                                offset: Offset(0, 3),
-                                blurRadius: 5,
-                                color: Colors.grey)
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            IconButton(
-                                icon: Icon(
-                                  Icons.add,
-                                  color: Global.mainColor,
-                                ),
-                                onPressed: () {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(10.0))),
-                                    builder: (context) {
-                                      return SafeArea(
-                                        child: SingleChildScrollView(
-                                          child: Container(
-                                            child: Wrap(
-                                              children: [
-                                                for (var key in icons.keys)
-                                                  ListTile(
-                                                    title: Text(
-                                                      icons[key].toString(),
-                                                    ),
-                                                    leading: Icon(
-                                                      key,
-                                                      // color: Global.mainColor,
-                                                    ),
-                                                    onTap: () async {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      if (icons[key]
-                                                              .toString() ==
-                                                          'Gallery') {
-                                                        getImageFromGallery();
-                                                      } else if (icons[key]
-                                                              .toString() ==
-                                                          'Camera') {
-                                                        showOptionsShareMedia(
-                                                            context);
-                                                      } else if (icons[key]
-                                                              .toString() ==
-                                                          'Document') {
-                                                        getMultipleFile();
-                                                      } else if (icons[key]
-                                                              .toString() ==
-                                                          'Location') {
-                                                        List<String> location =
-                                                            await shareLocation();
-
-                                                        setState(
-                                                          () {
-                                                            Global.messages.add(
-                                                              {
-                                                                'usrId': widget
-                                                                    .userId,
-                                                                'status':
-                                                                    MessageType
-                                                                        .sent,
-                                                                'message': "",
-                                                                'time': DateFormat(
-                                                                        'dd.MM.yyyy – kk:mm')
-                                                                    .format(DateTime
-                                                                        .now()),
-                                                                'hasShareMedia':
-                                                                    false,
-                                                                'filePaths': [],
-                                                                'location':
-                                                                    location
-                                                              },
-                                                            );
-                                                            _messages = Global
-                                                                    .getMessages()
-                                                                .where((element) =>
-                                                                    element
-                                                                        .usrId ==
-                                                                    widget
-                                                                        .userId)
-                                                                .toList();
-                                                            scrollDown();
-                                                          },
-                                                        );
-                                                      }
-                                                    },
-                                                  )
-                                              ],
-                                            ),
                                           ),
                                         ),
-                                      );
-                                    },
-                                  );
-                                }),
-                            Visibility(
-                              visible: isVisibleChatBox,
-                              child: Expanded(
-                                child: TextField(
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary),
-                                  autofocus: false,
-                                  controller: _textEditingController,
-                                  focusNode: _focusNode,
-                                  maxLines: null,
-                                  keyboardType: TextInputType.multiline,
-                                  onSubmitted: (value) {},
-                                  decoration: const InputDecoration(
-                                      hintText: "Type Something...",
-                                      border: InputBorder.none),
+                                        const SizedBox(height: 15),
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              : Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          constraints: BoxConstraints(
+                                              maxWidth: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  .6),
+                                          padding: const EdgeInsets.all(15.0),
+                                          decoration: BoxDecoration(
+                                            color: Global.mainColor,
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                              topRight: Radius.circular(25),
+                                              topLeft: Radius.circular(25),
+                                              bottomLeft: Radius.circular(25),
+                                            ),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              _messages[index].message != ""
+                                                  ? Text(
+                                                      _messages[index].message,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyText1!
+                                                          .apply(
+                                                            color: Colors.white,
+                                                          ))
+                                                  : const SizedBox(),
+                                              getVoiceMedia(index, context),
+                                              getGridMedia(index, context),
+                                              getMap(List<String>.from(
+                                                  _messages[index].location)),
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  if (_messages[index]
+                                                          .message
+                                                          .contains('.pdf') ||
+                                                      _messages[index]
+                                                          .message
+                                                          .contains('.doc') ||
+                                                      _messages[index]
+                                                          .message
+                                                          .contains('.ppt') ||
+                                                      _messages[index]
+                                                          .message
+                                                          .contains('.pptx') ||
+                                                      _messages[index]
+                                                          .message
+                                                          .contains('.txt') ||
+                                                      _messages[index]
+                                                          .message
+                                                          .contains('.xls') ||
+                                                      _messages[index]
+                                                          .message
+                                                          .contains('.xlsx'))
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.bottomLeft,
+                                                      child: Icon(
+                                                        Icons
+                                                            .file_present_outlined,
+                                                        color: Colors.white,
+                                                      ),
+                                                    )
+                                                  else
+                                                    SizedBox(),
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.bottomRight,
+                                                    child: Text(
+                                                      _messages[index].time,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyText1!
+                                                          .apply(
+                                                            color: Colors.white,
+                                                          ),
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 15),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ),
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 8, bottom: 0, right: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            width: getWidthChatBox(context),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius:
+                                  BorderRadius.circular(Global.borderRadius),
+                              boxShadow: [
+                                BoxShadow(
+                                    offset: Offset(0, 3),
+                                    blurRadius: 5,
+                                    color: Colors.grey)
+                              ],
                             ),
-                            Visibility(
-                              visible: _textEditingController!.text.isNotEmpty,
-                              child: Transform.rotate(
-                                angle: -math.pi / 4,
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.send_rounded,
-                                    color: Global.mainColor,
+                            child: Row(
+                              children: [
+                                IconButton(
+                                    icon: Icon(
+                                      Icons.add,
+                                      color: Global.mainColor,
+                                    ),
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
+                                                top: Radius.circular(10.0))),
+                                        builder: (context) {
+                                          return SafeArea(
+                                            child: SingleChildScrollView(
+                                              child: Container(
+                                                child: Wrap(
+                                                  children: [
+                                                    for (var key in icons.keys)
+                                                      ListTile(
+                                                        title: Text(
+                                                          icons[key].toString(),
+                                                        ),
+                                                        leading: Icon(
+                                                          key,
+                                                          // color: Global.mainColor,
+                                                        ),
+                                                        onTap: () async {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                          if (icons[key]
+                                                                  .toString() ==
+                                                              'Gallery') {
+                                                            getImageFromGallery();
+                                                          } else if (icons[key]
+                                                                  .toString() ==
+                                                              'Camera') {
+                                                            showOptionsShareMedia(
+                                                                context);
+                                                          } else if (icons[key]
+                                                                  .toString() ==
+                                                              'Document') {
+                                                            getMultipleFile();
+                                                          } else if (icons[key]
+                                                                  .toString() ==
+                                                              'Location') {
+                                                            List<String>
+                                                                location =
+                                                                await shareLocation();
+
+                                                            setState(
+                                                              () {
+                                                                Global.messages
+                                                                    .add(
+                                                                  {
+                                                                    'usrId': widget
+                                                                        .userId,
+                                                                    'status':
+                                                                        MessageType
+                                                                            .sent,
+                                                                    'message':
+                                                                        "",
+                                                                    'time': DateFormat(
+                                                                            'dd.MM.yyyy – kk:mm')
+                                                                        .format(
+                                                                            DateTime.now()),
+                                                                    'hasShareMedia':
+                                                                        false,
+                                                                    'filePaths':
+                                                                        [],
+                                                                    'location':
+                                                                        location
+                                                                  },
+                                                                );
+                                                                _messages = Global
+                                                                        .getMessages()
+                                                                    .where((element) =>
+                                                                        element
+                                                                            .usrId ==
+                                                                        widget
+                                                                            .userId)
+                                                                    .toList();
+                                                                scrollDown();
+                                                              },
+                                                            );
+                                                          }
+                                                        },
+                                                      )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }),
+                                Visibility(
+                                  visible: isVisibleChatBox,
+                                  child: Expanded(
+                                    child: TextField(
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary),
+                                      autofocus: false,
+                                      controller: _textEditingController,
+                                      focusNode: _focusNode,
+                                      maxLines: null,
+                                      keyboardType: TextInputType.multiline,
+                                      onSubmitted: (value) {},
+                                      decoration: const InputDecoration(
+                                          hintText: "Type Something...",
+                                          border: InputBorder.none),
+                                    ),
                                   ),
-                                  onPressed: () async {
-                                    if (_textEditingController!.text.isNotEmpty)
-                                      setState(() {
-                                        Global.messages.add(
-                                          {
-                                            'usrId': widget.userId,
-                                            'status': MessageType.sent,
-                                            'message':
-                                                _textEditingController!.text,
-                                            'time':
-                                                DateFormat('dd.MM.yyyy – kk:mm')
-                                                    .format(DateTime.now()),
-                                            'hasShareMedia': false,
-                                            'filePaths': [],
-                                            'location': []
-                                          },
-                                        );
-                                        _messages = Global.getMessages()
-                                            .where((element) =>
-                                                element.usrId == widget.userId)
-                                            .toList();
-                                        scrollDown();
-                                        _textEditingController!.clear();
-                                      });
-                                  },
                                 ),
-                              ),
-                            )
-                          ],
+                                Visibility(
+                                  visible:
+                                      _textEditingController!.text.isNotEmpty,
+                                  child: Transform.rotate(
+                                    angle: -math.pi / 4,
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.send_rounded,
+                                        color: Global.mainColor,
+                                      ),
+                                      onPressed: () async {
+                                        if (_textEditingController!
+                                            .text.isNotEmpty)
+                                          setState(() {
+                                            Global.messages.add(
+                                              {
+                                                'usrId': widget.userId,
+                                                'status': MessageType.sent,
+                                                'message':
+                                                    _textEditingController!
+                                                        .text,
+                                                'time': DateFormat(
+                                                        'dd.MM.yyyy – kk:mm')
+                                                    .format(DateTime.now()),
+                                                'hasShareMedia': false,
+                                                'filePaths': [],
+                                                'location': []
+                                              },
+                                            );
+                                            _messages = Global.getMessages()
+                                                .where((element) =>
+                                                    element.usrId ==
+                                                    widget.userId)
+                                                .toList();
+                                            scrollDown();
+                                            _textEditingController!.clear();
+                                          });
+                                      },
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    // const SizedBox(width: 2),
-                    Visibility(
-                      visible: _textEditingController!.text.isEmpty,
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: RecordButton(
-                          hasRecord: (value) {
-                            setState(() {
-                              if (value) {
-                                isVisibleChatBox = false;
-                              } else {
-                                isVisibleChatBox = true;
-                              }
-                            });
-                          },
-                          endOfRecord: (message) {
-                            setState(() {
-                              _messages.add(message);
-                            });
-                            scrollDown();
-                          },
-                          controller: controller,
+                        // const SizedBox(width: 2),
+                        Visibility(
+                          visible: _textEditingController!.text.isEmpty,
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: RecordButton(
+                              hasRecord: (value) {
+                                setState(() {
+                                  if (value) {
+                                    isVisibleChatBox = false;
+                                  } else {
+                                    isVisibleChatBox = true;
+                                  }
+                                });
+                              },
+                              endOfRecord: (message) {
+                                setState(() {
+                                  _messages.add(message);
+                                });
+                                scrollDown();
+                              },
+                              controller: controller,
+                            ),
+                          ),
                         ),
-                      ),
+                        // const SizedBox(width: 1),
+                        // const SizedBox(width: 15),
+                      ],
                     ),
-                    // const SizedBox(width: 1),
-                    // const SizedBox(width: 15),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
+        Visibility(
+            visible: _isOpenedCamera,
+            child: Positioned.fill(
+                child: Container(
+              color: Colors.black,
+            )))
+      ],
     );
   }
 
@@ -666,6 +697,9 @@ class _ChatPageState extends State<ChatPage>
   }
 
   void showOptionsShareMedia(BuildContext context) {
+    setState(() {
+      _isOpenedCamera = true;
+    });
     showGeneralDialog(
         context: context,
         useRootNavigator: true,
@@ -678,6 +712,7 @@ class _ChatPageState extends State<ChatPage>
           );
         }).then((value) {
       setState(() {
+        _isOpenedCamera = false;
         List<Medium?> lstMedium =
             (value as List<TakenCameraMedia>).map((e) => e.medium).toList();
         List<String> lst = (value)
