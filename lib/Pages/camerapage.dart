@@ -35,15 +35,12 @@ class CameraPage extends StatefulWidget {
 }
 
 double mirror = 0;
-
 late bool _isflashTap;
 bool _isFlashOn = false;
 bool _isFlashAuto = false;
 bool _isFlashOff = false;
 bool _isVisibleItemFlash = true;
 bool _isVisibleItemCloseAndDropDown = true;
-bool _isVisibleBlurEffect = true;
-// bool _isVisibleExposureContainer = false;
 bool _isExposeChanging = false;
 late bool _isVideoRecorderSelected;
 late bool _isVideoRecording;
@@ -2908,26 +2905,29 @@ class _CameraPageState extends State<CameraPage>
                 animation: _animation,
                 child: Center(
                   child: Container(
-                    width: MediaQuery.of(context).size.width / 3,
-                    height: MediaQuery.of(context).size.height / 5,
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 40.0, vertical: 150.0),
-                    padding: const EdgeInsets.all(15.0),
-                    decoration: new BoxDecoration(
-                      borderRadius: new BorderRadius.circular(10.0),
-                      shape: BoxShape.rectangle,
-                      color: Colors.black.withOpacity(0.5),
-                      boxShadow: <BoxShadow>[
-                        new BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 5.0,
-                          offset: new Offset(5.0, 5.0),
-                        ),
-                      ],
-                    ),
-                    child: Icon(Icons.swap_horizontal_circle_sharp,
-                        size: 50, color: Colors.white.withOpacity(0.7)),
-                  ),
+                      width: MediaQuery.of(context).size.width / 3,
+                      height: MediaQuery.of(context).size.height / 5,
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 40.0, vertical: 150.0),
+                      padding: const EdgeInsets.all(15.0),
+                      decoration: new BoxDecoration(
+                        borderRadius: new BorderRadius.circular(10.0),
+                        shape: BoxShape.rectangle,
+                        color: Colors.black.withOpacity(0.5),
+                        boxShadow: <BoxShadow>[
+                          new BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 5.0,
+                            offset: new Offset(5.0, 5.0),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        getCameraLensIcon(
+                            controller!.description.lensDirection),
+                        size: 70.0,
+                        color: Colors.white.withOpacity(0.7),
+                      )),
                 ),
                 builder: (context, child) {
                   return Transform.rotate(
