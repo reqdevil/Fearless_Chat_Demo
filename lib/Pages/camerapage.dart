@@ -13,6 +13,7 @@ import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -41,6 +42,7 @@ bool _isFlashAuto = false;
 bool _isFlashOff = false;
 bool _isVisibleItemFlash = true;
 bool _isVisibleItemCloseAndDropDown = true;
+bool _isVisibleBlurEffect = true;
 // bool _isVisibleExposureContainer = false;
 bool _isExposeChanging = false;
 late bool _isVideoRecorderSelected;
@@ -180,7 +182,7 @@ class _CameraPageState extends State<CameraPage>
       TakenCameraMedia media = TakenCameraMedia(
           "",
           false,
-          item.creationDate!,
+          Platform.isIOS ? item.creationDate! : item.modifiedDate!,
           item.mediumType == MediumType.video ? FileType.video : FileType.photo,
           item);
 
@@ -286,6 +288,7 @@ class _CameraPageState extends State<CameraPage>
     }
 
     return Scaffold(
+        backgroundColor: Colors.black,
         // key: _scaffoldKey,
         body: _isCameraInitialized
             ? NativeDeviceOrientationReader(
@@ -328,24 +331,33 @@ class _CameraPageState extends State<CameraPage>
                             child: Transform(
                               alignment: Alignment.center,
                               transform: Matrix4.rotationY(mirror),
-                              child: CameraPreview(
-                                controller!,
-                                child: LayoutBuilder(
-                                  builder: (BuildContext context,
-                                      BoxConstraints constraints) {
-                                    return GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onScaleStart: _handleScaleStart,
-                                      onScaleUpdate: _handleScaleUpdate,
-                                      onTapDown: (details) =>
-                                          onViewFinderTap(details, constraints),
-                                    );
-                                  },
+                              child: RepaintBoundary(
+                                key: scr,
+                                child: CameraPreview(
+                                  controller!,
+                                  child: LayoutBuilder(
+                                    builder: (BuildContext context,
+                                        BoxConstraints constraints) {
+                                      return GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
+                                        onScaleStart: _handleScaleStart,
+                                        onScaleUpdate: _handleScaleUpdate,
+                                        onTapDown: (details) => onViewFinderTap(
+                                            details, constraints),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
+                        // Positioned.fill(
+                        //     child: Container(
+                        //   child: _pngBytes != null
+                        //       ? Image.memory(_pngBytes!)
+                        //       : SizedBox(),
+                        // )),
                         generateBlured(_isSwitchedCamera),
                         Align(
                           alignment: Alignment.topCenter,
@@ -1280,6 +1292,7 @@ class _CameraPageState extends State<CameraPage>
                                                   onTap: () {
                                                     if (!_isVideoRecording) {
                                                       if (!_toggleCamera) {
+                                                        // takescrshot();
                                                         setState(() {
                                                           _isSwitchedCamera =
                                                               true;
@@ -1299,6 +1312,7 @@ class _CameraPageState extends State<CameraPage>
                                                           });
                                                         });
                                                       } else {
+                                                        // takescrshot();
                                                         setState(() {
                                                           _toggleCamera = false;
                                                           _isSwitchedCamera =
@@ -1591,6 +1605,7 @@ class _CameraPageState extends State<CameraPage>
     // if (controller != null) {
     //   await controller!.dispose();
     // }
+
     setState(() {
       controller = CameraController(
         cameraDescription,
@@ -1614,8 +1629,10 @@ class _CameraPageState extends State<CameraPage>
     });
 
     try {
+      // await Future.delayed(Duration(milliseconds: 200));
       await controller!.initialize();
-      // const Duration(milliseconds: 500);
+
+      const Duration(milliseconds: 500);
       await controller!.lockCaptureOrientation();
       await Future.wait([
         // The exposure mode is currently not supported on the web.
@@ -2861,50 +2878,83 @@ class _CameraPageState extends State<CameraPage>
   }
 
   Widget generateBlured(bool isSwitchedCamera) {
+    // controller!.startImageStream((image) => null);
     return Positioned.fill(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-            sigmaX: isSwitchedCamera ? 10.0 : 0.0,
-            sigmaY: isSwitchedCamera ? 10.0 : 0.0),
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: BoxDecoration(color: Colors.black.withOpacity(0.0)),
-          child: AnimatedBuilder(
-            animation: _animation,
-            child: Center(
-              child: Container(
-                width: MediaQuery.of(context).size.width / 3,
-                height: MediaQuery.of(context).size.height / 5,
-                margin: const EdgeInsets.symmetric(
-                    horizontal: 40.0, vertical: 150.0),
-                padding: const EdgeInsets.all(15.0),
-                decoration: new BoxDecoration(
-                  borderRadius: new BorderRadius.circular(10.0),
-                  shape: BoxShape.rectangle,
-                  color: Colors.black.withOpacity(0.5),
-                  boxShadow: <BoxShadow>[
-                    new BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 5.0,
-                      offset: new Offset(5.0, 5.0),
+      child: Visibility(
+        visible: isSwitchedCamera,
+        child: AnimatedOpacity(
+          // alwaysIncludeSemantics: true,
+          // onEnd: () async {
+          //   // await Future.delayed(Duration(milliseconds: 200));
+          //   if (!isSwitchedCamera) {
+          //     setState(() {
+          //       _isVisibleBlurEffect = true;
+          //     });
+          //   } else {
+          //     setState(() {
+          //       _isVisibleBlurEffect = false;
+          //     });
+          //   }
+          // },
+          duration: Duration(milliseconds: 250),
+          opacity: isSwitchedCamera ? 1.0 : 0.0,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration: BoxDecoration(color: Colors.black.withOpacity(0.0)),
+              child: AnimatedBuilder(
+                animation: _animation,
+                child: Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width / 3,
+                    height: MediaQuery.of(context).size.height / 5,
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 40.0, vertical: 150.0),
+                    padding: const EdgeInsets.all(15.0),
+                    decoration: new BoxDecoration(
+                      borderRadius: new BorderRadius.circular(10.0),
+                      shape: BoxShape.rectangle,
+                      color: Colors.black.withOpacity(0.5),
+                      boxShadow: <BoxShadow>[
+                        new BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 5.0,
+                          offset: new Offset(5.0, 5.0),
+                        ),
+                      ],
                     ),
-                  ],
+                    child: Icon(Icons.swap_horizontal_circle_sharp,
+                        size: 50, color: Colors.white.withOpacity(0.7)),
+                  ),
                 ),
-                child: Icon(Icons.swap_horizontal_circle_sharp,
-                    size: 50, color: Colors.white.withOpacity(0.7)),
+                builder: (context, child) {
+                  return Transform.rotate(
+                    angle: _animation.value,
+                    child: child,
+                  );
+                },
               ),
             ),
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: _animation.value,
-                child: child,
-              );
-            },
           ),
         ),
       ),
     );
+  }
+
+  Uint8List? _pngBytes;
+  var scr = new GlobalKey();
+  takescrshot() async {
+    RenderRepaintBoundary boundary =
+        scr.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    var image = await boundary.toImage();
+    ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
+    Uint8List pngBytes = byteData!.buffer.asUint8List();
+    setState(() {
+      _pngBytes = pngBytes;
+    });
+    print(pngBytes);
   }
 
   void _loadMore() async {
