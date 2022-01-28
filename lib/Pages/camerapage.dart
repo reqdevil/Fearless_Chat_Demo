@@ -1465,9 +1465,9 @@ class _CameraPageState extends State<CameraPage>
                               _isCameraInitialized = false;
                               currentResolutionPreset = value!;
                             });
-                            // Navigator.pop(context);
-
-                            onCameraSelected(controller!.description);
+                            // onRotationChangeHandler(orientation)
+                            onNewCameraSelected(controller!.description);
+                            // onCameraSelected(controller!.description);
                             // sfsetState(() {
                             //   _resolutionChanged = false;
                             // });
