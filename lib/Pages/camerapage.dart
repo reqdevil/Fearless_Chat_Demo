@@ -34,7 +34,7 @@ class CameraPage extends StatefulWidget {
   _CameraPageState createState() => _CameraPageState();
 }
 
-double mirror = 0;
+
 late bool _isflashTap;
 bool _isFlashOn = false;
 bool _isFlashAuto = false;
@@ -314,7 +314,8 @@ class _CameraPageState extends State<CameraPage>
                     oldOrientation = orientation;
                     onRotationChangeHandler(orientation);
                   }
-
+                 final double mirror = controller!.cameraId == 1 ? math.pi : 0;
+                 
                   return Listener(
                     onPointerDown: (_) => _pointers++,
                     onPointerUp: (_) => _pointers--,
@@ -1615,6 +1616,8 @@ class _CameraPageState extends State<CameraPage>
     //   await controller!.dispose();
     // }
 
+    
+
     setState(() {
       controller = CameraController(
         cameraDescription,
@@ -1667,15 +1670,7 @@ class _CameraPageState extends State<CameraPage>
     }
 
     if (mounted) {
-      CameraLensDirection lensDirection = controller!.description.lensDirection;
-      setState(() {
-        if (lensDirection == CameraLensDirection.front) {
-          mirror = math.pi;
-        } else if (lensDirection == CameraLensDirection.front) {
-          mirror = 0;
-        }
-        // controller!.cameraId == 1 ? mirror = math.pi : 0;
-      });
+      setState(() {});
     }
   }
 
