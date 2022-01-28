@@ -61,12 +61,13 @@ late int _albumIndexVideo;
 late int _takeMedia;
 ScrollController scrollController = ScrollController();
 StateSetter? _stateSetter;
+NativeDeviceOrientation orientation = NativeDeviceOrientation.portraitUp;
 
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _animationElementsController;
   late Animation<double> _animation;
-
+  bool _isInitialValue = true;
   List<CameraDescription> cameras = [];
   List<TakenCameraMedia> mediaPathList = [];
   List<TakenCameraMedia> _listShareMedia = [];
@@ -125,7 +126,7 @@ class _CameraPageState extends State<CameraPage>
 
     _animationElementsController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 250),
     );
     _animation = Tween<double>(begin: 0, end: math.pi / 2)
         .animate(_animationElementsController);
@@ -292,7 +293,7 @@ class _CameraPageState extends State<CameraPage>
                 useSensor: true,
                 builder: (context) {
                   // NativeDeviceOrientation orientation;
-                  final orientation =
+                  orientation =
                       NativeDeviceOrientationReader.orientation(context);
                   int turns = 0;
                   switch (orientation) {
@@ -311,8 +312,8 @@ class _CameraPageState extends State<CameraPage>
                   }
 
                   if (oldOrientation != orientation) {
-                    onRotationChangeHandler(orientation);
                     oldOrientation = orientation;
+                    onRotationChangeHandler(orientation);
                   }
 
                   return Listener(
@@ -441,26 +442,40 @@ class _CameraPageState extends State<CameraPage>
                             ],
                           ),
                         ),
-                        Positioned(
-                          height: 45,
-                          left: turns == 0
-                              ? 50
+                        // Positioned(
+                        //   height: 45,
+                        //   left: turns == 0
+                        //       ? 50
+                        //       : turns == -1
+                        //           ? -27.5
+                        //           : turns == 1
+                        //               ? -38.5
+                        //               : turns == 2
+                        //                   ? 50
+                        //                   : 10,
+                        //   top: turns == 0
+                        //       ? 0
+                        //       : turns == -1
+                        //           ? 80
+                        //           : turns == 1
+                        //               ? 85
+                        //               : turns == 2
+                        //                   ? 10
+                        //                   : 50,
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          // alignment: _isInitialValue
+                          //     ? Alignment(-1.0, -1.0)
+                          //     : Alignment(1.0, 1.0),
+                          alignment: turns == 0
+                              ? Alignment(-0.7, -1)
                               : turns == -1
-                                  ? -27.5
+                                  ? Alignment(-1.17, -.7)
                                   : turns == 1
-                                      ? -38.5
+                                      ? Alignment(-1.25, -.7)
                                       : turns == 2
-                                          ? 50
-                                          : 10,
-                          top: turns == 0
-                              ? 0
-                              : turns == -1
-                                  ? 80
-                                  : turns == 1
-                                      ? 85
-                                      : turns == 2
-                                          ? 10
-                                          : 50,
+                                          ? Alignment(-0.6, -0.965)
+                                          : Alignment(0, 0),
                           child: AnimatedBuilder(
                             animation: _animation,
                             child: AnimatedOpacity(
@@ -1393,6 +1408,7 @@ class _CameraPageState extends State<CameraPage>
         return StatefulBuilder(
           builder: (context, setState) {
             return AnimatedBuilder(
+              key: GlobalKey(),
               animation: _animation,
               child: AlertDialog(
                 shape: RoundedRectangleBorder(
@@ -1424,6 +1440,7 @@ class _CameraPageState extends State<CameraPage>
                             splashColor: Colors.transparent,
                             disabledColor: Colors.white),
                         child: RadioListTile<ResolutionPreset>(
+                          // dense: true,
                           activeColor: Colors.amber[800],
                           title: Text(
                             resolutionPresets[index].name.toUpperCase(),
@@ -1433,14 +1450,11 @@ class _CameraPageState extends State<CameraPage>
                                 fontSize: 12),
                             textAlign: TextAlign.left,
                           ),
-                          // selected:
-                          //     currentResolutionPreset
-                          //             .index ==
-                          //         index,
                           groupValue: currentResolutionPreset,
                           value: resolutionPresets[index],
                           onChanged: (value) {
                             setState(() {
+                              orientation = oldOrientation;
                               _isCameraInitialized = false;
                               currentResolutionPreset = value!;
                             });
@@ -1608,9 +1622,9 @@ class _CameraPageState extends State<CameraPage>
         cameraDescription,
         currentResolutionPreset,
         enableAudio: enableAudio,
-        // imageFormatGroup: Platform.isIOS
-        //     ? ImageFormatGroup.bgra8888
-        //     : ImageFormatGroup.yuv420,
+        imageFormatGroup: Platform.isIOS
+            ? ImageFormatGroup.bgra8888
+            : ImageFormatGroup.yuv420,
       );
     });
 
@@ -1629,7 +1643,7 @@ class _CameraPageState extends State<CameraPage>
       // await Future.delayed(Duration(milliseconds: 200));
       await controller!.initialize();
 
-      const Duration(milliseconds: 500);
+      // const Duration(milliseconds: 500);
       await controller!.lockCaptureOrientation();
       await Future.wait([
         // The exposure mode is currently not supported on the web.
